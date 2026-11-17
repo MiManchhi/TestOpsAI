@@ -53,3 +53,11 @@
 - VERIFIED：新会话规则和代码标准需要根 AGENTS 明确导航，不能只把文档放进 docs；memory Check 现验证规范存在与导航，缺文档/缺导航的反例都被拒绝。此检查不证明未来模型行为。
 - VERIFIED：官方镜像慢速传输超过 300 秒拉取令牌有效期，续传保留已完成分片并刷新令牌；最终逐层压缩与解压 SHA-256 校验后导入，未禁用 TLS 或修改全局代理。临时搬运不作为仓库正式工具。
 - VERIFIED：Windows 传递带空格的 mysql -e SQL 字符串不稳定，改为固定 SQL 经 stdin 传入，应用用户查询返回 1。Docker 原生命令截断输出可能造成管道退出码，不据此误判程序缺失。
+
+## M1.1 容器环境变量遗漏（2026-11-17）
+
+- 缺陷：引入 Flyway + DataSource 后未同步更新 compose.yaml 的 server 环境变量，导致 CI containers job 失败。
+- 根因：本机验证时 .env 已包含 MYSQL_PASSWORD，server 通过 application.yaml 的默认值连上了本机 MySQL；但容器环境中 server 服务的 environment 只写了 SERVER_ADDRESS，MYSQL_* 未传递。本机 `docker compose up` 之所以通过，是因为 compose 会自动将宿主机环境变量注入容器——而 CI 使用 COMPOSE_DISABLE_ENV_FILE=true 且依赖 GITHUB_ENV 注入，行为不同。
+- 解决：compose.yaml server 服务显式声明 MYSQL_HOST/MYSQL_PORT/MYSQL_DATABASE/MYSQL_USER/MYSQL_PASSWORD 并添加 depends_on mysql healthy。
+- 预防规则：凡新增持久化/外部服务依赖，必须同步检查 compose.yaml 环境变量传递、depends_on 顺序、CI workflow 变量注入三条链路；不能仅凭本机 `docker compose up` 通过就认定容器交付完整。
+- 状态：RESOLVED（8d4d27d）。
