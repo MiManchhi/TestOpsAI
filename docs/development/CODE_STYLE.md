@@ -31,7 +31,7 @@
 - HTTP 请求归所属 feature 的 API 模块，异步行为处理 loading、失败与取消/超时；浏览器只访问 Java 业务入口，不持有服务端密钥。
 - 组件使用 PascalCase.vue，composable 使用 useXxx.ts，测试使用 *.test.ts；测试可就近放置，不统一搬到根 tests。
 - 路由、Pinia 和共享组件在实际业务需要时引入，不为预想功能预建目录。交互保留语义标签、表单标签、键盘操作和必要的状态提示。
-- 排版交给根 package.json 的 Prettier 配置；ESLint 管语义和错误，保留零警告。两条与 Prettier 重叠的 Vue 排版规则已明确关闭，不据此关闭其他检查。
+- 排版交给根 package.json 的 Prettier 配置；ESLint 管语义和错误，保留零警告。Web 使用锁定的 eslint-config-prettier/flat 消除与 Prettier 冲突的排版规则，Vue/TypeScript 语义检查继续启用；不以排版兼容为由关闭语义规则。
 
 ## 4. Python / FastAPI
 

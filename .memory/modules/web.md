@@ -1,11 +1,15 @@
 # Vue 模块
 
-更新：2026-11-16。状态：VERIFIED（基础骨架范围）。
+更新：2026-11-17。状态：VERIFIED（WEB-001 本机检查与浏览器范围，分支未提交）。
 
-[app](../../apps/web/src/app/App.vue) 负责组装页面，main.ts 启动，style.css 为全局样式。[health feature](../../apps/web/src/features/health/HealthStatus.vue) 内聚合健康组件、请求和测试，前端只访问 Java 入口。
+[app](../../apps/web/src/app/App.vue) 组装会话状态与页面，main.ts 注册 Vue Router；style.css 管基础视觉与登录页，workspace.css 管工作台。auth feature 内聚合登录页、API、会话及测试；workspace feature 承载导航布局、概览与待开放说明；[health](../../apps/web/src/features/health/HealthStatus.vue) 展示真实 Java 健康检查。
 
-按业务域组织，域内先平铺，真实复用后再提取 shared；不预建路由、Pinia、全局通用 service 等空架子。
+按业务域组织，域内平铺。Vue Router 4.6.3 服务实际导航，认证使用 Vue 响应式模块；没有 Pinia、大型组件库或通用 HTTP 框架。AppIcon 在登录和工作台真实复用，图标与装饰为本任务自制 SVG/CSS。
 
-类型检查、零警告 lint、3 项请求测试、生产构建已通过。ESLint 只关闭与 Prettier 重叠的两条排版规则，语义规则保留。Vite 开发代理默认 Java 8080；TESTOPS_SERVER_URL 可在进程环境中指定其他后端地址，不暴露给浏览器。
+Java 业务入口为 POST /api/v1/auth/login 与 GET /api/v1/users/me。浏览器仅在 sessionStorage 存 accessToken/expiresAt，不存密码/用户缓存；刷新向 Java 验证身份后才展示工作台。401/过期/退出清理会话，403 或临时网络错误隐藏工作台并提供重试；请求取消和版本号防止旧响应恢复退出状态。无刷新令牌与服务端 JWT 撤销能力。
 
-本机 smoke 已验证网页入口及代理；尚无业务 E2E。当前只有欢迎页与连接检查，无登录、知识库、用例页面。依赖审计的一条 minimatch 公告影响 7 个开发工具依赖包，未强制跨主版本升级，详见 CURRENT。
+History 路由：/login、/overview、/knowledge、/test-cases。后两页只显示待开放说明；权限由 Java 判断，路由守卫不代替服务端授权。移动导航支持焦点循环、Escape/遮罩关闭及焦点返回，切至桌面解除背景 inert；支持 prefers-reduced-motion。
+
+ESLint 使用 eslint-config-prettier 10.1.8 消除真实排版冲突，保留 Vue/TS 语义检查与零警告。Vite 默认代理 Java 8080；可用进程变量 TESTOPS_SERVER_URL 指定其他后端，本次浏览器使用既有 Nginx 8088 入口。
+
+基线 101596d 上的未提交 WEB-001：37 项 Vitest、类型/lint/构建、真实 Java 浏览器登录和三尺寸交互、完整 scripts/check.ps1 与本机三端 smoke 均通过；Java 9 项数据库测试跳过，完整结果及历史失败见 [session](../sessions/2026-11-17-11-web-auth-workspace.md)。浏览器脚本和截图仅在忽略的 .runtime；未新增 CI 浏览器 E2E job，未部署新容器或发布分支。既有依赖审计及弃用提示未声称修复。

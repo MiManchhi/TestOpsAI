@@ -29,8 +29,9 @@
 
 ## Web
 
-- 健康检查骨架已实现，业务登录页和管理页面仍 PLANNED，见 [web](modules/web.md)。
-- 开发入口：同级 TestOpsAI-web / codex/web-auth。后续候选为基于 M1.2 契约完成登录闭环；仍须明确任务与验收，没有运行中的前端开发任务。
+- WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；未合入主线。基线 101596d，当前为 codex/web-auth 未提交工作区，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。
+- 已实现 Java M1.2 登录、sessionStorage 标签页会话、刷新验证、过期/401/退出清理、403/网络故障重试、概览与响应式导航。知识库/测试用例仅待开放说明；真实 Java 浏览器联调和本机三端冒烟已通过，前端 37 测试与最终 scripts/check.ps1 退出 0；Java 9 项数据库测试跳过，详见 session，见 [web](modules/web.md)。
+- 开发入口：同级 TestOpsAI-web / codex/web-auth。用户已追加授权提交与正常推送，发布进行中，见 [发布 session](sessions/2026-11-17-12-web-auth-publish.md)；主线合并仍由用户负责。公共文件为本任务依赖锁、API 与排版兼容说明。
 
 <!-- lane:ai -->
 
