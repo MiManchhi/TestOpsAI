@@ -64,3 +64,10 @@
 - M1.1 数据基线：VERIFIED（本机 MySQL 8.4.8 + JDK 21 + Spring Boot 3.5.16）。
 - 结构化错误契约：VERIFIED（requestId 头在 401/健康端点均存在；404 body 统一待 M1.2 自定义 EntryPoint）。
 - BLOCKED：无。推送授权仍需用户单独确认。
+
+## 推送与 CI 修复（2026-11-17）
+
+- 首次提交 96a513f 推送后 CI web job 的 `npm run format:check` 失败，原因：session 文件在提交时未被 Prettier 格式化。
+- 追加提交 4be7a74 `style(memory): apply Prettier formatting to M1.1 session record` 修复格式。
+- 两个提交已推送 origin/main，本地/远端 SHA 一致（4be7a74）。
+- 新 CI 运行待确认；预期全部通过（本地完整门禁已 exit 0）。
