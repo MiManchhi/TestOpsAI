@@ -1,5 +1,8 @@
 package io.testopsai.server.platform.security;
 
+import io.testopsai.server.platform.cache.CacheProperties;
+import io.testopsai.server.platform.ratelimit.RateLimitFilter;
+import io.testopsai.server.platform.ratelimit.RateLimitProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,14 +16,22 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({
+  JwtProperties.class,
+  CacheProperties.class,
+  RateLimitProperties.class
+})
 class SecurityConfiguration {
   private final JwtAuthenticationFilter jwtFilter;
+  private final RateLimitFilter rateLimitFilter;
   private final SecurityExceptionHandler securityExceptionHandler;
 
   SecurityConfiguration(
-      JwtAuthenticationFilter jwtFilter, SecurityExceptionHandler securityExceptionHandler) {
+      JwtAuthenticationFilter jwtFilter,
+      RateLimitFilter rateLimitFilter,
+      SecurityExceptionHandler securityExceptionHandler) {
     this.jwtFilter = jwtFilter;
+    this.rateLimitFilter = rateLimitFilter;
     this.securityExceptionHandler = securityExceptionHandler;
   }
 
@@ -41,6 +52,7 @@ class SecurityConfiguration {
                 errors
                     .authenticationEntryPoint(securityExceptionHandler)
                     .accessDeniedHandler(securityExceptionHandler))
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .csrf(csrf -> csrf.disable())
         .build();

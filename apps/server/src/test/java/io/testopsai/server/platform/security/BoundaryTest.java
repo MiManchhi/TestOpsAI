@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import io.testopsai.server.modules.identity.UserRepository;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseRepository;
 import io.testopsai.server.modules.testcase.TestCaseRepository;
+import io.testopsai.server.platform.cache.RedisCacheService;
+import io.testopsai.server.platform.ratelimit.RateLimiter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(
     properties = {
       "spring.flyway.enabled=false",
-      "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+      "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration",
       "testopsai.jwt.secret=test-secret-key-at-least-32-bytes-long!!"
     })
 @AutoConfigureMockMvc
@@ -26,6 +28,8 @@ class BoundaryTest {
   @MockBean UserRepository userRepository;
   @MockBean KnowledgeBaseRepository knowledgeBaseRepository;
   @MockBean TestCaseRepository testCaseRepository;
+  @MockBean RedisCacheService redisCacheService;
+  @MockBean RateLimiter rateLimiter;
 
   @Test
   void healthIsPublicWithoutInternalDetails() throws Exception {
