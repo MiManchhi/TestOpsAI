@@ -1,6 +1,8 @@
 package io.testopsai.server.modules.knowledge;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.testopsai.server.modules.identity.AppUser;
+import io.testopsai.server.platform.cache.RedisCacheService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,13 +10,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 class KnowledgeBaseService {
   private final KnowledgeBaseRepository repository;
+  private final RedisCacheService cache;
 
-  KnowledgeBaseService(KnowledgeBaseRepository repository) {
+  KnowledgeBaseService(KnowledgeBaseRepository repository, RedisCacheService cache) {
     this.repository = repository;
+    this.cache = cache;
   }
 
   PageResponse<KnowledgeBaseResponse> list(int page, int size) {
-    return repository.findAll(page, size);
+    String cacheKey = "kb:list:" + page + ":" + size;
+    PageResponse<KnowledgeBaseResponse> cached =
+        cache.get(cacheKey, new TypeReference<PageResponse<KnowledgeBaseResponse>>() {}.getType());
+    if (cached != null) return cached;
+    PageResponse<KnowledgeBaseResponse> result = repository.findAll(page, size);
+    cache.set(cacheKey, result);
+    return result;
   }
 
   KnowledgeBase getById(Long id) {
@@ -38,6 +48,7 @@ class KnowledgeBaseService {
             null,
             null);
     repository.insert(kb);
+    evictListCache();
     // Re-fetch to get generated id and timestamps
     return repository
         .findById(
@@ -67,6 +78,7 @@ class KnowledgeBaseService {
         new KnowledgeBase(
             kb.id(), name, description, kb.ownerId(), visibility, status, kb.createdAt(), null);
     repository.update(updated);
+    evictListCache();
     return getById(id);
   }
 
@@ -85,6 +97,7 @@ class KnowledgeBaseService {
             kb.createdAt(),
             null);
     repository.update(archived);
+    evictListCache();
   }
 
   void checkReadAccess(KnowledgeBase kb, AppUser currentUser) {
@@ -102,6 +115,10 @@ class KnowledgeBaseService {
     if ("SHARED".equals(kb.visibility())
         && repository.hasMembership(kb.id(), currentUser.id(), "WRITE")) return;
     throw new AccessDeniedException("No write access to knowledge base " + kb.id());
+  }
+
+  private void evictListCache() {
+    cache.evict("kb:list:*");
   }
 
   private String normalizeVisibility(String visibility) {

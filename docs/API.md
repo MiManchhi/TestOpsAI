@@ -101,6 +101,26 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 | VALIDATION_ERROR  | 400  | 请求体校验失败或排序字段非法 |
 | FORBIDDEN         | 403  | 数据级权限检查未通过         |
 
+### M1.4 已实现：登录限流与知识库缓存
+
+**登录限流：**
+
+- `POST /api/v1/auth/login` 受滑动窗口限流保护：60 秒内同一 IP 最多 10 次。
+- 超限返回 429 `{code: "RATE_LIMITED", message, requestId}` + `Retry-After` 响应头。
+- Redis 不可用时降级放行，记录 WARN 日志。
+
+**知识库列表缓存：**
+
+- `GET /api/v1/knowledge-bases` 结果缓存 60 秒（Redis）。
+- 创建/更新/归档操作自动失效缓存。
+- Redis 不可用时透明降级为直接查库。
+
+**错误码扩展：**
+
+| code         | HTTP | 场景                 |
+| ------------ | ---- | -------------------- |
+| RATE_LIMITED | 429  | 登录接口超过频率限制 |
+
 ## M1–M4 契约草案
 
 外部 REST 前缀 `/api/v1`；Java 为唯一业务入口。结构化错误含 `code/message/requestId`，鉴权失败 401、资源无权 403，分页排序字段白名单，写入按接口规定支持幂等键。具体 schema 与错误码待 M1 实现时冻结并导出 OpenAPI。
