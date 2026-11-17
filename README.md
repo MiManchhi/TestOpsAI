@@ -2,7 +2,31 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-当前为 **M0 工程骨架**：三端本机检查、构建与健康链路、本机六服务容器部署及恢复验收、Ubuntu CI 五项检查（含容器构建/集成验收/隔离清理）均通过，证据见 [当前工程记忆](.memory/CURRENT.md)。登录、知识库、RAG、Agent 均尚未实现。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+当前已有 **M1.2 后端身份认证**：数据库迁移、JWT 登录与当前用户接口已实现；Web 目前为健康检查页面，登录页面、知识库、RAG、Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+
+## 本地一键启动（推荐）
+
+安装并启动 Docker Desktop，选择 Linux 容器引擎。在仓库根目录的 PowerShell 执行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1
+```
+
+首次自动生成随机凭据到本机 `.env`，构建并启动 MySQL、Redis、Qdrant、Java、AI、Web 六个服务，等待就绪并运行冒烟检查。已有 `.env` 保留；此方式无需在宿主机安装 Java、Node、Python 或运行 setup。首次构建需要联网下载镜像与依赖，可能耗时数分钟。
+
+成功后打开 [本地系统](http://127.0.0.1:8088)。目前看到的是欢迎与健康检查页。
+
+```powershell
+# 查看状态 / 持续查看日志（Ctrl+C 退出日志，服务继续运行）
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 status
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 logs
+# 停止全部服务，保留容器和数据卷
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 stop
+# 已构建过且代码未修改时，快速恢复
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 start -SkipBuild
+```
+
+代码修改后执行默认启动命令重新构建。需空闲端口：8088、3306、6379、6333；脚本不会停止占用端口的其他程序。若 `.env` 缺项或与现有数据库凭据不符，恢复原配置后重试，不删卷重置。策略参数仅作用于本次 PowerShell 进程。详细排查见 [容器指南](docs/development/CONTAINERS.md)。
 
 ## 目录与职责
 
@@ -43,7 +67,7 @@ Windows PowerShell 在仓库根目录运行：
 ./scripts/dev.ps1 web
 ```
 
-Web 为 `http://127.0.0.1:5173`；Java 健康端点为 `http://127.0.0.1:8080/actuator/health`；AI 本地健康端点为 `http://127.0.0.1:8000/health/ready`。M0 无存储连接，应用可独立启动。M1 引入数据库后，先 `./scripts/dev.ps1 infra`。
+Web 为 `http://127.0.0.1:5173`；Java 健康端点为 `http://127.0.0.1:8080/actuator/health`；AI 本地健康端点为 `http://127.0.0.1:8000/health/ready`。Java 需要 MySQL 与 JWT 配置；先 `./scripts/dev.ps1 infra`，并在 Java 终端设置与 `.env` 一致的 `MYSQL_*` 和 `JWT_SECRET` 环境变量（dev server 不会自动加载 `.env`）。整套运行优先使用上面的一键容器入口。
 
 `./scripts/dev.ps1 infra` 现会启动并等待三项基础服务 healthy，再验证 MySQL 应用用户查询、Redis 鉴权与 Qdrant 就绪；可单独用 `./scripts/smoke.ps1 -InfraOnly` 复检。服务只绑定本机回环端口，真实密码由忽略的 .env 提供，不写入文档或记忆。
 
@@ -51,7 +75,7 @@ Web 为 `http://127.0.0.1:5173`；Java 健康端点为 `http://127.0.0.1:8080/ac
 
 ## 容器启动
 
-启动 Docker Desktop，确认 `docker info` 正常。在完成 setup 后：
+启动 Docker Desktop，确认 `docker info` 正常。原有命令仍可用，与一键入口相同，无需先运行 setup：
 
 ```powershell
 ./scripts/dev.ps1 all

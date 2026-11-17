@@ -1,16 +1,27 @@
-# M0 容器运行与验收
+# 本地容器运行与验收
 
-更新：2026-11-17。状态：VERIFIED（本机六服务部署、恢复验收与 Ubuntu 容器 CI 均通过，见 [CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) 和 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；当前是健康检查骨架，不包含登录、数据库业务或 AI 问答。
+更新：2026-11-17。状态：VERIFIED（默认构建启动与复用镜像启动通过，验证范围见 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；Java 已实现 M1.2 数据库迁移和身份认证，Web/AI 仍以健康检查为主。历史六服务恢复与 CI 证据见 [容器 session](../../.memory/sessions/2026-11-17-05-container-delivery.md)。
 
 ## 启动与停止
 
-仓库根目录操作。本机先按 README 完成工具和 setup；setup 生成随机 `.env`，已有文件不会覆盖。保留原有 MySQL/Redis/Qdrant 数据卷及凭据。
+仓库根目录操作。只需启动 Docker Desktop 的 Linux 引擎，无需本机 SDK 或 setup。脚本自动生成随机 `.env`，已有文件不会覆盖。保留原有 MySQL/Redis/Qdrant 数据卷及凭据。
 
 ```powershell
-./scripts/dev.ps1 all
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1
 ```
 
 此命令依次构建三个应用镜像、启动六个服务、等待 healthy（上限 240 秒），再执行完整冒烟。构建时间不计入健康等待上限；首次拉取官方镜像和依赖可能较慢。
+
+`scripts/dev.ps1 all` 转调同一入口。常用操作如下（脚本可从其他目录通过绝对路径调用，总是使用本仓库 Compose）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 status
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 logs
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 stop
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 start -SkipBuild
+```
+
+`stop` 保留容器和数据卷；`logs` 按 Ctrl+C 退出跟随，服务继续运行。`-SkipBuild` 仅供已有镜像且代码未修改时使用，缺少镜像会明确失败。失败保留当前容器便于排查，不自动回滚或清理数据。端口需空闲：8088、3306、6379、6333。
 
 可分步定位故障：
 
@@ -51,7 +62,7 @@ docker compose up --no-build -d --wait --wait-timeout 240
 
 容器集成测试会短暂停止本项目服务，恢复时不构建镜像、不删除卷。不要在依赖这些服务的其他开发任务进行时运行。完整工程门禁不会自动启停 Docker；容器集成测试是独立的交付门禁。
 
-M0 的 Java/AI 健康端点只验证应用进程；Java 尚未连接 MySQL、Redis 或 AI，不能把六服务 healthy 解释为业务调用链或存储事务通过。本阶段不引入浏览器 E2E 框架。
+Java 现已连接 MySQL 并执行 Flyway 迁移；上述冒烟仍只覆盖列出的健康、代理与鉴权边界，不代表登录闭环、存储事务或 AI 业务链通过。Web 登录页面尚未实现，本阶段不引入浏览器 E2E 框架。
 
 集成测试也会验证 Java/AI 非 root、AI 最终镜像没有 uv 和 pytest/mypy/Ruff，且没有源码工作区或 `.env`。
 

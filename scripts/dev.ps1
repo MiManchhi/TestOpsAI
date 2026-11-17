@@ -11,9 +11,7 @@ try {
             Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/smoke.ps1", '-InfraOnly')
         }
         all {
-            Invoke-Checked docker @('compose', 'build', 'server', 'web', 'ai-service')
-            Invoke-Checked docker @('compose', 'up', '--no-build', '-d', '--wait', '--wait-timeout', '240')
-            Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/smoke.ps1")
+            & "$PSScriptRoot/local.ps1" start
         }
     }
 } finally { Pop-Location }
