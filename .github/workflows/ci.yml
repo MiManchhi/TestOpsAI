@@ -74,6 +74,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: ci-validation-only
           REDIS_PASSWORD: ci-validation-only
           QDRANT_API_KEY: ci-validation-only
+          JWT_SECRET: ci-validation-only-at-least-32-bytes-long!!
   containers:
     needs: [web, server, ai, compose]
     runs-on: ubuntu-latest
