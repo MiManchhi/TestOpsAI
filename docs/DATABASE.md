@@ -1,13 +1,15 @@
 # 数据设计草图
 
-更新：2026-11-17。状态：IMPLEMENTED（M1.1 身份基线迁移已落地；其余域仍为草案）。
+更新：2026-11-17。状态：IMPLEMENTED（M1.1 身份基线 + M1.2 种子角色/管理员迁移已落地；其余域仍为草案）。
 
 ## M1.1 已实现：身份基线
 
 - 迁移脚本：`apps/server/src/main/resources/db/migration/V1__identity_baseline.sql`
 - 主键：BIGINT 自增；时间：DATETIME(6) UTC；字符集：utf8mb4_unicode_ci。
 - 仅包含 `users`、`roles`、`user_roles` 三表及必要唯一/外键约束；无软删除、版本号、业务字段。
-- 集成测试覆盖表存在、唯一约束、外键约束；证据见 [.memory/sessions/2026-11-17-06-m1-1-data-baseline.md](../.memory/sessions/2026-11-17-06-m1-1-data-baseline.md)。
+- V2 迁移：种子角色 ADMIN/USER + 演示管理员 admin（bcrypt 哈希）。
+- V3 迁移：修正 admin 密码哈希为 admin123 的有效 bcrypt 值。
+- 集成测试覆盖表存在、唯一约束、外键约束、登录成功/失败、token 有效/无效、401/403 结构化 body；证据见 [.memory/sessions/2026-11-17-06-m1-1-data-baseline.md](../.memory/sessions/2026-11-17-06-m1-1-data-baseline.md)。
 
 | 表         | 关键字段与约束                                                                                                               | 备注                         |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |

@@ -75,6 +75,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-testops}
       MYSQL_USER: ${MYSQL_USER:-testops}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run scripts/setup.ps1 first}
+      JWT_SECRET: ${JWT_SECRET:?Run scripts/setup.ps1 first}
     depends_on:
       mysql:
         condition: service_healthy

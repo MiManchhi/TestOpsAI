@@ -1,8 +1,10 @@
 # 当前交接
 
-更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M1.1 身份数据基线与错误契约已 VERIFIED；待提交）。
+更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M1.1 + M1.2 身份数据基线、JWT 认证与角色码授权已 VERIFIED；待提交推送）。
 
 ## 当前任务
+
+M1.2 身份与授权已完成实施与本机验证：JWT 签发/验证、POST /api/v1/auth/login、GET /api/v1/users/me、统一 401/403 body、RBAC 角色码检查、V2-V4 迁移（种子角色+演示管理员）、compose.yaml JWT_SECRET 同步。完整门禁 scripts/check.ps1 通过；Node.js HTTP 经 nginx 代理验证登录/token/用户信息/无 token 401 均正确。详见 [session](sessions/2026-11-17-07-m1-2-auth.md)。
 
 M1.1 身份数据基线已完成实施与本机验证：users/roles/user_roles 迁移、结构化错误 {code,message,requestId}、X-Request-Id 头、集成测试覆盖约束与请求追踪。完整门禁 scripts/check.ps1 通过；IdentitySchemaIntegrationTest 在无 MYSQL_PASSWORD 环境下按预期跳过。详见 [session](sessions/2026-11-17-06-m1-1-data-baseline.md)。
 

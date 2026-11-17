@@ -25,6 +25,10 @@ server:
   error:
     include-message: never
     include-stacktrace: never
+testopsai:
+  jwt:
+    secret: ${JWT_SECRET:?Set JWT_SECRET environment variable}
+    expiration-minutes: 30
 management:
   endpoints:
     web:

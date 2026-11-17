@@ -86,7 +86,7 @@ jobs:
       - name: Generate isolated temporary credentials
         shell: pwsh
         run: |
-          foreach ($key in @('MYSQL_PASSWORD', 'MYSQL_ROOT_PASSWORD', 'REDIS_PASSWORD', 'QDRANT_API_KEY')) {
+          foreach ($key in @('MYSQL_PASSWORD', 'MYSQL_ROOT_PASSWORD', 'REDIS_PASSWORD', 'QDRANT_API_KEY', 'JWT_SECRET')) {
             $secret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
             Write-Output "::add-mask::$secret"
             "$key=$secret" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8

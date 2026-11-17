@@ -5,7 +5,7 @@ try {
     Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/doctor.ps1")
     if (-not (Test-Path '.env')) {
         $config = Get-Content '.env.example' -Raw
-        foreach ($key in @('MYSQL_PASSWORD', 'MYSQL_ROOT_PASSWORD', 'REDIS_PASSWORD', 'QDRANT_API_KEY')) {
+        foreach ($key in @('MYSQL_PASSWORD', 'MYSQL_ROOT_PASSWORD', 'REDIS_PASSWORD', 'QDRANT_API_KEY', 'JWT_SECRET')) {
             $bytes = New-Object byte[] 32
             $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
             try { $rng.GetBytes($bytes) } finally { $rng.Dispose() }

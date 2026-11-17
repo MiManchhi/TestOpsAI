@@ -6,20 +6,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.testopsai.server.modules.identity.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(
     properties = {
       "spring.flyway.enabled=false",
-      "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
+      "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+      "testopsai.jwt.secret=test-secret-key-at-least-32-bytes-long!!"
     })
 @AutoConfigureMockMvc
 class ErrorContractTest {
   @Autowired MockMvc mvc;
+  @MockBean UserRepository userRepository;
 
   @Test
   void healthEndpointRemainsPublicAndUnaffectedByErrorContract() throws Exception {
@@ -29,17 +33,19 @@ class ErrorContractTest {
   }
 
   @Test
-  void unknownPathReturns401WithRequestIdHeaderUnderCurrentSecurityPolicy() throws Exception {
-    // Current M1.1 security denies all non-health paths; 404 body unification is deferred to M1.2.
+  void unknownPathReturnsStructured401WithRequestId() throws Exception {
     mvc.perform(get("/non-existent-path-for-test"))
         .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+        .andExpect(jsonPath("$.requestId").exists())
         .andExpect(header().string("X-Request-Id", matchesPattern("[0-9a-f\\-]{36}")));
   }
 
   @Test
-  void unauthorizedBusinessPathReturns401WithRequestIdHeader() throws Exception {
+  void unauthorizedBusinessPathReturnsStructured401() throws Exception {
     mvc.perform(get("/api/v1/users/me"))
         .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
         .andExpect(header().string("X-Request-Id", matchesPattern("[0-9a-f\\-]{36}")));
   }
 }
