@@ -1,5 +1,13 @@
 # 验证与能力证据
 
+## E12：首次 GitHub 工程发布（2026-11-17）
+
+状态：VERIFIED（仓库发布范围，不代表应用部署）。工程提交 977591db002312988ed7cd614002792021e67f5a 正常推送 origin/main，git ls-remote SHA 与本地一致；保留原始 MIT LICENSE 初始历史，不强推。
+
+完整 scripts/check.ps1 退出 0；102 份候选文件约 386 KiB 已筛查真实本机凭据匹配、私钥/Token、产物与异常体积。暂存 git diff --check 通过；原始方案的双空格硬换行按该文件专属属性保留。工具与本机配置均未上传。记忆收尾使用独立 docs 提交同步，最终 tip 以 Git refs 为准。
+
+远程：[MiManchhi/TestOpsAI](https://github.com/MiManchhi/TestOpsAI)。详情：[session](sessions/2026-11-17-02-first-remote-push.md)。远端 CI 未宣称成功，未开始业务开发。
+
 ## E11：正式开发规范与会话入口（2026-11-17）
 
 状态：VERIFIED（规范与本机检查范围）；基础设施运行验证亦已完成；不推定完整应用容器部署成功。

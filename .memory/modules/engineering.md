@@ -2,7 +2,7 @@
 
 更新：2026-11-16。状态：VERIFIED（本机基础工程范围）。
 
-目录约定见 [指南](../../docs/development/DIRECTORY_LAYOUT.md) 和 [ADR-0002](../../docs/ADR/0002-feature-layout.md)。根源码文件 13 个，Prettier 设置并入 package.json。三个应用保持顶层位置，内部按真实业务职责组织，域内先平铺，不创建无实现的 modules/shared 等目录。
+目录约定见 [指南](../../docs/development/DIRECTORY_LAYOUT.md) 和 [ADR-0002](../../docs/ADR/0002-feature-layout.md)。根源码文件 14 个（含远程原有 LICENSE），Prettier 设置并入 package.json。三个应用保持顶层位置，内部按真实业务职责组织，域内先平铺，不创建无实现的 modules/shared 等目录。
 
 [结构检查](../../scripts/check-layout.ps1) 覆盖根白名单、必需入口、应用配置与源码入口；[9 项回归](../../tests/engineering/check-layout.tests.ps1) 已通过。新增目录须有实际职责，工具自动生成的缓存不应成为放宽白名单的理由。
 
@@ -14,7 +14,7 @@ setup 已成功安装 npm/Python 锁定依赖并编译 Java 测试。Wrapper 已
 
 [本机 smoke](../../scripts/smoke-local.ps1) 使用标准 Python 子进程、动态空闲端口验证三端和代理，并只停止自己启动的进程。默认开发端口若被其他程序占用，请改配置；不能终止用户其他程序。本机 8080 已被其他进程占用，smoke 不依赖该端口。
 
-Git main 无提交、无 remote。仅本机 .env 含随机凭据且被忽略；Compose 配置解析成功。容器部署、远端 CI、业务功能均不在本轮成功范围。
+Git main 跟踪 origin/main，远程 git@github.com:MiManchhi/TestOpsAI.git；首次工程提交 977591d 已推送并核对远程 SHA，MIT 原文和初始历史保留。仅本机 .env 含随机凭据且被忽略；Compose 配置解析成功。容器部署、远端 CI、业务功能均不在本轮成功范围。
 
 最终完整 scripts/check.ps1 退出 0，Java clean verify 与本机三端 smoke 通过；容器/远端 CI 未执行。目录约束并非安全审计门禁，npm 开发依赖审计遗留另见 CURRENT。
 
