@@ -1,10 +1,12 @@
 # 当前交接
 
-更新：2026-11-17（Asia/Shanghai）。状态：VERIFIED（M0 本机容器交付与 Ubuntu 容器 CI 通过；M1 待明确指令）。
+更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M1.1 身份数据基线与错误契约已 VERIFIED；待提交）。
 
 ## 当前任务
 
-本次任务已完成：用户明确授权后，容器交付提交 173fe32 正常推送 origin/main 并核对 SHA 一致；[CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) completed/success，server/web/ai/compose/containers 五个 job 均成功。容器日志确认重复启动、保留卷停启、停止 AI 负例及恢复通过，最后仅清理 testops-ci-44026578462-1 的六容器、网络及三个临时卷。BLOCKED：无本次任务遗留阻塞；收尾文档随独立 docs 提交同步，最新 tip 以 Git refs 为准。
+M1.1 身份数据基线已完成实施与本机验证：users/roles/user_roles 迁移、结构化错误 {code,message,requestId}、X-Request-Id 头、集成测试覆盖约束与请求追踪。完整门禁 scripts/check.ps1 通过；IdentitySchemaIntegrationTest 在无 MYSQL_PASSWORD 环境下按预期跳过。详见 [session](sessions/2026-11-17-06-m1-1-data-baseline.md)。
+
+此前任务已完成：用户明确授权后，容器交付提交 173fe32 正常推送 origin/main 并核对 SHA 一致；[CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) completed/success，server/web/ai/compose/containers 五个 job 均成功。容器日志确认重复启动、保留卷停启、停止 AI 负例及恢复通过，最后仅清理 testops-ci-44026578462-1 的六容器、网络及三个临时卷。BLOCKED：无本次任务遗留阻塞；收尾文档随独立 docs 提交同步，最新 tip 以 Git refs 为准。
 
 本机六服务已 DEPLOYED（Docker Desktop Linux x86_64，2026-11-17），入口 http://127.0.0.1:8088。完整/基础冒烟、非 root/AI 精简镜像、重复启动、保留卷停启、停止 AI 的退出码 1 负例、完整工程门禁及用户入口 scripts/dev.ps1 all 均通过；本机三个数据卷保留，最终六服务 healthy。过程见 [容器会话](sessions/2026-11-17-05-container-delivery.md)。保持 M0，不自动开始 M1，不修改业务。
 

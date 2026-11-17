@@ -1,10 +1,24 @@
 # 数据设计草图
 
-M0 没有业务表和迁移脚本，也不自动创建演示管理员。M1 引入 MySQL 驱动、MyBatis-Plus、Flyway，并执行真实 MySQL 集成测试。
+更新：2026-11-17。状态：IMPLEMENTED（M1.1 身份基线迁移已落地；其余域仍为草案）。
+
+## M1.1 已实现：身份基线
+
+- 迁移脚本：`apps/server/src/main/resources/db/migration/V1__identity_baseline.sql`
+- 主键：BIGINT 自增；时间：DATETIME(6) UTC；字符集：utf8mb4_unicode_ci。
+- 仅包含 `users`、`roles`、`user_roles` 三表及必要唯一/外键约束；无软删除、版本号、业务字段。
+- 集成测试覆盖表存在、唯一约束、外键约束；证据见 [.memory/sessions/2026-11-17-06-m1-1-data-baseline.md](../.memory/sessions/2026-11-17-06-m1-1-data-baseline.md)。
+
+| 表         | 关键字段与约束                                                                                                               | 备注                         |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| users      | id BIGINT PK AUTO_INCREMENT, username VARCHAR(64) UNIQUE NOT NULL, password_hash NOT NULL, created_at/updated_at DATETIME(6) | M1.2 认证使用；密码仅存哈希  |
+| roles      | id BIGINT PK AUTO_INCREMENT, role_code VARCHAR(64) UNIQUE NOT NULL, description, created_at/updated_at DATETIME(6)           | 角色码稳定标识，描述可选     |
+| user_roles | user_id BIGINT FK→users, role_id BIGINT FK→roles, created_at DATETIME(6), PK(user_id, role_id)                               | 级联删除；同一用户角色不重复 |
+
+## 后续草案（未实现）
 
 | 数据域   | 实体与关系                                   | 初步约束/索引                                    |
 | -------- | -------------------------------------------- | ------------------------------------------------ |
-| 身份     | users、roles、user_roles                     | username/role_code 唯一；用户角色联合唯一        |
 | 知识     | knowledge_bases → documents → ingestion_jobs | owner_id、kb_id/status；checksum 与对象键可追踪  |
 | 用例     | test_cases；后续 test_runs/test_results      | project_key/module/status 组合查询需解释执行计划 |
 | 对话     | conversations → messages、agent_tool_calls   | user_id/created_at，conversation_id/时间索引     |
