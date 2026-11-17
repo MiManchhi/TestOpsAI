@@ -34,9 +34,9 @@
 
 ## Web
 
-- WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；未合入主线。Web 实现提交 ad87e97 已推送 origin/codex/web-auth，当前 main 合并候选本机验证通过，待发布，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。
+- WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；已合入主线 4cc2d1c 并正常推送。Web 实现提交 ad87e97 已推送 origin/codex/web-auth，当前 main 合并候选本机验证通过，待发布，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。
 - 已实现 Java M1.2 登录、sessionStorage 标签页会话、刷新验证、过期/401/退出清理、403/网络故障重试、概览与响应式导航。知识库/测试用例仅待开放说明；真实 Java 浏览器联调和本机三端冒烟已通过，前端 37 测试与最终 scripts/check.ps1 退出 0；Java 9 项数据库测试跳过，详见 session，见 [web](modules/web.md)。
-- 开发入口：同级 TestOpsAI-web / codex/web-auth。用户已追加授权提交、推送并先拉取最新主线后合并，Web 分支已发布，main 集成本机验证通过，待发布，见 [发布 session](sessions/2026-11-17-12-web-auth-publish.md)；本次主线合并按明确授权执行。公共文件为本任务依赖锁、API 与排版兼容说明。
+- 开发入口：同级 TestOpsAI-web / codex/web-auth。用户已追加授权提交、推送并先拉取最新主线后合并，Web 分支已发布，main 4cc2d1c 已合并并推送，见 [发布 session](sessions/2026-11-17-12-web-auth-publish.md)；本次主线合并按明确授权执行。公共文件为本任务依赖锁、API 与排版兼容说明。
 
 <!-- lane:ai -->
 

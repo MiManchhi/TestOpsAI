@@ -2,7 +2,7 @@
 
 更新：2026-11-17。状态：IMPLEMENTED。
 
-项目：TestOps AI，Java 管业务与授权，Vue 管交互，Python 管 AI。当前已集成 M1.3 后端、Docker 启动器，Web 登录工作台已通过主线本机集成验证，待发布；协作入口与三个隔离工作区已就绪，具体任务和证据边界以 [CURRENT](CURRENT.md) 为准。
+项目：TestOps AI，Java 管业务与授权，Vue 管交互，Python 管 AI。当前已集成 M1.3 后端、Docker 启动器，Web 登录工作台已合入主线并发布；协作入口与三个隔离工作区已就绪，具体任务和证据边界以 [CURRENT](CURRENT.md) 为准。
 
 恢复顺序：[AGENTS](../AGENTS.md) → [CURRENT](CURRENT.md) → 开发规范和[协作指南](../docs/development/AI_COLLABORATION.md) → 所属模块与相关 session → 核对 Git、代码与证据。辅助命令：`scripts/memory.ps1 -Mode Restore`；检查：`scripts/memory.ps1 -Mode Check`。记忆不代替当前证据，不自动同步其他 worktree。
 

@@ -1,6 +1,6 @@
 # Vue 模块
 
-更新：2026-11-17。状态：VERIFIED（WEB-001 本机检查与浏览器范围，Web ad87e97 已发布，main 集成本机验证通过，待发布）。
+更新：2026-11-17。状态：VERIFIED（WEB-001 本机检查与浏览器范围，Web ad87e97 已发布，main 4cc2d1c 已合并并推送）。
 
 [app](../../apps/web/src/app/App.vue) 组装会话状态与页面，main.ts 注册 Vue Router；style.css 管基础视觉与登录页，workspace.css 管工作台。auth feature 内聚合登录页、API、会话及测试；workspace feature 承载导航布局、概览与待开放说明；[health](../../apps/web/src/features/health/HealthStatus.vue) 展示真实 Java 健康检查。
 

@@ -1,6 +1,6 @@
 # WEB-001 提交与远端发布
 
-更新：2026-11-17。状态：IN_PROGRESS。
+更新：2026-11-17。状态：VERIFIED（Web 分支发布、主线集成与推送）。
 
 <!-- handoff:v1 -->
 
@@ -8,7 +8,7 @@ Task: WEB-001-PUBLISH
 Role: integration
 Baseline: 101596d03adb8145e24aafd5a6f96632401720e3
 Contract: docs/API.md 与 docs/development/AI_COLLABORATION.md
-Scope: 用户明确授权提交本工作区 Web 登录与工作台成果并正常推送 origin/codex/web-auth，包含必要规范、锁文件及记忆；不强推、不同步或合并主线。
+Scope: 用户明确授权提交推送 Web 成果，追加授权先拉取最新代码、文档、记忆与规范后合并并正常推送 main；同步当前 Web 分支，不强推或覆盖未提交工作。
 
 追加授权：用户随后明确要求先拉取最新代码、文档、记忆与规范，再合并至 main。本任务范围据此扩展为安全集成、验证与正常推送 main；先保全 Web 检查点，主线工作区需保持干净，不强推或覆盖未提交工作。
 
@@ -38,9 +38,9 @@ Scope: 用户明确授权提交本工作区 Web 登录与工作台成果并正�
 
 <!-- next -->
 
-- IN_PROGRESS；已获本次提交/推送授权，Web 检查点 ad87e97945730d8836d3015068e71583b96a1763 已正常推送；main 合并候选本机完整门禁通过，待提交与推送。
+- VERIFIED；Web 检查点 ad87e97945730d8836d3015068e71583b96a1763 已正常推送；main 合并提交 4cc2d1c 已正常推送，本地/远端 SHA 核对一致。
 - BLOCKED：无已确认阻塞；SSH 访问已恢复，未更改 SSH 配置。
-- 下一步：提交并推送 Web 检查点，按追加授权在最新 main 上合并、验证并同步正式文档与记忆，正常推送 main。
+- 下一步：从最新 main 或本次同步后的 Web 工作区恢复；新业务需另行明确范围。其他 Java/AI worktree 未自动同步，本轮不部署容器或宣称远端 CI 成功。
 - [CURRENT](../CURRENT.md)、[Web](../modules/web.md)。
 
 ## 主线集成
@@ -48,3 +48,9 @@ Scope: 用户明确授权提交本工作区 Web 登录与工作台成果并正�
 - 追加授权后，main 工作区初始干净；先执行 git pull --ff-only origin main，确认最新 15e98f8，再 git merge --no-ff --no-commit codex/web-auth。自动合并 CURRENT/API 成功，无文本冲突。
 - 已核对合并保留最新 Java M1.3、Docker 启动器、相关 session、规范与契约；更新 README、路线图、容器指南、INDEX 和 Web/集成事实，明确后端 CRUD 已实现但前端业务页待开放。
 - 集成完整 scripts/check.ps1 退出 0：格式/目录/28 份记忆/工程反例/14 份脚本解析、Web 类型/零警告 lint/37 测试/构建、Java verify/Spotless（33 项中 28 项 DB 测试跳过）、Python lock/Ruff/mypy/双平台脚本检查/1 测试/构建通过。先前 Web 37 测试、完整门禁、真实 Java 浏览器与 smoke 仍只覆盖各自原基线；不把现有容器当作 M1.3 + 新 Web 已部署证据。
+
+## 发布结果
+
+- git commit 创建保留 main 15e98f8 与 Web ad87e97 两侧历史的合并提交 4cc2d1c；正常 git push origin main 退出 0。git ls-remote 确认完整 SHA 为 4cc2d1c4f614dcb0c4852bb988e0385f7fe41ca1，与本地一致；没有强推。
+- 本轮收尾仅更新发布事实，格式、memory Check 与 diff 检查后随独立 docs 提交推送；当前干净 Web 分支随后按授权快进至最新主线并正常推送。最终 tip 与干净状态以 Git refs 为准，不循环把文档自身 SHA 写入自身。
+- 完整集成门禁已通过；Java 数据库集成测试 28 项跳过。未重新部署 M1.3 或新 Web，未核实新远端 CI，不外推历史容器和浏览器证据。
