@@ -53,10 +53,10 @@
 
 ### 真实验证命令与结果
 
-| 命令                              | 退出码 | 证据范围                                                                 |
-| --------------------------------- | ------ | ------------------------------------------------------------------------ |
-| ./scripts/maven.ps1 spotless:apply | 0      | Java 格式统一                                                          |
-| mvn verify（含 MYSQL_PASSWORD）    | 0      | 9 tests, 0 failures；Flyway 迁移成功；约束测试通过                     |
+| 命令                               | 退出码 | 证据范围                                                                                                           |
+| ---------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| ./scripts/maven.ps1 spotless:apply | 0      | Java 格式统一                                                                                                      |
+| mvn verify（含 MYSQL_PASSWORD）    | 0      | 9 tests, 0 failures；Flyway 迁移成功；约束测试通过                                                                 |
 | scripts/check.ps1                  | 0      | 目录/记忆/Prettier/Vue/Java/Python/PS 全部门禁通过；IdentitySchemaIntegrationTest 因无 MYSQL_PASSWORD 跳过（预期） |
 
 ### 状态
@@ -64,4 +64,3 @@
 - M1.1 数据基线：VERIFIED（本机 MySQL 8.4.8 + JDK 21 + Spring Boot 3.5.16）。
 - 结构化错误契约：VERIFIED（requestId 头在 401/健康端点均存在；404 body 统一待 M1.2 自定义 EntryPoint）。
 - BLOCKED：无。推送授权仍需用户单独确认。
-
