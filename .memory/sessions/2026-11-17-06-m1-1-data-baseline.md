@@ -71,3 +71,14 @@
 - 追加提交 4be7a74 `style(memory): apply Prettier formatting to M1.1 session record` 修复格式。
 - 两个提交已推送 origin/main，本地/远端 SHA 一致（4be7a74）。
 - 新 CI 运行待确认；预期全部通过（本地完整门禁已 exit 0）。
+
+## CI containers 失败修复（2026-11-17）
+
+- 根因：M1.1 引入 Flyway + DataSource 后，compose.yaml 的 server 服务未传递 MYSQL_* 环境变量，
+  导致 Spring Boot 启动时 Flyway 连接 MySQL 失败 → server exited(1)。
+- 修复：提交 8d4d27d `fix(infra): pass MYSQL_* env to server and depend on mysql healthy`
+  - compose.yaml server 服务新增 MYSQL_HOST/MYSQL_PORT/MYSQL_DATABASE/MYSQL_USER/MYSQL_PASSWORD
+  - 添加 depends_on mysql condition: service_healthy
+- 本机验证：六服务全部 healthy，Flyway 迁移成功执行（Schema testops is up to date）。
+- 已推送 origin/main，本地/远端 SHA 一致（8d4d27d）。Prettier check 通过。
+- 教训：引入持久化依赖时必须同步更新 compose.yaml 的环境变量传递和服务依赖顺序。
