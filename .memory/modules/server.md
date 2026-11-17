@@ -1,18 +1,13 @@
 # Java 模块
 
-更新：2026-11-17。状态：IN_PROGRESS（M1.1 身份基线与错误契约已落地；认证/业务待实现）。
+更新：2026-11-17。状态：IMPLEMENTED（M1.1/M1.2；历史本机验证见 session）。
 
-入口：[启动类](../../apps/server/src/main/java/io/testopsai/server/TestOpsApplication.java)，Java 21 / Spring Boot 3.5.16，依赖与插件固定在 [pom](../../apps/server/pom.xml)。
+Java 21 / Spring Boot 3.5.16，入口 [TestOpsApplication](../../apps/server/src/main/java/io/testopsai/server/TestOpsApplication.java)，依赖锁定在 [pom](../../apps/server/pom.xml)。业务归 modules/identity，跨域认证与错误处理归 platform；按真实职责拆分，不预建空层。
 
-跨域安全配置归 [platform/security](../../apps/server/src/main/java/io/testopsai/server/platform/security/SecurityConfiguration.java)；结构化错误与 requestId 归 [platform/error](../../apps/server/src/main/java/io/testopsai/server/platform/error/)；未来业务归 modules/业务域，先平铺后按真实职责拆分，不建空包。测试对应源码包。
+M1.1/M1.2 已有 JDBC/Flyway 身份表与 V1–V4 迁移、BCrypt、JWT 签发/验证、登录与当前用户接口、结构化错误和 requestId。公开健康和登录，其余入口默认要求认证；角色检查不等于资源级授权。外部契约见 [API](../../docs/API.md)，设计见 [身份 ADR](../../docs/ADR/0003-identity-data-baseline.md) 和 [JWT ADR](../../docs/ADR/0004-jwt-auth-rbac.md)。
 
-M1.1 新增：
+配置使用 MYSQL_* 和 JWT_SECRET；涉及配置变化必须同步审查 Compose server 环境、依赖启动顺序和 CI compose/containers 注入。迁移只前进，不修改已执行脚本。
 
-- 持久化：spring-boot-starter-jdbc + mysql-connector-j + flyway-core/flyway-mysql；配置见 [application.yaml](../../apps/server/src/main/resources/application.yaml)，使用 MYSQL_* 环境变量。
-- 迁移：[V1__identity_baseline.sql](../../apps/server/src/main/resources/db/migration/V1__identity_baseline.sql)，仅 users/roles/user_roles。
-- 错误契约：{ code, message, requestId } + X-Request-Id 头；全局处理 NoResourceFoundException 与兜底 Exception。
-- 集成测试：[IdentitySchemaIntegrationTest](../../apps/server/src/test/java/io/testopsai/server/modules/identity/IdentitySchemaIntegrationTest.java)、[ErrorContractTest](../../apps/server/src/test/java/io/testopsai/server/platform/error/ErrorContractTest.java)。
+历史验证：[M1.1 session](../sessions/2026-11-17-06-m1-1-data-baseline.md)、[M1.2 session](../sessions/2026-11-17-07-m1-2-auth.md)。记录含真实数据库 Maven verify、完整门禁（其中 DB 测试可跳过）及经 Nginx 的登录/用户探测；本轮协作初始化没有重跑这些业务验证。实现已进入 e11c558，随后有 aeed610 CI 配置修复；最新远端结果须另查，不能引用 M0 CI 推断。
 
-当前健康公开、其他路径默认拒绝；默认用户自动装配已排除。迁移后根目录直接调用 Wrapper 已 verify 成功，2 项边界测试通过；maven.ps1 提供统一入口。新的完整门禁和 clean 重建证据见 [本次 session](../sessions/2026-11-16-04-engineering-layout.md)。
-
-JWT/RBAC、业务 CRUD、缓存限流尚未实现；进入 M1.2+ 时再引入，不因工程骨架可运行就宣称业务完成。
+M1.3 业务 CRUD、资源级权限、M1.4 缓存限流仍 PLANNED；当前具体任务只在 [CURRENT](../CURRENT.md) 维护。

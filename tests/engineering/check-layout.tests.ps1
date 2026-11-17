@@ -74,8 +74,64 @@ try {
     if (-not $missingNavigationRejected) { throw 'Missing rule navigation was not rejected' }
     [IO.File]::WriteAllText($AgentPath, $AgentText, [Text.UTF8Encoding]::new($false))
     Write-Output 'PASS: missing AGENTS coding-rule navigation rejected'
+    $CollaborationPath = Join-Path $FixtureRoot 'docs/development/AI_COLLABORATION.md'
+    $CollaborationText = [IO.File]::ReadAllText($CollaborationPath)
+    Remove-Item -LiteralPath $CollaborationPath
+    $missingCollaborationRejected = $false
+    try { & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null } catch { $missingCollaborationRejected = $true }
+    if (-not $missingCollaborationRejected) { throw 'Missing collaboration guide was not rejected' }
+    [IO.File]::WriteAllText($CollaborationPath, $CollaborationText, [Text.UTF8Encoding]::new($false))
+    Write-Output 'PASS: missing collaboration guide rejected'
+    $CurrentPath = Join-Path $FixtureRoot '.memory/CURRENT.md'
+    $CurrentText = [IO.File]::ReadAllText($CurrentPath)
+    foreach ($replacement in @('', '<!-- lane:web --><!-- lane:web -->')) {
+        [IO.File]::WriteAllText($CurrentPath, $CurrentText.Replace('<!-- lane:web -->', $replacement), [Text.UTF8Encoding]::new($false))
+        $invalidLaneRejected = $false
+        try { & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null } catch { $invalidLaneRejected = $true }
+        if (-not $invalidLaneRejected) { throw 'Missing or duplicate CURRENT lane was not rejected' }
+    }
+    [IO.File]::WriteAllText($CurrentPath, $CurrentText, [Text.UTF8Encoding]::new($false))
+    Write-Output 'PASS: missing and duplicate CURRENT lanes rejected'
+    $HandoffPath = Join-Path $FixtureRoot '.memory/sessions/2099-01-01-01-fixture.md'
+    $HandoffText = @"
+# Handoff fixture
+<!-- handoff:v1 -->
+Task: TEST-001
+Role: web
+Baseline: fixture
+Contract: fixture
+Scope: fixture
+<!-- checks -->
+<!-- next -->
+"@
+    # Construct the localized status without relying on PS5 source encoding or CURRENT state.
+    $HandoffText += "`n" + [char]0x72b6 + [char]0x6001 + ": IMPLEMENTED`n2099-01-01`n"
+    [IO.File]::WriteAllText($HandoffPath, $HandoffText, [Text.UTF8Encoding]::new($false))
+    & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null
+    foreach ($field in @('Task', 'Role', 'Baseline', 'Contract', 'Scope')) {
+        $invalidHandoff = [regex]::Replace($HandoffText, "(?m)^${field}:[^\r\n]*", '')
+        [IO.File]::WriteAllText($HandoffPath, $invalidHandoff, [Text.UTF8Encoding]::new($false))
+        $missingFieldRejected = $false
+        try { & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null } catch { $missingFieldRejected = $true }
+        if (-not $missingFieldRejected) { throw "Missing handoff field was not rejected: $field" }
+    }
+    foreach ($invalidRole in @('unknown', 'web-extra')) {
+        [IO.File]::WriteAllText($HandoffPath, $HandoffText.Replace('Role: web', "Role: $invalidRole"), [Text.UTF8Encoding]::new($false))
+        $invalidRoleRejected = $false
+        try { & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null } catch { $invalidRoleRejected = $true }
+        if (-not $invalidRoleRejected) { throw 'Invalid handoff role was not rejected' }
+    }
+    foreach ($marker in @('<!-- checks -->', '<!-- next -->')) {
+        [IO.File]::WriteAllText($HandoffPath, $HandoffText.Replace($marker, ''), [Text.UTF8Encoding]::new($false))
+        $missingMarkerRejected = $false
+        try { & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null } catch { $missingMarkerRejected = $true }
+        if (-not $missingMarkerRejected) { throw "Missing handoff marker was not rejected: $marker" }
+    }
+    Remove-Item -LiteralPath $HandoffPath
+    Write-Output 'PASS: valid handoff accepted; missing fields, invalid roles and missing check/next markers rejected'
+    & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null
     Write-Output "Layout regression tests passed: $script:Assertions assertions."
-    Write-Output 'Memory/rule navigation regression tests passed: 3 assertions.'
+    Write-Output 'Memory regressions passed: navigation, lane ownership markers and versioned handoff structure.'
     $scriptCount = 0
     foreach ($sourceFile in Get-ChildItem (Join-Path $RepositoryRoot 'scripts'), (Join-Path $RepositoryRoot 'tests/engineering') -Filter '*.ps1' -File -Recurse) {
         $syntaxErrors = $null

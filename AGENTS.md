@@ -1,5 +1,15 @@
 # TestOps AI 协作约定
 
+## 自动恢复与分工（无需用户重复提示）
+
+本文件是 Codex 与支持 AGENTS.md 的 DeepSeek Harness 共用的仓库入口。详细流程见 docs/development/AI_COLLABORATION.md。每次新会话、任务切换、同步主线、规则变化或上下文压缩后，自行执行 `scripts/memory.ps1 -Mode Restore -ListOnly` 获取阅读清单，再分批完整读取列出的材料（或按顺序直接读取），不等待用户提醒。遇到工具输出截断须分批补读，不把清单当作已读取证据。读取失败须说明原因并使用等效只读方式；不得把“入口已注入”当作“进度已恢复”。
+
+按当前分支选择领域：main/master 为集成；`codex/server-*`、`codex/web-*`、`codex/ai-*` 分别为 Java、Web、AI。读取 CURRENT 对应任务、所属模块与相关 session；未识别分支先只读核查，不擅自扩大写入范围。默认分工和公共文件维护人按协作指南，任务明确范围优先。
+
+“继续”只恢复已授权任务的下一步；没有明确任务时先核对事实，再请求必要信息，不自动推进全部路线图。开场简报目录/分支/HEAD、主线基线、整体与本领域进度、目标/风险/验收。收尾自行更新 CURRENT 所属区块与 session，交付代码时连同相关记忆一起交付。新实质任务使用 session 模板的 handoff:v1 字段。
+
+动态事实只存 .memory/CURRENT.md、相关模块和 session，不把进度写死到本入口或客户端固定提示。worktree 之间通过 Git 检查点同步，不能假定其他分支或远端状态已实时更新。用户负责主线合并；未经授权不提交、不推送、不自动同步或覆盖未提交工作。
+
 ## 每个新会话的强制入口
 
 每个新对话第一轮开始工作前，都读取本文件、.memory/INDEX.md、.memory/CURRENT.md，再读取 docs/development/CONTRIBUTING.md、docs/development/DIRECTORY_LAYOUT.md、docs/development/CODE_STYLE.md。不得因为上次对话读过就跳过。持续对话中新任务开始、压缩上下文后、切换模块时也重新核对当前规则与相关模块记忆。

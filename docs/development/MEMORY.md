@@ -1,5 +1,9 @@
 # 工程记忆使用指南
 
+2026-11-17 自动恢复更新：根 AGENTS 是 Codex 与支持其加载的 Harness 的共用入口，AI 无需用户重复提醒，自行在任务边界执行 `Restore -ListOnly` 后按清单分批读取，或等效直接读取；清单不是已读证据，输出截断须补读。Restore 现补充协作指南、按分支选择的模块、CURRENT 引用的 session、实际 HEAD 和本地主线差异；`-Role auto/integration/server/web/ai` 仅选择阅读材料，不带 ListOnly 时输出完整文本。详细客户端核查、分工、同步和用户职责见 [AI_COLLABORATION](AI_COLLABORATION.md)。
+
+Check 新增 CURRENT 四个 lane 标记以及 handoff:v1 任务的字段/验证/交接结构检查。旧 session 不强制迁移；这些检查不证明已经读取、事实真实、修改未越界或进度没有语义过期。CURRENT 的各领域区块由对应开发方维护，集成区块与全局经验由集成方汇总。新 session 保留模板标记与 Task/Role/Baseline/Contract/Scope 字段。代码、规则和记忆一起交付，不复制最新记忆到旧代码工作区。
+
 2026-11-17 补充：每个新会话先读 AGENTS、INDEX、CURRENT，再读 CONTRIBUTING、DIRECTORY_LAYOUT 和 [CODE_STYLE](CODE_STYLE.md)。Restore 现同时输出上述六份入口；Check 验证规范文件及 AGENTS 导航没有缺失，并已接入本地/CI 配置。
 
 Codex 会在运行开始时发现仓库 AGENTS；同一持续会话里修改规则后，要求 AI 显式重读。其他 AI 客户端需支持 AGENTS 或手动提供相同入口。本仓库没有后台自动保存、会话级强制 hook 或能证明模型已经遵从所有规则的机制。此检查验证导航和记录格式，不等同于检查模型行为。依据：[官方 AGENTS 指南](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。

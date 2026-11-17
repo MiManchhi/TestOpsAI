@@ -1,5 +1,14 @@
 # 验证与能力证据
 
+## E16：统一 AI 入口、自动恢复与协作结构检查（2026-11-17）
+
+状态：VERIFIED（Windows 本机工程检查），实际客户端新会话注入仍待实测。
+
+- 适用 fc826ba 上本次未提交协作变更。完整 `scripts/check.ps1` 退出 0：Vue 3 测试、Java 14 项中 9 跳过、Python 1 测试与相关格式/类型/构建；不包含数据库复验、容器验收和新远端 CI。
+- 自动 integration、显式 Web 和 ListOnly 恢复正确输出真实 Git 状态及模块/交接材料；记忆结构反例覆盖缺少协作指南、CURRENT 缺失/重复区块、新版交接缺字段/非法角色/缺验证或下一步标记。结构检查不证明模型遵守规则、进度文字真实或文件修改未越界。
+- 本机 Harness 0.2.2-rc.3 安装包的 dsh-agent-instructions 文档与源码确认默认 AGENTS 加载能力，Codex 机制按官方指南核实；没有通过实际新会话测试证明两客户端运行效果。
+- 首次沙箱门禁因旧缓存读取 EPERM 阻断，获准在沙箱外重跑成功；无全局配置改动。完整命令、限制与下一步见 [本轮 session](sessions/2026-11-17-08-ai-collaboration-bootstrap.md)。
+
 ## E15：M0 六服务容器交付与 Ubuntu CI（2026-11-17）
 
 状态：DEPLOYED（本机 Docker Desktop Linux x86_64）；Ubuntu CI 容器验收 VERIFIED。

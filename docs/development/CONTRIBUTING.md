@@ -2,6 +2,8 @@
 
 正式开发同时遵守 [代码与格式规范](CODE_STYLE.md)、[目录归属](DIRECTORY_LAYOUT.md)、[记忆流程](MEMORY.md)。每个新 AI 会话从根 AGENTS 开始读取这些规则，不能仅凭上一轮印象继续。
 
+并行开发遵守 [AI 协作流程](AI_COLLABORATION.md)：一个 worktree 一个活跃写入者，按任务归属修改，公共文件由集成方协调；用户执行主线合并。同步前保全未提交工作，代码、规范和记忆一起同步，冲突按事实归并。未经授权不提交、不推送、不自动 merge/rebase；分支默认使用 `codex/server-*`、`codex/web-*`、`codex/ai-*` 以供恢复脚本识别。
+
 更新：2026-11-17。状态：IMPLEMENTED（规则生效，提交/推送须有当前任务授权）。
 
 ## 目录纪律

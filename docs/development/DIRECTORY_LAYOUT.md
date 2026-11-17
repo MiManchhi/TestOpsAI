@@ -153,7 +153,7 @@ TestOpsAI/
 | sessions/   | 一次任务的目标、关键过程、结果与交接 |
 | archive/    | 旧过程记录，不再作为当前事实入口     |
 
-正式设计正文放 docs；当前进度集中在 CURRENT，避免多个“当前进度”互相矛盾。不保存源码副本、完整 AI 对话、敏感日志或凭据。
+正式设计正文放 docs；当前进度集中在 CURRENT，划分 integration/server/web/ai 四区，由各自维护人更新；模块只存稳定上下文，session 保存任务历史。worktree 中的文件各自独立，通过 Git 同步，不共享 .memory 目录。详细流程放 docs/development/AI_COLLABORATION.md，不新增子目录规则或客户端指令副本。不保存源码副本、完整 AI 对话、敏感日志或凭据。
 
 ### 工具目录与本机目录
 

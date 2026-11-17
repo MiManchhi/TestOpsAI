@@ -1,5 +1,12 @@
 # 问题与经验
 
+## 2026-11-17 AI 入口与语义过期
+
+- 状态：VERIFIED（仓库恢复和结构检查范围）。AGENTS 文件可被客户端自动注入，但其引用的动态状态仍需显式读取；本机 Harness 安装包支持 AGENTS，不必预建不同内容的客户端规则副本。
+- 发现 INDEX/CURRENT/server 模块仍写 M0、待提交、认证未实现，而 Git 已包含 M1.2；已按实际版本与历史证据纠正。日期/状态/链接检查通过不能证明文字没有过期，任务边界必须核对代码与 Git。
+- 恢复材料过长也会遗漏：新增 ListOnly 清单，AI 分批完整读，不把列出路径或自称已读当作读取证据。实际客户端自动注入需用新会话另验，不以安装包静态支持替代。
+- [本轮记录](sessions/2026-11-17-08-ai-collaboration-bootstrap.md)、[协作指南](../docs/development/AI_COLLABORATION.md)。
+
 ## 2026-11-17 容器交付
 
 - 状态：VERIFIED（本机与 Ubuntu CI 容器验收范围）。Windows PowerShell 5 向 Bash 传递内嵌双引号会破坏 HTTP 探测参数；Qdrant 探测改用 Bash 内单引号，并严格匹配 HTTP 状态行。先前只见 GET 输出的尝试不作就绪证据，修正后基础与完整冒烟均通过。
