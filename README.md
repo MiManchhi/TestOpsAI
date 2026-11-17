@@ -2,7 +2,7 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-当前已有 **M1.2 后端身份认证**：数据库迁移、JWT 登录与当前用户接口已实现；Web 目前为健康检查页面，登录页面、知识库、RAG、Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+当前已有 **M1.3 后端业务元数据实现**：数据库迁移、JWT 登录、当前用户、知识库和测试用例 CRUD 接口已实现；Web 目前为健康检查页面，登录与业务管理页面、RAG、Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
 
 ## 本地一键启动（推荐）
 

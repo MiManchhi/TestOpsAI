@@ -1,6 +1,6 @@
 # 本地容器运行与验收
 
-更新：2026-11-17。状态：VERIFIED（默认构建启动与复用镜像启动通过，验证范围见 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；Java 已实现 M1.2 数据库迁移和身份认证，Web/AI 仍以健康检查为主。历史六服务恢复与 CI 证据见 [容器 session](../../.memory/sessions/2026-11-17-05-container-delivery.md)。
+更新：2026-11-17。状态：VERIFIED（启动入口在 M1.2 基线上默认构建启动与复用镜像启动通过，验证范围见 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；Java 已有 M1.3 数据库迁移、身份认证与业务元数据接口实现，Web/AI 仍以健康检查为主。新增 M1.3 未在本任务重新部署；历史六服务恢复与 CI 证据见 [容器 session](../../.memory/sessions/2026-11-17-05-container-delivery.md)。
 
 ## 启动与停止
 

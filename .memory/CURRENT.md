@@ -6,7 +6,7 @@
 
 ## 集成
 
-- ENG-011：本地整套启动入口 VERIFIED（main / 101596d 上未提交工作区）。新增 `scripts/local.ps1`，支持 start/stop/status/logs 与 start -SkipBuild；首次生成配置仅需 Docker，已有凭据与卷保留。默认构建启动、复用镜像启动及完整容器冒烟通过，六服务保持 healthy；入口 http://127.0.0.1:8088。完整门禁退出 0（Java 14 项中 9 项 DB 测试跳过），本机 smoke 注入已有 MYSQL/JWT 配置后退出 0，首次裸跑因缺少 DB 密码失败。见 [启动入口 session](sessions/2026-11-17-11-local-launcher.md)。未提交推送，其他 worktree 未同步。
+- ENG-011：本地整套启动入口 VERIFIED（初次验证基线 101596d；实现提交 72c0b9a 已推送 main）。新增 `scripts/local.ps1`，支持 start/stop/status/logs 与 start -SkipBuild；首次生成配置仅需 Docker，已有凭据与卷保留。默认构建启动、复用镜像启动及完整容器冒烟通过，六服务保持 healthy；入口 http://127.0.0.1:8088。完整门禁退出 0（Java 14 项中 9 项 DB 测试跳过），本机 smoke 注入已有 MYSQL/JWT 配置后退出 0，首次裸跑因缺少 DB 密码失败。见 [启动入口 session](sessions/2026-11-17-11-local-launcher.md)。发布前衔接远端 M1.3 / 3998cfe，集成完整门禁退出 0（Java 33 项中 28 项 DB 测试跳过）；没有重新部署 M1.3，不将 M1.2 容器证据外推。收尾文档随独立提交同步，其他 worktree 未同步。
 
 - ENG-010：用户追加授权后，三个开发分支已正常推送到 origin，并分别跟踪同名远程分支；初次推送 SHA 为 03d2d37，本地/远端逐一核对一致。收尾记忆同步后各空工作分支再快进到同一最新主线，最终版本以 Git refs 为准。见 [远端分支 session](sessions/2026-11-17-10-push-development-branches.md)。ENG-009 中“仅本地”是当时范围，已被本次追加授权更新。
 
