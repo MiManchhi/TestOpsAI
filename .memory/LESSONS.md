@@ -61,3 +61,9 @@
 - 解决：compose.yaml server 服务显式声明 MYSQL_HOST/MYSQL_PORT/MYSQL_DATABASE/MYSQL_USER/MYSQL_PASSWORD 并添加 depends_on mysql healthy。
 - 预防规则：凡新增持久化/外部服务依赖，必须同步检查 compose.yaml 环境变量传递、depends_on 顺序、CI workflow 变量注入三条链路；不能仅凭本机 `docker compose up` 通过就认定容器交付完整。
 - 状态：RESOLVED（8d4d27d）。
+
+### 细化：CI compose 验证步骤也需同步（2026-11-17）
+
+- M1.2 新增 JWT_SECRET 后，containers job 的凭据生成已更新，但 compose job 的 `docker compose config --quiet` 步骤的 env 遗漏了 JWT_SECRET，导致 CI 失败。
+- 预防规则细化：凡 compose.yaml 新增 `${VAR:?...}` 引用，必须同步更新三处：(1) compose.yaml 对应服务的 environment，(2) CI containers job 的凭据生成列表，(3) CI compose job 的静态验证 env。缺一不可。
+- 状态：RESOLVED（aeed610）。
