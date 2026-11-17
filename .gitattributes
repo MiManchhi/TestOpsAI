@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.jar binary
+*.zip binary
+# Preserve the supplied baseline's intentional Markdown hard line breaks.
+docs/PROJECT_BLUEPRINT.md whitespace=-blank-at-eol

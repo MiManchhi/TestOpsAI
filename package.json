@@ -1,0 +1,28 @@
+{
+  "name": "testops-ai",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12 <23",
+    "npm": ">=11 <12"
+  },
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @testops/web",
+    "build": "npm run build --workspace @testops/web",
+    "check": "npm run check --workspace @testops/web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.10.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "printWidth": 100
+  },
+  "packageManager": "npm@11.6.4"
+}

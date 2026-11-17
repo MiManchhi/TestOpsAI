@@ -1,0 +1,1 @@
+"""Features grouped by responsibility."""

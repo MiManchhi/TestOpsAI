@@ -1,0 +1,34 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+# Toolchains and generated output
+.tools/
+node_modules/
+dist/
+target/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage*
+coverage/
+htmlcov/
+*.egg-info/
+*.log
+apps/server/.mvn/wrapper/maven-wrapper.jar
+.runtime/
+playwright-report/
+test-results/
+# Editors and operating system
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db

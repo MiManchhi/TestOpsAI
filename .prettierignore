@@ -1,0 +1,12 @@
+.tools
+.runtime
+.planning
+.memory/archive/
+node_modules
+dist
+target
+uv.lock
+package-lock.json
+docs/PROJECT_BLUEPRINT.md
+apps/server/mvnw*
+apps/server/.mvn

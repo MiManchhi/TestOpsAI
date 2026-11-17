@@ -1,0 +1,33 @@
+# 问题与经验
+
+## 本轮已解决（2026-11-16）
+
+- VERIFIED：Wrapper 从根目录误找 .mvn，改为以脚本位置定位；Windows 路径末尾反斜杠会干扰 Java 参数引号，末尾点路径解决。根调用与 clean verify 均通过。
+- VERIFIED：Vue 的两条排版规则与 Prettier 重叠，关闭这两条规则，保留语义检查及零警告门禁；类型、3 测试、构建均通过。
+- VERIFIED：标准 CPython 已迁入 toolchains/python，生成 uv.lock 并完成依赖安装、类型/测试/构建；不使用 MSYS Python 环境承载应用。
+- VERIFIED：工具默认在根生成 Ruff/mypy 缓存，改用 .tools/cache 下对应缓存，而非扩大根白名单。
+- VERIFIED：本机 8080 已被其他进程占用，smoke 自动选择空闲端口，Vite 通过 TESTOPS_SERVER_URL 指向本次 Java；不停止用户已有进程。
+- VERIFIED：PowerShell 5 的默认管道编码会损坏传入 Python 的中文，写入前设置 UTF-8；受影响的页面文本已恢复，并用 UTF-8 内容与原方案哈希检查复核。
+- IMPLEMENTED：递归清理被自动审批拒绝，只给出 blocked by policy；改用可回退归档，60 项旧遗留已离开 .tools。不宣称磁盘释放，不绕过审批。
+
+以下为历史发现，解决后的现状以上述记录、CURRENT 与最新证据为准。
+
+更新：2026-11-16。状态：IMPLEMENTED。
+
+| 编号 | 问题/根因                                                       | 处理与状态                                                                              | 相关文件                                                                   |
+| ---- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| L01  | PowerShell 默认编码导致中文文档乱码                             | VERIFIED：读取显式 UTF-8；原文保留不重写                                                | [方案](../docs/PROJECT_BLUEPRINT.md)                                       |
+| L02  | 系统 npm 缓存位于 Program Files，无写权限；launcher 固定旧 Node | IMPLEMENTED：当前终端使用项目缓存与隔离 Node/npm，安装成功；整套脚本待验收              | [env](../scripts/env.ps1)                                                  |
+| L03  | npm 10 解析依赖时出现 edgesOut 异常                             | VERIFIED（安装范围）：切 npm 11.6.4、镜像源后 184 包安装成功；不等于构建通过            | [lock](../package-lock.json)                                               |
+| L04  | MSYS Python 证书链错误且 uv 不识别其平台                        | IN_PROGRESS / BLOCKED：保持 TLS 校验，改用 Windows 工具与标准 CPython；安装状态下次核实 | [AI 模块](modules/ai-service.md)                                           |
+| L05  | Maven Wrapper 从根目录查找 .mvn 导致失败                        | IN_PROGRESS：已定位工作目录假设，尚未修复                                               | [Wrapper](../apps/server/mvnw.cmd)、[脚本](../scripts/check.ps1)           |
+| L06  | Vue 推荐格式规则与 Prettier 输出冲突                            | IN_PROGRESS：lint 8 警告且 max-warnings=0；test/build 因此未执行                        | [eslint](../apps/web/eslint.config.js)、[App](../apps/web/src/app/App.vue) |
+| L07  | 根目录堆放过程计划，且文档引用了不存在的进度页                  | IMPLEMENTED：计划迁入记忆归档，README 改指 CURRENT/EVIDENCE；本轮检查链接               | [README](../README.md)、[归档](archive/2026-11-16-m0/progress.md)          |
+
+新问题按“日期、症状、根因、尝试、最终修复、验证范围”追加；未解决时保留状态，不编写虚构解决结论。无需保留原始错误日志或敏感输出。
+
+## 2026-11-17 补充
+
+- VERIFIED：新会话规则和代码标准需要根 AGENTS 明确导航，不能只把文档放进 docs；memory Check 现验证规范存在与导航，缺文档/缺导航的反例都被拒绝。此检查不证明未来模型行为。
+- VERIFIED：官方镜像慢速传输超过 300 秒拉取令牌有效期，续传保留已完成分片并刷新令牌；最终逐层压缩与解压 SHA-256 校验后导入，未禁用 TLS 或修改全局代理。临时搬运不作为仓库正式工具。
+- VERIFIED：Windows 传递带空格的 mysql -e SQL 字符串不稳定，改为固定 SQL 经 stdin 传入，应用用户查询返回 1。Docker 原生命令截断输出可能造成管道退出码，不据此误判程序缺失。
