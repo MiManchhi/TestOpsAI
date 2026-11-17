@@ -1,7 +1,9 @@
-.venv
+**
+!pyproject.toml
+!uv.lock
+!src/
+!src/**
+**/.env*
 **/__pycache__
-.pytest_cache
-.ruff_cache
-.mypy_cache
-.env*
-dist
+**/*.pyc
+**/*.log

@@ -6,7 +6,7 @@
 
 ## 部署
 
-Compose 单机运行，Nginx 发布 8088。Java/Python 无宿主机端口映射；MySQL、Redis、Qdrant 仅回环访问，并使用本地随机凭据及数据卷。生产环境应移除中间件端口映射，并采用 HTTPS、密钥注入、备份及镜像 digest 锁定。镜像当前固定版本 tag，尚未获得本机容器构建验证。
+Compose 单机运行，Nginx 发布 8088。Java/Python 无宿主机端口映射；MySQL、Redis、Qdrant 仅回环访问，并使用本地随机凭据及数据卷。应用基础镜像固定 tag 与 digest，中间件沿用既有版本 tag；本次完整构建与交付验收状态以工程记忆为准。生产环境应移除中间件端口映射，并采用 HTTPS、密钥注入及备份。操作与验收见 [容器指南](development/CONTAINERS.md)。
 
 ## 后续开发必须保持
 

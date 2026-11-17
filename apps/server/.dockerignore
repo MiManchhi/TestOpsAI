@@ -1,2 +1,6 @@
-target
-.env*
+**
+!pom.xml
+!src/
+!src/**
+**/.env*
+**/*.log

@@ -74,3 +74,40 @@ jobs:
           MYSQL_ROOT_PASSWORD: ci-validation-only
           REDIS_PASSWORD: ci-validation-only
           QDRANT_API_KEY: ci-validation-only
+  containers:
+    needs: [web, server, ai, compose]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COMPOSE_PROJECT_NAME: testops-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      COMPOSE_DISABLE_ENV_FILE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate isolated temporary credentials
+        shell: pwsh
+        run: |
+          foreach ($key in @('MYSQL_PASSWORD', 'MYSQL_ROOT_PASSWORD', 'REDIS_PASSWORD', 'QDRANT_API_KEY')) {
+            $secret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
+            Write-Output "::add-mask::$secret"
+            "$key=$secret" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+      - run: docker compose config --quiet
+      - name: Build application images
+        run: docker compose build server web ai-service
+      - name: Start six healthy services
+        run: docker compose up --no-build -d --wait --wait-timeout 240
+      - name: Verify container delivery and recovery
+        shell: pwsh
+        run: ./tests/engineering/container.tests.ps1
+      - name: Limited failure diagnostics
+        if: failure()
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --tail 80 server web ai-service
+      - name: Clean up this CI project
+        if: always()
+        run: |
+          case "$COMPOSE_PROJECT_NAME" in
+            testops-ci-*) docker compose down --volumes --remove-orphans --timeout 30 ;;
+            *) echo 'Refusing cleanup outside a CI project'; exit 1 ;;
+          esac

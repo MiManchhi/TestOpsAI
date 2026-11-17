@@ -1,5 +1,7 @@
 # 学习与面试积累
 
+2026-11-17 容器交付，状态：IN_PROGRESS（待用户自测确认）。学习：构建镜像与启动容器的区别，tag/digest/依赖锁各锁定什么，多阶段构建和非 root 的作用，running 与 healthy 的区别，以及 stop/down/删除卷的不同后果。自测：为什么 Java/AI 健康但仍不能证明数据库业务或 AI 调用链完成？为什么 CI 可以清理自己的临时卷，本机验收必须保留卷？材料见 [容器指南](../docs/development/CONTAINERS.md) 与 [session](sessions/2026-11-17-05-container-delivery.md)。
+
 2026-11-17 CI 跨平台实践，状态：IN_PROGRESS（待用户自测确认）。自测：为什么运行时 os.name 判断能工作，mypy 仍会报告 Windows 专用常量错误？为什么点文件在 Windows 与 Linux 的 Hidden 属性不同？为什么本地构建通过不能等同远端 CI 通过？实践与验证见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)；不推定用户已掌握。
 
 2026-11-16 工程实践：目录以真实职责为依据，业务域内先平铺；理解根入口、应用配置、缓存、依赖锁的不同职责，以及“可构建”“本机可运行”“容器部署”三个不同验收范围。待用户自测确认，不推定已掌握。材料见 [ADR-0002](../docs/ADR/0002-feature-layout.md) 和 [本次记录](sessions/2026-11-16-04-engineering-layout.md)。

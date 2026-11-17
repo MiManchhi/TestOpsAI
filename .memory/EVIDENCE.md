@@ -1,5 +1,17 @@
 # 验证与能力证据
 
+## E15：M0 六服务本机容器交付（2026-11-17）
+
+状态：DEPLOYED（本机 Docker Desktop Linux x86_64；不含远端容器 CI）。
+
+- `docker compose --progress plain build server web ai-service` 退出 0；Java 镜像内 2 测试通过，Web npm 11.6.4 与锁定依赖构建通过，AI 多阶段非 editable 安装完成。六个应用基础镜像 digest 从官方 manifest 读取并固定在 Dockerfile。
+- `docker compose up --no-build -d --wait --wait-timeout 240`、`scripts/smoke.ps1`、`scripts/smoke.ps1 -InfraOnly` 均退出 0。六服务 running/healthy，端口边界、网页 JS/CSS、Java 代理/401、AI 健康和基础设施查询通过。
+- `tests/engineering/container.tests.ps1` 退出 0：非 root Java/AI、AI 没有 uv/pytest/mypy/Ruff/源码工作区、重复启动、停启保留三个卷身份及鉴权、停止 AI 的负例拒绝，finally 恢复全部服务。
+- 独立 PowerShell 进程在 AI 停止时运行 smoke 退出 1；AI 恢复后的完整 smoke 退出 0。最终六服务 healthy；Java 运行时 21.0.13，Python 3.12.16。应用镜像 ID：server 2ea3b8c7a0ec、ai-service f6bbe945d796、web 4e25edbe2535。
+- `scripts/check.ps1` 退出 0（Vue 3 测试、Java 2 测试、Python 1 测试及既有格式/类型/构建；12 份 PowerShell 语法检查）。现有弃用和 npm 开发依赖审计提示保留，未跨版本升级。
+- 新增容器 CI job 状态 IMPLEMENTED，未推送/运行，不宣称 Ubuntu 容器验收通过。具体变更、限制与恢复起点见 [容器 session](sessions/2026-11-17-05-container-delivery.md)。
+- 官方 actionlint 1.7.12 对现有工作流语义检查退出 0；下载包 SHA-256 已校验，临时工具被 Git 忽略。不以静态检查推定新增容器 CI job 已通过。
+
 ## E14：CI 跨平台修复与远端验收（2026-11-17）
 
 状态：VERIFIED（本地检查与远端 Ubuntu CI 范围）。

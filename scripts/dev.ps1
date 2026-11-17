@@ -7,11 +7,12 @@ try {
         server { Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/maven.ps1", 'spring-boot:run') }
         ai { Invoke-Checked uv @('run', '--project', 'apps/ai-service', '--locked', 'uvicorn', 'testops_ai.main:app', '--reload', '--host', '127.0.0.1', '--port', '8000') }
         infra {
-            Invoke-Checked docker @('compose', 'up', '-d', '--wait', 'mysql', 'redis', 'qdrant')
+            Invoke-Checked docker @('compose', 'up', '-d', '--wait', '--wait-timeout', '240', 'mysql', 'redis', 'qdrant')
             Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/smoke.ps1", '-InfraOnly')
         }
         all {
-            Invoke-Checked docker @('compose', 'up', '--build', '-d', '--wait')
+            Invoke-Checked docker @('compose', 'build', 'server', 'web', 'ai-service')
+            Invoke-Checked docker @('compose', 'up', '--no-build', '-d', '--wait', '--wait-timeout', '240')
             Invoke-Checked powershell @('-NoProfile', '-File', "$PSScriptRoot/smoke.ps1")
         }
     }

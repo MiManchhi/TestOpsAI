@@ -2,7 +2,7 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-当前为 **M0 工程骨架，正式开发准入已通过**：三端检查、构建、本机健康链路及 MySQL/Redis/Qdrant 基础容器健康验证通过，开发/目录/代码/格式规范与记忆门禁已建立。完整应用容器部署和远端 CI 尚未验收。登录、知识库、RAG、Agent 均尚未实现。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，下一步见 [路线图](docs/ROADMAP.md) 和 [当前工程记忆](.memory/CURRENT.md)。
+当前为 **M0 工程骨架**：三端本机检查、构建与健康链路、Ubuntu CI 四项质量检查、本机完整六服务容器部署与恢复验收已通过。新增容器 CI job 尚待远端执行，结果见 [当前工程记忆](.memory/CURRENT.md)。登录、知识库、RAG、Agent 均尚未实现。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
 
 ## 目录与职责
 
@@ -57,7 +57,9 @@ Web 为 `http://127.0.0.1:5173`；Java 健康端点为 `http://127.0.0.1:8080/ac
 ./scripts/dev.ps1 all
 ```
 
-等价于 `docker compose up --build -d --wait` 后执行 `scripts/smoke.ps1`。入口为 `http://127.0.0.1:8088`。AI 和 Java 不发布宿主机端口；中间件仅绑定回环地址。Qdrant 的 readiness 由冒烟脚本单独验证。应用健康检查目前仅反映 M0 进程可用，不能证明后续存储或 AI 链路已就绪。
+此命令先构建三个应用镜像，再执行 `docker compose up --no-build -d --wait --wait-timeout 240` 和完整容器冒烟。入口为 `http://127.0.0.1:8088`。AI 和 Java 不发布宿主机端口；中间件仅绑定回环地址。检查覆盖六服务健康、网页构建资源、Java 代理/401、AI 健康、基础设施鉴权查询及端口边界；不表示尚未实现的业务调用链就绪。
+
+构建、重建、保留卷停启、失败排查与 CI 隔离详见 [容器运行与验收](docs/development/CONTAINERS.md)。集成验收命令为 `./tests/engineering/container.tests.ps1`，会短暂停止并恢复本项目服务，不删除本机卷。
 
 ```powershell
 docker compose logs -f --tail 100
@@ -70,6 +72,6 @@ docker compose down
 
 正式开发遵守 [代码与格式规范](docs/development/CODE_STYLE.md)。每个新 AI 会话先读取 AGENTS、记忆导航和当前状态，再读取开发、目录、代码规范；`scripts/memory.ps1 -Mode Restore` 可一次输出全部入口，`scripts/check.ps1` 包含规范导航与记忆检查。
 
-CI 配置了格式检查、Vue 类型/静态检查/单测/构建、Java 格式/测试/打包、Python lint/类型/测试，以及 Compose 配置检查；远端 CI 尚未运行。真实结果见 [证据台账](.memory/EVIDENCE.md)。
+现有 Ubuntu CI 的格式、Vue、Java、Python 与 Compose 配置检查已经通过；新增 containers job 等待四项质量检查后构建三端镜像并运行完整容器集成验收，新增 job 的真实运行结果见 [证据台账](.memory/EVIDENCE.md)，配置存在不等于验证通过。
 
 遵循 [开发与提交规范](docs/development/CONTRIBUTING.md)、[安全规范](docs/development/SECURITY.md) 与 [AGENTS](AGENTS.md)。新会话先读 [记忆导航](.memory/INDEX.md)。不提交密钥、下载工具或生成产物；项目沿用远程仓库已有的 [MIT 许可证](LICENSE)。
