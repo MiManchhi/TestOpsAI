@@ -70,6 +70,14 @@ services:
       context: apps/server
     environment:
       SERVER_ADDRESS: 0.0.0.0
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-testops}
+      MYSQL_USER: ${MYSQL_USER:-testops}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run scripts/setup.ps1 first}
+    depends_on:
+      mysql:
+        condition: service_healthy
     expose: ['8080']
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:8080/actuator/health/readiness']
