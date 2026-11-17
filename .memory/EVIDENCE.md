@@ -1,12 +1,13 @@
 # 验证与能力证据
 
-## E14：CI 跨平台修复本地验收（2026-11-17）
+## E14：CI 跨平台修复与远端验收（2026-11-17）
 
-状态：VERIFIED（本地范围，远端 CI 待推送后验证）。
+状态：VERIFIED（本地检查与远端 Ubuntu CI 范围）。
 
 - mypy 1.20.2 的 linux 与 win32 目标均退出 0；Windows 隐藏夹具清理后完成 9 项目录、3 项记忆导航回归及 11 份 PowerShell 解析检查。
 - 直接执行 `scripts/check.ps1` 退出 0：格式、Vue 类型/lint/3 测试/构建、Java 2 测试/Spotless/打包、Python 锁定依赖/Ruff/类型/1 测试/sdist 与 wheel，包含新增的双平台脚本类型检查。
 - `scripts/smoke-local.ps1` 退出 0：修复后本机三端启动、健康入口、Java 代理及 401 边界通过；未据此声称 Linux 进程运行或完整应用容器部署通过。
+- 提交 9fb1437de0b2c87f414fdee726085e56c493767c 正常推送，`git ls-remote origin refs/heads/main` 与本地 HEAD 一致；GitHub [run 44011247548](https://github.com/MiManchhi/TestOpsAI/actions/runs/44011247548) 对应同一 SHA，completed/success，server/web/ai/compose 全部成功。该证据覆盖 Ubuntu 下双目标 mypy、目录回归、三端检查/构建及 Compose 配置解析；不覆盖 Linux 三端运行 smoke 或完整应用容器部署。
 - [完整过程](sessions/2026-11-17-04-ci-portability-fix.md)，原失败 run 44009166249 的 server/web 成功、ai/compose 失败已通过 GitHub 元数据核实。
 
 ## E13：远端 CI 失败分析（2026-11-17）

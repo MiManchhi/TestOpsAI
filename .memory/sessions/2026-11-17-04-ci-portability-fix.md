@@ -1,6 +1,6 @@
 # CI 跨平台修复与发布
 
-更新：2026-11-17。状态：IN_PROGRESS。
+更新：2026-11-17。状态：VERIFIED（本地门禁、smoke 与远端 Ubuntu CI 通过；代码已推送）。
 
 ## 目标与起始核对
 
@@ -31,5 +31,13 @@
 - 正常运行仍有 Mockito 动态 agent 和 Starlette TestClient 弃用提示，不影响本次退出结果；已有依赖审计遗留不在本次修复范围。
 - 提交前复核通过：`scripts/memory.ps1 -Mode Check` 退出 0（18 份活动记忆）；`tests/engineering/check-layout.tests.ps1` 退出 0（9+3 回归、11 脚本解析）；`git diff --check` 退出 0；全仓 `prettier --check .` 在本机用户下退出 0。沙箱用户枚举本机生成的 .pytest_cache 曾报 EPERM（退出 1），改由文件所属本机用户执行，未修改权限或排除规则。
 - 变更清单：scripts/smoke-local.py、scripts/check.ps1、tests/engineering/check-layout.tests.ps1、.github/workflows/ci.yml；记忆 INDEX、CURRENT、LESSONS、LEARNING、EVIDENCE、modules/engineering；新增前次分析和本次修复 session。全部留在既有目录，无依赖或业务变更。
-- 待提交/推送后核对 SHA 与 Ubuntu CI。完整应用容器部署不在本次验证范围。
+- `git commit -m "fix(ci): make engineering checks portable across platforms"` 退出 0，生成 9fb1437de0b2c87f414fdee726085e56c493767c；`git push origin main` 退出 0，远程从 33fe9c4 前进至 9fb1437，未强推；`git ls-remote origin refs/heads/main` 与本地 SHA 一致，推送后工作区干净。
+- GitHub [run 44011247548](https://github.com/MiManchhi/TestOpsAI/actions/runs/44011247548) 的 head_sha 为该修复提交，completed/success；server、web、ai、compose 全部成功，原两个失败点及后续 pytest/AI 构建/Compose 配置校验均通过。读取 jobs 与 run 元数据确认，不以本机结果推定远端结果。
+- 完整应用容器部署与 Linux 三端运行 smoke 不在本次验证范围。
 - 本次授权包括提交和推送；不强推，不修改根目录结构，不降低门禁。
+
+## 最终交接
+
+- 两处缺陷修复与防回归检查均 VERIFIED，修复代码已推送；BLOCKED：无本次任务遗留阻塞。npm 审计/弃用提示等原有事项仍按 CURRENT 保留。
+- 同步 INDEX、CURRENT、LESSONS、LEARNING、EVIDENCE、engineering 与本 session；记忆收尾随独立 docs 提交同步，最终提交号以 Git refs 为准，避免在文件中自引用未生成的 SHA。
+- 下一起点：保持 M0，等用户明确新任务，不自动进入 M1。未新增目录、根文件或业务功能。

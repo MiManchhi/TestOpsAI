@@ -1,6 +1,6 @@
 # 工程记忆导航
 
-当前任务：[CI 跨平台修复与发布](sessions/2026-11-17-04-ci-portability-fix.md)。两处修复已通过完整本地门禁、双平台类型检查与本机 smoke，提交/推送与远端 CI 验证待完成，不进入 M1。
+最近完成：[CI 跨平台修复与发布](sessions/2026-11-17-04-ci-portability-fix.md)。修复提交 9fb1437 已推送，完整本地门禁、双平台类型检查、本机 smoke 及 Ubuntu CI 四个 job 均通过；不进入 M1。
 
 此前分析：[远端 CI 失败](sessions/2026-11-17-03-ci-failure-analysis.md)。Ubuntu 的 Python 平台常量与测试隐藏文件清理问题已定位；该分析记录保留当时未修复状态。
 

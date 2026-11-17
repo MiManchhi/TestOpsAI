@@ -1,10 +1,10 @@
 # 当前交接
 
-更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M0 CI 跨平台修复与发布；M1 待明确指令）。
+更新：2026-11-17（Asia/Shanghai）。状态：VERIFIED（M0 CI 跨平台修复已发布，本地与 Ubuntu CI 通过；M1 待明确指令）。
 
 ## 当前任务
 
-2026-11-17 最新要求：修改已分析的两个问题并推送远程。Python 改用 sys.platform 显式分支，本地/CI 添加 linux、win32 双目标检查；目录回归对隐藏点文件使用 Force，并在 Windows 显式创建 Hidden 夹具。双目标 mypy、完整 scripts/check.ps1 和本机 smoke 均已通过；见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)。提交和推送已获本任务授权，尚未执行；保留 M0 边界。远端 CI 验收仍待修复提交后重跑。
+2026-11-17 最新要求已完成：Python 改用 sys.platform 显式分支，本地/CI 添加 linux、win32 双目标检查；目录回归对隐藏点文件使用 Force，并在 Windows 显式创建 Hidden 夹具。提交 9fb1437 已正常推送 origin/main 并核对 SHA 一致；双目标 mypy、完整 scripts/check.ps1、本机 smoke 和 [Ubuntu CI 44011247548](https://github.com/MiManchhi/TestOpsAI/actions/runs/44011247548) 均通过，server/web/ai/compose 四个 job 成功。见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)。BLOCKED：无本次 CI 修复遗留阻塞；继续停留 M0，等待用户新任务。收尾记忆随独立 docs 提交同步，最新 tip 以 Git refs 为准。
 
 2026-11-17 新授权：先将已搭建的 M0 工程提交并推送至 git@github.com:MiManchhi/TestOpsAI.git；不进入业务开发。远程原始 MIT LICENSE 已保留；工程提交 977591d 已正常推送并核对本地/远程 SHA 一致，本地 main 跟踪 origin/main，见 [session](sessions/2026-11-17-02-first-remote-push.md)。此前不自动进入 M1 的边界继续有效。
 
@@ -20,7 +20,7 @@
 
 ## 限制与后续
 
-- MySQL、Redis、Qdrant 此前已 running/healthy；应用用户 SQL 查询、Redis 鉴权、Qdrant ready 与 API Key/未授权拒绝验证通过。完整应用容器部署尚未执行。原远端 CI run 44009166249 对应 33fe9c4：已读取元数据，server/web 成功，ai/compose 分别在脚本类型检查/测试点文件清理失败，后续 pytest/AI 构建及 Compose 配置校验被跳过；此次修复后的远端结果待重跑。
+- MySQL、Redis、Qdrant 此前已 running/healthy；应用用户 SQL 查询、Redis 鉴权、Qdrant ready 与 API Key/未授权拒绝验证通过。完整应用容器部署尚未执行。原失败 run 44009166249 留作历史；修复提交 9fb1437 的 run 44011247548 全部通过，包括原先被跳过的 pytest、AI 构建和 Compose 配置校验。远端 CI 不等于完整应用容器部署验收。
 - npm audit 检出一条 minimatch 公告（globparts amplification，GHSA-g3hv-75wg-m249），影响 7 个开发工具依赖包；0 high/critical。当前自动建议会跨版本降级 typescript-eslint，未盲目执行。后续单独评估兼容修复；不是新增业务可用性结论。
 - pytest 有 Starlette 对 httpx TestClient 的弃用提示；测试通过，后续随测试工具升级处理。
 - Java Mockito 动态 agent 提示不影响当前测试；后续按 JDK 升级评估。

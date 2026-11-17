@@ -1,8 +1,8 @@
 # 问题与经验
 
-## 2026-11-17 CI 跨平台修复（本地已验证）
+## 2026-11-17 CI 跨平台修复（本地与远端已验证）
 
-- 状态：VERIFIED（Windows 完整门禁、本机 smoke、linux/win32 静态检查范围）；远端 Ubuntu CI 待推送后确认。
+- 状态：VERIFIED（Windows 完整门禁、本机 smoke、linux/win32 静态检查、Ubuntu CI）；9fb1437 已推送，run 44011247548 的四个 job 均成功。
 - 已用 sys.platform 显式 if 分支隔离 Windows 常量；本地与 CI 均显式验证两个平台目标。运行时条件成立与静态检查能识别该条件是两个不同要求。
 - 夹具点文件用 Force 删除；Windows 上显式设置 Hidden，让现有回归也覆盖 Linux 的隐藏文件约束。保留负例检查和 finally 路径范围校验，不提升系统权限。
 - [修复会话与命令](sessions/2026-11-17-04-ci-portability-fix.md)。以下未修复记录为此前分析时点。

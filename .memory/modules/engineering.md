@@ -1,6 +1,6 @@
 # 工程模块
 
-2026-11-17 更新，状态：VERIFIED（本地跨平台修复范围）。本地/CI 对 smoke 脚本显式检查 linux、win32；使用 sys.platform 分支隔离 Windows 专用启动标志。目录回归显式覆盖 Windows Hidden 夹具，点文件清理使用 Force，保留安全范围校验。完整本地门禁与 smoke 已通过，远端结果以 [最新修复会话](../sessions/2026-11-17-04-ci-portability-fix.md) 为准；以下旧的“远端 CI 未执行”描述仅对应各自历史时点。
+2026-11-17 更新，状态：VERIFIED（本地与远端 CI 跨平台修复范围）。本地/CI 对 smoke 脚本显式检查 linux、win32；使用 sys.platform 分支隔离 Windows 专用启动标志。目录回归显式覆盖 Windows Hidden 夹具，点文件清理使用 Force，保留安全范围校验。完整本地门禁、smoke 与 Ubuntu CI 四个 job 均通过；9fb1437 已推送，远端证据见 [最新修复会话](../sessions/2026-11-17-04-ci-portability-fix.md)。以下旧的“远端 CI 未执行”描述仅对应各自历史时点。
 
 更新：2026-11-16。状态：VERIFIED（本机基础工程范围）。
 
