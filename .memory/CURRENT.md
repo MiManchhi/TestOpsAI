@@ -6,6 +6,8 @@
 
 ## 集成
 
+- ENG-010：用户追加授权后，三个开发分支已正常推送到 origin，并分别跟踪同名远程分支；初次推送 SHA 为 03d2d37，本地/远端逐一核对一致。收尾记忆同步后各空工作分支再快进到同一最新主线，最终版本以 Git refs 为准。见 [远端分支 session](sessions/2026-11-17-10-push-development-branches.md)。ENG-009 中“仅本地”是当时范围，已被本次追加授权更新。
+
 - ENG-009 已完成发布与工作区准备：用户明确授权的协作提交 0a61b30 正常推送 main，三个本地开发分支和同级 worktree 已创建并通过自动角色、布局和干净状态检查。执行结果见 [发布 session](sessions/2026-11-17-09-publish-collaboration-worktrees.md)，本轮不开发业务。收尾记忆以独立 docs 提交同步，最终 SHA 以 Git refs 为准。
 
 - ENG-008 仓库侧已完成：统一文件入口、自动恢复与记忆检查，见 [初始化 session](sessions/2026-11-17-08-ai-collaboration-bootstrap.md)。其未提交变更已在 ENG-009 获授权后随 0a61b30 发布；不改变 ENG-008 当时未提交的历史事实。

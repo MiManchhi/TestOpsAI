@@ -18,7 +18,7 @@
 | [AI](modules/ai-service.md)          | Python 上下文                              |
 | [session 模板](sessions/TEMPLATE.md) | 新任务边界与交接                           |
 
-本轮：[协作发布与三个工作区](sessions/2026-11-17-09-publish-collaboration-worktrees.md)。此前：[自动恢复与协作初始化](sessions/2026-11-17-08-ai-collaboration-bootstrap.md)、[M1.2 身份认证](sessions/2026-11-17-07-m1-2-auth.md)、[M1.1 数据基线](sessions/2026-11-17-06-m1-1-data-baseline.md)。历史：[M0 容器交付](sessions/2026-11-17-05-container-delivery.md)、[跨平台修复](sessions/2026-11-17-04-ci-portability-fix.md)、[首次发布](sessions/2026-11-17-02-first-remote-push.md)、[规范基线](sessions/2026-11-17-01-development-standards.md)、[初始记忆](sessions/2026-11-16-02-memory-governance.md)。其他历史按 sessions 日期查阅。
+本轮：[三个开发分支同步远端](sessions/2026-11-17-10-push-development-branches.md)。此前：[协作发布与三个工作区](sessions/2026-11-17-09-publish-collaboration-worktrees.md)、[自动恢复与协作初始化](sessions/2026-11-17-08-ai-collaboration-bootstrap.md)、[M1.2 身份认证](sessions/2026-11-17-07-m1-2-auth.md)、[M1.1 数据基线](sessions/2026-11-17-06-m1-1-data-baseline.md)。历史：[M0 容器交付](sessions/2026-11-17-05-container-delivery.md)、[跨平台修复](sessions/2026-11-17-04-ci-portability-fix.md)、[首次发布](sessions/2026-11-17-02-first-remote-push.md)、[规范基线](sessions/2026-11-17-01-development-standards.md)、[初始记忆](sessions/2026-11-16-02-memory-governance.md)。其他历史按 sessions 日期查阅。
 
 需求基线：[立项方案](../docs/PROJECT_BLUEPRINT.md)；正式决策：[ADR](../docs/ADR/0001-engineering-baseline.md)；开发规范：[CONTRIBUTING](../docs/development/CONTRIBUTING.md)、[目录](../docs/development/DIRECTORY_LAYOUT.md)、[代码](../docs/development/CODE_STYLE.md)；记忆维护：[MEMORY](../docs/development/MEMORY.md)。旧计划保留在 [archive](archive/2026-11-16-m0/task_plan.md)。
 
