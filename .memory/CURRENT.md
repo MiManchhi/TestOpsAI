@@ -21,8 +21,9 @@
 ## Java
 
 - M1.1/M1.2：IMPLEMENTED；历史本机验证记录为 VERIFIED，见 [M1.1](sessions/2026-11-17-06-m1-1-data-baseline.md)、[M1.2](sessions/2026-11-17-07-m1-2-auth.md)。JWT、登录、当前用户、结构化错误、身份迁移已进入 Git。模块上下文见 [server](modules/server.md)。
-- 证据边界：历史 session 记录真实 MySQL Maven verify、完整门禁与容器登录探测；本轮未重跑业务测试或容器验收，不据此确认当前运行健康与最新远端 CI。
-- M1.3 业务元数据、资源级权限及 M1.4 缓存限流：PLANNED。暂无已授权的下一项业务任务；先确定最小任务和 API 契约。
+- M1.3 知识库与测试用例 CRUD + 数据级权限：IMPLEMENTED（编译通过、Spotless 通过、Maven verify BUILD SUCCESS；DB 集成测试因无 MYSQL_PASSWORD 跳过）。V5 迁移三表 + 种子数据、两个业务域完整实现、集成测试覆盖 CRUD/权限/分页/过滤/排序白名单/错误码、文档同步 API.md/DATABASE.md/ADR-0005。详见 [M1.3 session](sessions/2026-11-17-11-m1-3-kb-tc-crud.md)。
+- 证据边界：历史 session 记录真实 MySQL Maven verify、完整门禁与容器登录探测；本轮未重跑业务测试或容器验收，不据此确认当前运行健康与最新远端 CI。M1.3 验证限于本机 JDK 21 编译 + Spotless + 非 DB 单元测试；Prettier/scripts/check.ps1 因 Node 版本和 PowerShell 限制未执行。
+- M1.4 缓存限流：PLANNED。暂无已授权的下一项业务任务。
 - 开发入口：同级 TestOpsAI-server / codex/server-m1。源码、规范与记忆就绪；本机环境和依赖按需单独准备。
 
 <!-- lane:web -->
