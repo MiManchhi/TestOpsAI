@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.testopsai.server.modules.identity.UserRepository;
+import io.testopsai.server.modules.knowledge.KnowledgeBaseRepository;
+import io.testopsai.server.modules.testcase.TestCaseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class BoundaryTest {
   @Autowired MockMvc mvc;
   @MockBean UserRepository userRepository;
+  @MockBean KnowledgeBaseRepository knowledgeBaseRepository;
+  @MockBean TestCaseRepository testCaseRepository;
 
   @Test
   void healthIsPublicWithoutInternalDetails() throws Exception {
