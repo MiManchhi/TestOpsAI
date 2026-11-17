@@ -2,7 +2,7 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-当前已有 **M1.3 后端业务元数据实现**：数据库迁移、JWT 登录、当前用户、知识库和测试用例 CRUD 接口已实现；Web 目前为健康检查页面，登录与业务管理页面、RAG、Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+当前已有 **M1.3 后端业务元数据实现**：数据库迁移、JWT 登录、当前用户、知识库和测试用例 CRUD 接口已实现；Web 已实现登录、会话恢复与响应式工作台；知识库和测试用例页面目前为待开放说明，业务管理交互、RAG 与 Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
 
 ## 本地一键启动（推荐）
 
@@ -14,7 +14,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1
 
 首次自动生成随机凭据到本机 `.env`，构建并启动 MySQL、Redis、Qdrant、Java、AI、Web 六个服务，等待就绪并运行冒烟检查。已有 `.env` 保留；此方式无需在宿主机安装 Java、Node、Python 或运行 setup。首次构建需要联网下载镜像与依赖，可能耗时数分钟。
 
-成功后打开 [本地系统](http://127.0.0.1:8088)。目前看到的是欢迎与健康检查页。
+成功后打开 [本地系统](http://127.0.0.1:8088)。重新构建后进入登录页面，登录后可查看工作台概览、当前账户与服务连接。知识库和测试用例入口仅显示待开放说明。
 
 ```powershell
 # 查看状态 / 持续查看日志（Ctrl+C 退出日志，服务继续运行）

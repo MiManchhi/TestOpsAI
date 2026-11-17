@@ -1,6 +1,6 @@
 # 本地容器运行与验收
 
-更新：2026-11-17。状态：VERIFIED（启动入口在 M1.2 基线上默认构建启动与复用镜像启动通过，验证范围见 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；Java 已有 M1.3 数据库迁移、身份认证与业务元数据接口实现，Web/AI 仍以健康检查为主。新增 M1.3 未在本任务重新部署；历史六服务恢复与 CI 证据见 [容器 session](../../.memory/sessions/2026-11-17-05-container-delivery.md)。
+更新：2026-11-17。状态：VERIFIED（启动入口在 M1.2 基线上默认构建启动与复用镜像启动通过，验证范围见 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；Java 已有 M1.3 数据库迁移、身份认证与业务元数据接口实现，Web 已实现登录与工作台，知识库/测试用例页面仅待开放说明；AI 仍为健康检查骨架。新增 M1.3 未在本任务重新部署；历史六服务恢复与 CI 证据见 [容器 session](../../.memory/sessions/2026-11-17-05-container-delivery.md)。
 
 ## 启动与停止
 
@@ -62,7 +62,7 @@ docker compose up --no-build -d --wait --wait-timeout 240
 
 容器集成测试会短暂停止本项目服务，恢复时不构建镜像、不删除卷。不要在依赖这些服务的其他开发任务进行时运行。完整工程门禁不会自动启停 Docker；容器集成测试是独立的交付门禁。
 
-Java 现已连接 MySQL 并执行 Flyway 迁移；上述冒烟仍只覆盖列出的健康、代理与鉴权边界，不代表登录闭环、存储事务或 AI 业务链通过。Web 登录页面尚未实现，本阶段不引入浏览器 E2E 框架。
+Java 现已连接 MySQL 并执行 Flyway 迁移；上述冒烟仍只覆盖列出的健康、代理与鉴权边界，不代表登录闭环、存储事务或 AI 业务链通过。Web 登录与工作台已有本机浏览器验证；浏览器脚本未接入 CI，容器冒烟本身不覆盖浏览器登录交互。新 Web 与 M1.3 的容器部署须单独验收。
 
 集成测试也会验证 Java/AI 非 root、AI 最终镜像没有 uv 和 pytest/mypy/Ruff，且没有源码工作区或 `.env`。
 

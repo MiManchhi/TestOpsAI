@@ -1,5 +1,14 @@
 # 验证与能力证据
 
+## E18：Web 登录工作台主线集成（2026-11-17）
+
+状态：VERIFIED（本机集成检查；远端发布收尾见 session）。
+
+- Web 实现 ad87e97 已正常推送；先 pull 最新 main 15e98f8，再进行保留双方历史的合并。CURRENT 与 API 自动合并无文本冲突，保留后端 M1.3 与 Docker 启动器；README、API、路线图、容器指南、规范和记忆已核对。
+- 合并候选完整 scripts/check.ps1 退出 0：Web 37 测试/类型/零警告 lint/构建，Java verify/Spotless（33 项、28 项 DB 测试跳过），Python lock/Ruff/mypy/双平台脚本检查/1 测试/构建；目录/格式/28 份记忆及工程反例通过。
+- 先前 Web 分支真实 Java 登录、浏览器三尺寸交互与 smoke 证据仍限原基线；本次不重建或部署容器，不将既有健康状态推定为 M1.3 + 新 Web 已部署。远端新 CI 不据本机通过推定成功。
+- 发布提交、远端 SHA 和最终恢复起点见 [发布与集成 session](sessions/2026-11-17-12-web-auth-publish.md)。
+
 ## E17：协作发布、隔离工作区与 Ubuntu CI（2026-11-17）
 
 状态：VERIFIED（Git 发布、工作区准备与远端工程/容器验收）。

@@ -11,3 +11,5 @@ M1.1/M1.2 已有 JDBC/Flyway 身份表与 V1–V4 迁移、BCrypt、JWT 签发/�
 历史验证：[M1.1 session](../sessions/2026-11-17-06-m1-1-data-baseline.md)、[M1.2 session](../sessions/2026-11-17-07-m1-2-auth.md)、[M1.3 session](../sessions/2026-11-17-11-m1-3-kb-tc-crud.md)。M1.3 验证含 JDK 21 编译、Spotless、Maven verify（非 DB 测试通过，DB 测试因无 MYSQL_PASSWORD 跳过）。
 
 M1.4 缓存限流仍 PLANNED；当前具体任务只在 [CURRENT](../CURRENT.md) 维护。
+
+2026-11-17 主线集成补验：完整 scripts/check.ps1 退出 0，Java verify/Spotless（33 项，28 项 DB 测试跳过）；不作为真实数据库验证或部署证据。见 [Web 集成 session](../sessions/2026-11-17-12-web-auth-publish.md)。
