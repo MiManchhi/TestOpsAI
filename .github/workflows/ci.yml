@@ -48,7 +48,11 @@ jobs:
       - run: uv run --locked ruff check --config pyproject.toml ../../scripts/smoke-local.py
       - run: uv run --locked ruff format --check --config pyproject.toml ../../scripts/smoke-local.py
       - run: uv run --locked mypy
-      - run: uv run --locked mypy --strict ../../scripts/smoke-local.py
+      - name: Type-check smoke script for Linux and Windows
+        run: |
+          for platform in linux win32; do
+            uv run --locked mypy --strict --platform "$platform" ../../scripts/smoke-local.py
+          done
       - run: uv run --locked pytest
       - run: uv build --out-dir dist
   compose:

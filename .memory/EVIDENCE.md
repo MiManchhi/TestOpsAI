@@ -1,5 +1,23 @@
 # 验证与能力证据
 
+## E14：CI 跨平台修复本地验收（2026-11-17）
+
+状态：VERIFIED（本地范围，远端 CI 待推送后验证）。
+
+- mypy 1.20.2 的 linux 与 win32 目标均退出 0；Windows 隐藏夹具清理后完成 9 项目录、3 项记忆导航回归及 11 份 PowerShell 解析检查。
+- 直接执行 `scripts/check.ps1` 退出 0：格式、Vue 类型/lint/3 测试/构建、Java 2 测试/Spotless/打包、Python 锁定依赖/Ruff/类型/1 测试/sdist 与 wheel，包含新增的双平台脚本类型检查。
+- `scripts/smoke-local.ps1` 退出 0：修复后本机三端启动、健康入口、Java 代理及 401 边界通过；未据此声称 Linux 进程运行或完整应用容器部署通过。
+- [完整过程](sessions/2026-11-17-04-ci-portability-fix.md)，原失败 run 44009166249 的 server/web 成功、ai/compose 失败已通过 GitHub 元数据核实。
+
+## E13：远端 CI 失败分析（2026-11-17）
+
+状态：VERIFIED（Python 平台检查差异与源码定位；不表示修复或远端验收通过）。
+
+- 工作区起点 33fe9c4；Git 状态干净，main 跟踪 origin/main。用户截图显示 Ubuntu AI/compose job 失败，未获取完整远端运行元数据，不推定其他 job 结果。
+- 本机 mypy 1.20.2：`--strict --platform linux scripts/smoke-local.py` 退出 1，重现第 64 行 attr-defined；相同命令改为 `--platform win32` 退出 0。仅切换静态检查目标，不是 Linux 实机执行。
+- PowerShell 失败点为第 52 行临时点文件删除，9 项目录断言已通过；官方 .NET Unix 文件属性实现与 PowerShell 删除实现支持 Hidden 根因，未本机运行 Linux PowerShell。
+- 此前全量门禁成功仅覆盖 Windows；远端 CI 整体验收未通过。修复 PLANNED，未修改源码或 CI，未提交或推送。完整命令与交接见 [分析会话](sessions/2026-11-17-03-ci-failure-analysis.md)。
+
 ## E12：首次 GitHub 工程发布（2026-11-17）
 
 状态：VERIFIED（仓库发布范围，不代表应用部署）。工程提交 977591db002312988ed7cd614002792021e67f5a 正常推送 origin/main，git ls-remote SHA 与本地一致；保留原始 MIT LICENSE 初始历史，不强推。

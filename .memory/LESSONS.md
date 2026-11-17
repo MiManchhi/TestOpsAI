@@ -1,5 +1,19 @@
 # 问题与经验
 
+## 2026-11-17 CI 跨平台修复（本地已验证）
+
+- 状态：VERIFIED（Windows 完整门禁、本机 smoke、linux/win32 静态检查范围）；远端 Ubuntu CI 待推送后确认。
+- 已用 sys.platform 显式 if 分支隔离 Windows 常量；本地与 CI 均显式验证两个平台目标。运行时条件成立与静态检查能识别该条件是两个不同要求。
+- 夹具点文件用 Force 删除；Windows 上显式设置 Hidden，让现有回归也覆盖 Linux 的隐藏文件约束。保留负例检查和 finally 路径范围校验，不提升系统权限。
+- [修复会话与命令](sessions/2026-11-17-04-ci-portability-fix.md)。以下未修复记录为此前分析时点。
+
+## 2026-11-17 CI 跨平台缺陷（历史分析时点未修复）
+
+- 状态：PLANNED（修复）；原因分析已完成。Windows 本机检查通过不代表 Ubuntu CI 通过。
+- Python：os.name 条件表达式未让 mypy 排除 Windows 专用 subprocess 常量；mypy 1.20.2 的 linux 目标复现 attr-defined，win32 目标通过。拟使用 mypy 可识别的平台分支并分别验证，不关闭类型检查。
+- PowerShell：测试夹具点文件在 Unix 下具有 Hidden 语义，Remove-Item 缺少 Force 会报通用权限/隐藏/只读错误。拟仅调整临时夹具删除并保留范围约束；尚未运行 Linux PowerShell 实机复现。
+- 文件与证据：[分析会话](sessions/2026-11-17-03-ci-failure-analysis.md)、[Python 脚本](../scripts/smoke-local.py)、[目录回归](../tests/engineering/check-layout.tests.ps1)。
+
 ## 本轮已解决（2026-11-16）
 
 - VERIFIED：Wrapper 从根目录误找 .mvn，改为以脚本位置定位；Windows 路径末尾反斜杠会干扰 Java 参数引号，末尾点路径解决。根调用与 clean verify 均通过。

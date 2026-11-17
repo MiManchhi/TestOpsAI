@@ -1,5 +1,9 @@
 # 工程记忆导航
 
+当前任务：[CI 跨平台修复与发布](sessions/2026-11-17-04-ci-portability-fix.md)。两处修复已通过完整本地门禁、双平台类型检查与本机 smoke，提交/推送与远端 CI 验证待完成，不进入 M1。
+
+此前分析：[远端 CI 失败](sessions/2026-11-17-03-ci-failure-analysis.md)。Ubuntu 的 Python 平台常量与测试隐藏文件清理问题已定位；该分析记录保留当时未修复状态。
+
 最近完成：[M0 首次远程提交](sessions/2026-11-17-02-first-remote-push.md)。工程提交 977591d 已发布到 origin/main，MIT 许可证与初始历史保留；不进入业务开发。
 
 最近完成：[正式开发规范与准入复核](sessions/2026-11-17-01-development-standards.md)。每个新会话须读取开发、目录、[代码规范](../docs/development/CODE_STYLE.md)；M0 搭建已完成，用户要求暂不进入下一阶段；M1.1 仅保留为将来计划。阶段起点见 [ROADMAP](../docs/ROADMAP.md)。目录整理的历史见 2026-11-16-04 session。

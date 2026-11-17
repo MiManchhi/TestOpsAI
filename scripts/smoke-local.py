@@ -55,13 +55,16 @@ def main() -> None:
             directory: Path,
             environment: dict[str, str] | None = None,
         ) -> subprocess.Popen[bytes]:
+            creation_flags = 0
+            if sys.platform == "win32":
+                creation_flags = subprocess.CREATE_NO_WINDOW
             process = subprocess.Popen(
                 command,
                 cwd=directory,
                 env=environment,
                 stdout=stack.enter_context((logs / f"{name}.out.log").open("wb")),
                 stderr=stack.enter_context((logs / f"{name}.err.log").open("wb")),
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+                creationflags=creation_flags,
             )
             children.append(process)
             return process

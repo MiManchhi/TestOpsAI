@@ -47,9 +47,14 @@ try {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot 'apps/web/src/app/main.ts') -Destination $sourceEntry
     Set-Content -LiteralPath (Join-Path $FixtureRoot '.env.local') -Value '# local fixture'
     Assert-Layout $true 'local environment file accepted'
-    Set-Content -LiteralPath (Join-Path $FixtureRoot '.env.unregistered.example') -Value '# extra template'
+    $template = Join-Path $FixtureRoot '.env.unregistered.example'
+    Set-Content -LiteralPath $template -Value '# extra template'
+    # Unix dotfiles are hidden; exercise the same deletion constraint on Windows.
+    if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        [IO.File]::SetAttributes($template, [IO.FileAttributes]::Hidden)
+    }
     Assert-Layout $false 'unregistered root template rejected'
-    Remove-Item -LiteralPath (Join-Path $FixtureRoot '.env.unregistered.example')
+    Remove-Item -LiteralPath $template -Force
     $MemoryScript = Join-Path $RepositoryRoot 'scripts/memory.ps1'
     & $MemoryScript -Mode Check -RootPath $FixtureRoot | Out-Null
     Write-Output 'PASS: valid memory and coding rule navigation'

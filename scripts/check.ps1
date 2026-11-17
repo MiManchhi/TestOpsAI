@@ -15,7 +15,9 @@ try {
         Invoke-Checked uv @('run', '--locked', 'ruff', 'check', '--config', 'pyproject.toml', "$ProjectRoot/scripts/smoke-local.py")
         Invoke-Checked uv @('run', '--locked', 'ruff', 'format', '--check', '--config', 'pyproject.toml', "$ProjectRoot/scripts/smoke-local.py")
         Invoke-Checked uv @('run', '--locked', 'mypy')
-        Invoke-Checked uv @('run', '--locked', 'mypy', '--strict', "$ProjectRoot/scripts/smoke-local.py")
+        foreach ($platform in @('linux', 'win32')) {
+            Invoke-Checked uv @('run', '--locked', 'mypy', '--strict', '--platform', $platform, "$ProjectRoot/scripts/smoke-local.py")
+        }
         Invoke-Checked uv @('run', '--locked', 'pytest')
         Invoke-Checked uv @('build', '--out-dir', 'dist')
     } finally { Pop-Location }

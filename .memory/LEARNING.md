@@ -1,5 +1,7 @@
 # 学习与面试积累
 
+2026-11-17 CI 跨平台实践，状态：IN_PROGRESS（待用户自测确认）。自测：为什么运行时 os.name 判断能工作，mypy 仍会报告 Windows 专用常量错误？为什么点文件在 Windows 与 Linux 的 Hidden 属性不同？为什么本地构建通过不能等同远端 CI 通过？实践与验证见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)；不推定用户已掌握。
+
 2026-11-16 工程实践：目录以真实职责为依据，业务域内先平铺；理解根入口、应用配置、缓存、依赖锁的不同职责，以及“可构建”“本机可运行”“容器部署”三个不同验收范围。待用户自测确认，不推定已掌握。材料见 [ADR-0002](../docs/ADR/0002-feature-layout.md) 和 [本次记录](sessions/2026-11-16-04-engineering-layout.md)。
 
 2026-11-16 新增学习材料：[目录与根配置初学者指南](../docs/development/DIRECTORY_LAYOUT.md)。待用户自测确认：能否解释 apps/docs/infra/scripts/.memory 的分工，说明三种 ignore 的区别，并为新文件选择唯一合理归属；不能仅凭文档已提供推定用户已掌握。

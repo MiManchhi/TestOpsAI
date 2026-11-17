@@ -1,8 +1,10 @@
 # 当前交接
 
-更新：2026-11-17（Asia/Shanghai）。状态：VERIFIED（M0 已首次远程发布；M1 待明确指令）。
+更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M0 CI 跨平台修复与发布；M1 待明确指令）。
 
 ## 当前任务
+
+2026-11-17 最新要求：修改已分析的两个问题并推送远程。Python 改用 sys.platform 显式分支，本地/CI 添加 linux、win32 双目标检查；目录回归对隐藏点文件使用 Force，并在 Windows 显式创建 Hidden 夹具。双目标 mypy、完整 scripts/check.ps1 和本机 smoke 均已通过；见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)。提交和推送已获本任务授权，尚未执行；保留 M0 边界。远端 CI 验收仍待修复提交后重跑。
 
 2026-11-17 新授权：先将已搭建的 M0 工程提交并推送至 git@github.com:MiManchhi/TestOpsAI.git；不进入业务开发。远程原始 MIT LICENSE 已保留；工程提交 977591d 已正常推送并核对本地/远程 SHA 一致，本地 main 跟踪 origin/main，见 [session](sessions/2026-11-17-02-first-remote-push.md)。此前不自动进入 M1 的边界继续有效。
 
@@ -13,12 +15,12 @@
 - 此前根源码文件为 13 个；保留远程 LICENSE 后为 14 个；Java platform/security、Vue app/features/health、Python app/core/features/health 已迁移；无新增业务、无空业务目录。
 - .tools 只保留 toolchains/cache；60 项旧遗留归档至忽略的 .runtime，保留回退能力，没有递归删除。
 - doctor/setup 成功；Vue 全量检查及构建通过，Java 2 项测试和打包通过，Python 锁定依赖、lint、类型、测试和构建通过；本机三端、代理与安全边界 smoke 已通过。
-- 目录检查及 9 项回归通过；scripts/check.ps1 退出 0，覆盖格式、Vue 类型/lint/3 测试/构建、Java 2 测试/打包、Python lint/类型/1 接口测试/sdist 与 wheel 构建及 smoke 脚本质量检查。Java clean verify 和本机动态端口 smoke 另行通过。
+- Windows 本机目录检查及 9 项回归通过；scripts/check.ps1 退出 0，覆盖格式、Vue 类型/lint/3 测试/构建、Java 2 测试/打包、Python lint/类型/1 接口测试/sdist 与 wheel 构建及 smoke 脚本质量检查。Java clean verify 和本机动态端口 smoke 另行通过。这些证据不覆盖 Linux，不能据此认定远端 CI 通过。
 - Git main 跟踪 origin/main，origin 为 git@github.com:MiManchhi/TestOpsAI.git；工程提交 977591d 已发布，未强推。该任务的提交/推送已获用户授权，其他任务仍不自动提交/推送。原始 PROJECT_BLUEPRINT 保留原文。
 
 ## 限制与后续
 
-- MySQL、Redis、Qdrant 已 running/healthy；应用用户 SQL 查询、Redis 鉴权、Qdrant ready 与 API Key/未授权拒绝验证通过。完整应用容器部署和远端 CI 仍未执行。
+- MySQL、Redis、Qdrant 此前已 running/healthy；应用用户 SQL 查询、Redis 鉴权、Qdrant ready 与 API Key/未授权拒绝验证通过。完整应用容器部署尚未执行。原远端 CI run 44009166249 对应 33fe9c4：已读取元数据，server/web 成功，ai/compose 分别在脚本类型检查/测试点文件清理失败，后续 pytest/AI 构建及 Compose 配置校验被跳过；此次修复后的远端结果待重跑。
 - npm audit 检出一条 minimatch 公告（globparts amplification，GHSA-g3hv-75wg-m249），影响 7 个开发工具依赖包；0 high/critical。当前自动建议会跨版本降级 typescript-eslint，未盲目执行。后续单独评估兼容修复；不是新增业务可用性结论。
 - pytest 有 Starlette 对 httpx TestClient 的弃用提示；测试通过，后续随测试工具升级处理。
 - Java Mockito 动态 agent 提示不影响当前测试；后续按 JDK 升级评估。
