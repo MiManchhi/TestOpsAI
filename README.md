@@ -2,7 +2,7 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-当前为 **M0 工程骨架**：三端本机检查、构建与健康链路、Ubuntu CI 四项质量检查、本机完整六服务容器部署与恢复验收已通过。新增容器 CI job 尚待远端执行，结果见 [当前工程记忆](.memory/CURRENT.md)。登录、知识库、RAG、Agent 均尚未实现。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+当前为 **M0 工程骨架**：三端本机检查、构建与健康链路、本机六服务容器部署及恢复验收、Ubuntu CI 五项检查（含容器构建/集成验收/隔离清理）均通过，证据见 [当前工程记忆](.memory/CURRENT.md)。登录、知识库、RAG、Agent 均尚未实现。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
 
 ## 目录与职责
 
@@ -72,6 +72,6 @@ docker compose down
 
 正式开发遵守 [代码与格式规范](docs/development/CODE_STYLE.md)。每个新 AI 会话先读取 AGENTS、记忆导航和当前状态，再读取开发、目录、代码规范；`scripts/memory.ps1 -Mode Restore` 可一次输出全部入口，`scripts/check.ps1` 包含规范导航与记忆检查。
 
-现有 Ubuntu CI 的格式、Vue、Java、Python 与 Compose 配置检查已经通过；新增 containers job 等待四项质量检查后构建三端镜像并运行完整容器集成验收，新增 job 的真实运行结果见 [证据台账](.memory/EVIDENCE.md)，配置存在不等于验证通过。
+Ubuntu CI 的 web/server/ai/compose 四项质量检查及 containers 容器验收均已通过。containers 等待四项质量检查后构建三端镜像，运行统一容器集成验收并清理自己的临时资源；已验证运行见 [CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) 和 [证据台账](.memory/EVIDENCE.md)。
 
 遵循 [开发与提交规范](docs/development/CONTRIBUTING.md)、[安全规范](docs/development/SECURITY.md) 与 [AGENTS](AGENTS.md)。新会话先读 [记忆导航](.memory/INDEX.md)。不提交密钥、下载工具或生成产物；项目沿用远程仓库已有的 [MIT 许可证](LICENSE)。

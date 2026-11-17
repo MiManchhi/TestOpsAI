@@ -1,12 +1,12 @@
 # 当前交接
 
-更新：2026-11-17（Asia/Shanghai）。状态：IN_PROGRESS（M0 完整容器交付与自动验收；M1 待明确指令）。
+更新：2026-11-17（Asia/Shanghai）。状态：VERIFIED（M0 本机容器交付与 Ubuntu 容器 CI 通过；M1 待明确指令）。
 
 ## 当前任务
 
-2026-11-17 用户已明确授权本次容器交付变更提交并推送 origin/main，继续验证 CI；此前授权阻塞已解除。本机成果不变，当前发布前 HEAD/远端均 f5229bc，无分支分歧，六服务仍 healthy。下一步提交、推送并跟进新增容器 job，不以旧运行 44011572887 代替新验收。
+本次任务已完成：用户明确授权后，容器交付提交 173fe32 正常推送 origin/main 并核对 SHA 一致；[CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) completed/success，server/web/ai/compose/containers 五个 job 均成功。容器日志确认重复启动、保留卷停启、停止 AI 负例及恢复通过，最后仅清理 testops-ci-44026578462-1 的六容器、网络及三个临时卷。BLOCKED：无本次任务遗留阻塞；收尾文档随独立 docs 提交同步，最新 tip 以 Git refs 为准。
 
-本机三端镜像构建成功，六服务已 DEPLOYED（Docker Desktop Linux x86_64，2026-11-17），完整/基础冒烟、非 root/AI 精简镜像、重复启动、保留卷停启和停止 AI 的负例均通过，最终恢复全部服务 healthy。完整工程门禁退出 0。新增容器 CI 为 IMPLEMENTED，尚未远端执行。过程见 [容器会话](sessions/2026-11-17-05-container-delivery.md)。不删本机卷，不修改业务；本次提交/推送使用当前明确授权。
+本机六服务已 DEPLOYED（Docker Desktop Linux x86_64，2026-11-17），入口 http://127.0.0.1:8088。完整/基础冒烟、非 root/AI 精简镜像、重复启动、保留卷停启、停止 AI 的退出码 1 负例、完整工程门禁及用户入口 scripts/dev.ps1 all 均通过；本机三个数据卷保留，最终六服务 healthy。过程见 [容器会话](sessions/2026-11-17-05-container-delivery.md)。保持 M0，不自动开始 M1，不修改业务。
 
 2026-11-17 最新要求已完成：Python 改用 sys.platform 显式分支，本地/CI 添加 linux、win32 双目标检查；目录回归对隐藏点文件使用 Force，并在 Windows 显式创建 Hidden 夹具。提交 9fb1437 已正常推送 origin/main 并核对 SHA 一致；双目标 mypy、完整 scripts/check.ps1、本机 smoke 和 [Ubuntu CI 44011247548](https://github.com/MiManchhi/TestOpsAI/actions/runs/44011247548) 均通过，server/web/ai/compose 四个 job 成功。见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)。BLOCKED：无本次 CI 修复遗留阻塞；继续停留 M0，等待用户新任务。收尾记忆随独立 docs 提交同步，最新 tip 以 Git refs 为准。
 
@@ -24,7 +24,7 @@
 
 ## 限制与后续
 
-- 本机六服务容器部署与统一冒烟现已通过，三项基础卷保持；新增 CI 容器 job 尚待远端执行。原失败 run 44009166249 留作历史；修复提交 9fb1437 的 run 44011247548 四项质量检查通过。六服务健康不等于尚未实现的存储业务或 Java/AI 调用链通过；未做公网部署或镜像发布。
+- 本机六服务部署与五项远端 CI 均通过，三项本机基础卷保持。原失败 run 44009166249 留作历史；本次完整验收以 173fe32 的 run 44026578462 为证据。六服务健康不等于尚未实现的存储业务或 Java/AI 调用链通过；未做公网部署或镜像发布。
 - npm audit 检出一条 minimatch 公告（globparts amplification，GHSA-g3hv-75wg-m249），影响 7 个开发工具依赖包；0 high/critical。当前自动建议会跨版本降级 typescript-eslint，未盲目执行。后续单独评估兼容修复；不是新增业务可用性结论。
 - pytest 有 Starlette 对 httpx TestClient 的弃用提示；测试通过，后续随测试工具升级处理。
 - Java Mockito 动态 agent 提示不影响当前测试；后续按 JDK 升级评估。

@@ -1,6 +1,6 @@
 # 工程记忆导航
 
-当前任务：[M0 完整容器交付](sessions/2026-11-17-05-container-delivery.md)。本机六服务已 DEPLOYED，完整冒烟、恢复/负例与工程门禁均通过；用户已授权本次提交/推送，正在发布并验证新增容器 CI。不进入 M1。
+最近完成：[M0 完整容器交付](sessions/2026-11-17-05-container-delivery.md)。本机六服务已 DEPLOYED，完整冒烟、恢复/负例与工程门禁通过；173fe32 已推送，Ubuntu CI 五个 job（含 containers）均成功，CI 临时资源清理通过。不进入 M1，等待用户新任务。
 
 最近完成：[CI 跨平台修复与发布](sessions/2026-11-17-04-ci-portability-fix.md)。修复提交 9fb1437 已推送，完整本地门禁、双平台类型检查、本机 smoke 及 Ubuntu CI 四个 job 均通过；不进入 M1。
 

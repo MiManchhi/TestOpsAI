@@ -1,6 +1,6 @@
 # M0 完整容器交付与自动验收
 
-更新：2026-11-17。状态：IN_PROGRESS。
+更新：2026-11-17。状态：VERIFIED（本机 DEPLOYED，五项远端 CI 通过，代码已推送）。
 
 ## 目标与起点
 
@@ -53,3 +53,14 @@
 - 2026-11-17 用户明确答复授权本次提交并推送、继续验证 CI；此前 Git 发布授权阻塞解除，不再重复请求授权。
 - 发布前重新 fetch origin/main：本地/远端均为 f5229bc，分歧 0/0；25 份本机候选变更保留，六服务仍 healthy。当前尚未推送，新 CI 待执行。
 - 先复核凭据/产物排除、格式、导航与工作流语义，再按 Conventional Commits 发布并核对远端 SHA。没有源码变动，不重复已经通过的镜像构建或停启测试；以新 CI 的真实运行记录作为远端验收依据。
+- 复核扫描、全仓格式、actionlint、记忆 Check 与 git diff --check 均通过；`git commit -m "build(infra): complete M0 container delivery and verification"` 退出 0，提交 173fe32ba41891c3ee73df4c0cd4dd7f80e5fc50；`git push origin main` 退出 0，远端从 f5229bc 前进到该 SHA，未强推，推送后工作区干净。
+- [CI run 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) 对应该提交，completed/success；server/web/ai/compose/containers 五个 job 均成功。
+- 补验用户入口 `scripts/dev.ps1 all` 退出 0：按顺序构建、240 秒内健康等待及完整 smoke 均通过，三个输出镜像 ID 保持一致，未删除数据卷。
+- 已读取 containers job 133848422570 日志：完整 smoke、非 root/AI 运行环境、重复启动、保留三个卷的停启、停止 AI 拒绝和恢复逐项通过；最后成功删除仅 testops-ci-44026578462-1 的六个容器、网络和三个临时卷。失败诊断步骤按预期 skipped；不将该 skipped 视为失败，不复制原始日志或凭据到记忆。
+
+## 最终验收与起点
+
+- 验收 1–3：本机镜像构建、六服务 healthy/完整冒烟、重复启动、保留卷恢复和 AI 停止时进程退出 1 均有上述实际命令证据；本机卷保留，服务恢复健康。
+- 验收 4：本机完整工程门禁退出 0；173fe32 的新增 Ubuntu containers job 与四项既有质量检查均成功，构建、启动、统一测试、隔离清理步骤均验证。
+- 验收 5：候选文件凭据/私钥/生成物扫描通过，根源码文件仍 14 个，无新目录或业务改动；提交仅含已复核文件。收尾记忆/文档随独立 docs 提交同步，最终 tip 以 Git refs 为准。
+- BLOCKED：无本次任务遗留阻塞。既有 npm 审计及弃用提示继续保留；未公网发布、未发布镜像仓库、未实现业务调用链。下一步保持 M0，等待用户新任务，不自动进入 M1。

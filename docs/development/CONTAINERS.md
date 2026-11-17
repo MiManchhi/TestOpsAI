@@ -1,6 +1,6 @@
 # M0 容器运行与验收
 
-更新：2026-11-17。状态：VERIFIED（本机六服务部署与恢复验收；新增远端容器 job 待执行，进展以 [CURRENT](../../.memory/CURRENT.md) 为准）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；当前是健康检查骨架，不包含登录、数据库业务或 AI 问答。
+更新：2026-11-17。状态：VERIFIED（本机六服务部署、恢复验收与 Ubuntu 容器 CI 均通过，见 [CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) 和 [CURRENT](../../.memory/CURRENT.md)）。适用 Windows Docker Desktop Linux 引擎与 Ubuntu CI；当前是健康检查骨架，不包含登录、数据库业务或 AI 问答。
 
 ## 启动与停止
 
