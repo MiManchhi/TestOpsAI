@@ -1,5 +1,14 @@
 # 验证与能力证据
 
+## E17：协作发布、隔离工作区与 Ubuntu CI（2026-11-17）
+
+状态：VERIFIED（Git 发布、工作区准备与远端工程/容器验收）。
+
+- 协作提交 0a61b30b4e1a23719182abc8c19b25432930c680 正常推送 origin/main，远端 SHA 与本机一致；没有强推。收尾记忆另随 docs 提交同步，最终 refs 以 Git 为准。
+- [CI 44048755494](https://github.com/MiManchhi/TestOpsAI/actions/runs/44048755494) 的 server/web/ai/compose/containers 五个 job completed/success；compose 日志包含新版协作结构正反例成功，containers 构建、健康、恢复验收与清理步骤成功。Java 9 项数据库测试跳过，未做客户端新会话验收或生产部署。
+- 同级 TestOpsAI-server / codex/server-m1、TestOpsAI-web / codex/web-auth、TestOpsAI-ai / codex/ai-ingestion 均创建成功；实际 Restore -ListOnly 正确自动识别 server/web/ai，布局检查退出 0，工作树干净，未复制 .env、.tools 或依赖。各树随收尾 docs 快进对齐主线。
+- 详细命令、授权、范围与恢复起点见 [发布 session](sessions/2026-11-17-09-publish-collaboration-worktrees.md)。
+
 ## E16：统一 AI 入口、自动恢复与协作结构检查（2026-11-17）
 
 状态：VERIFIED（Windows 本机工程检查），实际客户端新会话注入仍待实测。
