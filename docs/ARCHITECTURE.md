@@ -1,8 +1,8 @@
 # 架构与边界
 
-更新：2026-11-17。Java 已实现 M1.1–M1.4 业务与工程基线，Python 仍为基础骨架。Java 是模块化单体业务服务，Python 为独立 AI 运行时；不引入 Spring Cloud。新增 Robot/AI 业务依照 [ADR-0007](ADR/0007-final-product-contract.md)、[最终产品设计](PRODUCT_DESIGN.md) 和 [冻结契约](contracts/README.md) 实施。
+更新：2026-11-18。Java 已实现 M1.1–M1.5（身份、知识库/用例 CRUD、缓存限流、项目隔离）+ 契约 1.0.0 冻结；Web 已实现登录 + v2 用例目录；Python 已实现 Robot 静态解析。Java 是模块化单体业务服务，Python 为独立 AI 运行时；不引入 Spring Cloud。新增 Robot/AI 业务依照 [ADR-0007](ADR/0007-final-product-contract.md)、[最终产品设计](PRODUCT_DESIGN.md) 和 [冻结契约](contracts/README.md) 实施。
 
-浏览器 → Nginx（开发时 Vite proxy）→ Java → Python；Python 工具操作回调 Java 并再次授权。Java 持有 MySQL 业务事实，Redis 提供已有缓存/登录限流，Qdrant 是待接入的可重建检索索引。当前已有身份、知识库和用例元数据业务，但尚未建立 Java/Python AI 业务调用；设计不能当作已运行证据。
+浏览器 → Nginx（开发时 Vite proxy）→ Java → Python；Python 工具操作回调 Java 并再次授权。Java 持有 MySQL 业务事实，Redis 提供已有缓存/登录限流，Qdrant 是待接入的可重建检索索引。当前已有身份、知识库、用例、项目隔离业务和 Redis 缓存/限流；Web 登录与 v2 目录已合入；AI Robot 解析独立可用。Java↔Python 业务调用链、RAG、Agent、SSE 事件流尚未建立；冻结契约和设计不能当作已运行证据。
 
 ## 部署
 

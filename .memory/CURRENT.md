@@ -2,7 +2,7 @@
 
 ## 学习任务（用户明确授权更新记忆）
 
-2026-11-18：IN_PROGRESS。用户正在通过本对话学习 TestOps AI，允许写入学习规划与进度。本轮已完整回顾课程阶段，尚未做理解验证；掌握情况不变。严格按 [学习路线](LEARNING.md#testops-ai-系统学习路线) 顺序；当前停在阶段 0（整体业务/架构/目录地图尚未由用户复述确认）。下一节只讲业务流、端到端系统架构、技术职责、目录和已实现/冻结/规划的边界，再用小步验证；未确认前不进入阶段 1。每次教学对话结束须同步 LEARNING、本段和学习 session。CI 后续发现本学习记忆的两个 Markdown 格式问题，已在本地按 Prettier 修复并通过全仓格式/记忆检查，准备推送修复提交。仅修改 .memory；应用代码只读。详见 [session](sessions/2026-11-18-06-learning-roadmap.md)。
+2026-11-18：IN_PROGRESS。用户确认阶段 0（整体业务/架构/目录地图）完成；按用户自报记录，不额外推断掌握。当前进入阶段 1，沿登录请求 `POST /api/v1/auth/login` 从 Vue API 路径追踪至 Java Controller；本节仅讲路径/方法/代理/路由映射，认证算法、数据库及响应细节后续分节。每次教学对话结束同步 LEARNING、本段和学习 session。此前 CI 格式修复已推送，详见 [session](sessions/2026-11-18-06-learning-roadmap.md)。仅修改 .memory；应用代码只读。
 
 更新：2026-11-17（Asia/Shanghai）。状态：VERIFIED（协作基线已发布、三个工作区准备与 Ubuntu CI 通过；客户端新会话实测待做）。
 
@@ -10,6 +10,7 @@
 
 ## 集成
 
+- AUDIT-FIX-001：VERIFIED（2026-11-18，P0/P1/P2 审查修复）。V7 迁移修正种子数据 owner_id；PageResponse 统一到 platform/web（删除 2 份域内副本）；ARCHITECTURE/ROADMAP/DATABASE/API 状态标记同步至 M1.5 + 契约冻结 + Web v2 + AI 解析；API.md 新增 v1/v2 共存策略。完整门禁 exit 0。DB 集成测试因 Docker Desktop 未运行阻塞，待解除。见 [session](sessions/2026-11-18-08-audit-fixes.md)。
 - WEB-V2-MERGE-001：VERIFIED（2026-11-18，Git 合并与普通推送）。合并提交 a6a5fad 已正常推送 origin/main，无冲突、无强推；用户追加“合并吧”授权；已 fetch 最新 main ff9f671，并在独立集成目录无冲突合并 Web 20b8e2e，保留 Java M1.5/V6、AI 解析与学习路线。依赖已安装；门禁环境入口失败、尚未开始测试。用户明确已验证并要求直接合并，停止追加验证，直接提交并普通推送。以后明确要求推送、合并时直接执行，不重复确认；冲突、分歧或未提交工作则保留现场说明。范围与恢复起点见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)。真实 v2 provider 联调仍 BLOCKED，不能以合并或旧 CI 解除。
 
 - AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成门禁与主线发布）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），已随合并提交 a215e34 正常推送 origin/main，远端 SHA 一致；收尾记忆随后独立提交，最终 tip 以 Git refs 为准。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。

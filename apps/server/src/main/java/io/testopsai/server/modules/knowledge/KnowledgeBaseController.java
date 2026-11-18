@@ -2,6 +2,7 @@ package io.testopsai.server.modules.knowledge;
 
 import io.testopsai.server.modules.identity.AppUser;
 import io.testopsai.server.modules.identity.UserRepository;
+import io.testopsai.server.platform.web.PageResponse;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,7 @@ class KnowledgeBaseController {
   @GetMapping
   ResponseEntity<PageResponse<KnowledgeBaseResponse>> list(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-    if (size > 100) size = 100;
+    PageResponse.validatePagination(page, size);
     return ResponseEntity.ok(service.list(page, size));
   }
 

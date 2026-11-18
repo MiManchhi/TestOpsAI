@@ -2,7 +2,7 @@
 
 > 2026-11-17：新增 Robot/项目/运行/会话/草稿等域的 [最终领域与迁移设计](DOMAIN_MODEL.md)，网络字段以 [共享 schema](contracts/schemas.json) 为准。以下保留已执行迁移事实；后续草案由新设计取代，尚无新增迁移执行。
 
-更新：2026-11-17。状态：IMPLEMENTED（M1.1 身份基线 + M1.2 种子角色/管理员迁移已落地；其余域仍为草案）。
+更新：2026-11-18。状态：IMPLEMENTED（V1–V7 迁移已落地：身份基线、种子角色/管理员、业务元数据、项目隔离、种子数据修正）。
 
 ## M1.1 已实现：身份基线
 
@@ -20,6 +20,17 @@
 | user_roles | user_id BIGINT FK→users, role_id BIGINT FK→roles, created_at DATETIME(6), PK(user_id, role_id)                               | 级联删除；同一用户角色不重复 |
 
 ## M1.3 已实现：业务元数据
+
+## M1.5 已实现：项目隔离
+
+- 迁移脚本：`apps/server/src/main/resources/db/migration/V6__project_isolation.sql`
+- 新增两表：projects、project_members；CHECK 约束 role IN ('OWNER','EDITOR','VIEWER')。
+- 种子 DEMO 项目绑定 admin 用户（通过 username 子查询，不硬编码 id）。
+
+## V7 修正：种子数据 owner_id
+
+- 迁移脚本：`apps/server/src/main/resources/db/migration/V7__fix_seed_data_owner.sql`
+- 修正 V5 种子数据中 owner_id=1 硬编码问题：当 admin 用户 id≠1 时，重新绑定到实际 admin 用户。
 
 - 迁移脚本：`apps/server/src/main/resources/db/migration/V5__business_metadata.sql`
 - 新增三表：knowledge_bases、kb_members、test_cases；种子数据绑定 admin 用户（id=1）。

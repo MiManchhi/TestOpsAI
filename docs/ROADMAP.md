@@ -1,6 +1,6 @@
 # 研发阶段与开发准入
 
-更新：2026-11-17。状态：IN_PROGRESS（M1.1/M1.2/M1.3 后端与 Web 登录已实现；验证范围见当前记忆）。方向以 [原始方案](PROJECT_BLUEPRINT.md) 为准，当前事实以 [.memory/CURRENT](../.memory/CURRENT.md) 与真实验证结果为准。
+更新：2026-11-18。状态：IN_PROGRESS（M1.1–M1.5 后端 + Web 登录/v2 目录 + AI Robot 解析已实现；契约 1.0.0 冻结；DB 集成测试待真实执行）。方向以 [原始方案](PROJECT_BLUEPRINT.md) 为准，当前事实以 [.memory/CURRENT](../.memory/CURRENT.md) 与真实验证结果为准。
 
 ## M0：基础工程与规范
 
@@ -16,7 +16,7 @@
 
 ## M1：Java 核心业务后端
 
-状态：IN_PROGRESS；M1.1/M1.2/M1.3 已有实现，历史验证见 CURRENT 链接；M1.3 数据库集成测试仍待真实执行，M1.4 仍 PLANNED。后续工作按具体授权任务推进，不一次铺开全部业务。
+状态：IN_PROGRESS；M1.1–M1.5 已有实现（身份、知识库/用例 CRUD、缓存限流、项目隔离），Web 登录 + v2 目录已合入，AI Robot 解析独立可用。契约 1.0.0 冻结。DB 集成测试（40/45 Java 测试）因 CI 无 MYSQL_PASSWORD 跳过，待真实执行。v2 API 真实运行实现、Java↔Python 调用链、RAG、Agent、SSE 仍 PLANNED。
 
 1. **M1.1 数据基线**：核对 DATABASE/API，冻结首批用户/角色关系及约束；引入必要的 MySQL、持久化与迁移依赖，编写首批版本化迁移和真实 MySQL 集成测试。先验证数据库连通、约束、重复数据/失败路径，再实现认证。
 2. **M1.2 身份与授权**：登录、密码散列、JWT/RBAC、401/403、资源级授权与测试；规范化错误和请求追踪。

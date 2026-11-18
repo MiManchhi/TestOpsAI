@@ -4,6 +4,13 @@
 
 2026-11-17：新增 [三端开发契约 1.0.0](contracts/README.md)（OpenAPI + 共享 schema + 事件/工具/页面映射），依据智能电表 Robot 背景确定。新业务使用 `/api/v2`，内部 `/internal/v1`；既有 `/api/v1/auth/login`、`/users/me` 与下述历史 CRUD 保持现状。新增契约标为 SPECIFIED，不能当作接口已实现；实际运行事实以下述已实现章节和代码为准。最终页面见 [产品设计](PRODUCT_DESIGN.md)。
 
+## v1/v2 共存策略
+
+- **v1 保留范围**：`/api/v1/auth/login`、`/api/v1/users/me`、`/api/v1/knowledge-bases/*`、`/api/v1/test-cases/*`。这些是 M1.1–M1.4 已实现的历史接口，保持现有行为不变。
+- **v2 新增范围**：`/api/v2/*` 按冻结契约 1.0.0 实施，包含项目隔离、字符串 ID、数组标签、Robot 来源、运行语义等新能力。Web 新业务页面只接 v2。
+- **过渡规则**：v1 知识库/用例 CRUD 与 v2 项目域用例不混用 ID；v1 数字 ID 与 v2 字符串 ID 不互转。最终 Web 新业务只接 v2，v1 CRUD 作为 legacy 保留至 v2 对应功能完全替代后由 ADR 决定废弃。
+- **内部 API**：`/internal/v1/*` 仅服务网络开放，不透传用户 JWT。
+
 ## M0 已实现
 
 | 服务 | 方法与路径                     | 响应                  | 可见性               |
@@ -38,7 +45,7 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 - 当前用户 `id` 为数字，`username` 为字符串，`roles` 为角色码字符串数组，`createdAt` 为 ISO-8601 UTC 时间。
 - 凭据错误返回 401，`code=INVALID_CREDENTIALS`；缺失或无效令牌返回 401，权限拒绝返回 403。认证/授权错误 JSON 为 `{ code, message, requestId }`，响应携带 `X-Request-Id`。
 - Web 将令牌与到期时间存入 `sessionStorage`，不保存密码；刷新后调用当前用户接口重新验证。403 保留会话并提示无权限；401 或本地过期清理会话。退出仅清理当前标签页会话，不撤销已签发 JWT。
-- Web History 页面路径为 `/login`、`/overview`、`/knowledge`、`/test-cases`。后两项目前仅为待开放说明，尚未接入 M1.3 业务元数据接口。
+- Web 页面路径为 `/login`、`/overview`、`/knowledge`、`/test-cases`。M1.3 知识库/用例 CRUD 已实现；Web v2 用例目录已合入 main（基于冻结契约的 contract provider，真实 v2 API 联调仍 BLOCKED）。
 
 - JWT 签名密钥由环境变量 `JWT_SECRET` 提供（至少 32 字节）；token 有效期 30 分钟。
 - 401 响应统一为 `{code: "UNAUTHORIZED", message, requestId}`；403 为 `{code: "FORBIDDEN", message, requestId}`。
