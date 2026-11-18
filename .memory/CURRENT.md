@@ -10,6 +10,8 @@
 
 ## 集成
 
+- WEB-V2-MERGE-001：IN_PROGRESS（2026-11-18）。用户追加“合并吧”授权；已 fetch 最新 main ff9f671，并在独立集成目录无冲突合并 Web 20b8e2e，保留 Java M1.5/V6、AI 解析与学习路线。依赖已安装；门禁环境入口失败、尚未开始测试。用户明确已验证并要求直接合并，停止追加验证，直接提交并普通推送。以后明确要求推送、合并时直接执行，不重复确认；冲突、分歧或未提交工作则保留现场说明。范围与恢复起点见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)。真实 v2 provider 联调仍 BLOCKED，不能以合并或旧 CI 解除。
+
 - AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成门禁与主线发布）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），已随合并提交 a215e34 正常推送 origin/main，远端 SHA 一致；收尾记忆随后独立提交，最终 tip 以 Git refs 为准。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。
 
 - DESIGN-CONTRACT-PUBLISH-001：VERIFIED（2026-11-18 提交/正常推送与远端 SHA 核对）。用户认可的最终设计/契约、检查与 [三端开工指南](../docs/development/PARALLEL_DEVELOPMENT.md) 已随 0a1a2b3 推送 origin/main；本轮完整 scripts/check.ps1 退出 0（Web 37，Java 37 项中 32 项 DB/Redis 测试跳过，Python 1 项与检查/构建通过）。指南定义 SERVER-V2-001 / WEB-V2-001 / AI-PARSER-001 首批任务与可粘贴指令；三个工作区只读核实均干净，但尚未同步冻结基线、未自动启动业务任务。收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准；新远端 CI 未核实。见 [session](sessions/2026-11-18-01-design-contract-publish.md)。
@@ -46,6 +48,14 @@
 <!-- lane:web -->
 
 ## Web
+
+- WEB-V2-MERGE-001：IN_PROGRESS（2026-11-18）。Web tip 20b8e2e 的最终 [CI 44257614573](https://github.com/MiManchhi/TestOpsAI/actions/runs/44257614573) 五项成功；用户已追加授权合入最新 main，先前“暂不合并”属于历史事实。本次合并与发布证据见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)；真实 API 联调阻塞保持。
+
+- WEB-V2-001 发布：VERIFIED（2026-11-18 提交/正常推送与远端 CI）。功能 c74c03b 与最小镜像修复 35b5a59 已普通推送 Web；[CI 44256756644](https://github.com/MiManchhi/TestOpsAI/actions/runs/44256756644) 五项全成功，含 Web 59 测试、镜像构建、六服务交付/恢复与隔离清理。初次 JSON 缺失失败及本机 Docker 未运行限制保留在 [session](sessions/2026-11-18-03-web-v2-catalog.md)；修复仅为 .dockerignore 两文件白名单与 Web Dockerfile COPY。暂不合并，未推送 main，真实 v2 联调仍 BLOCKED。收尾仅补充三份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准。
+
+- WEB-V2-001：IMPLEMENTED（2026-11-18）；Web 类型/lint/最终 59 测试/构建、契约与隔离浏览器范围 VERIFIED。正式布局、项目上下文/资料/账户、套件树、精确筛选排序分页、跨页选择快照及只读详情/来源已实现。原完整入口受 pytest 缓存 EPERM 阻断，全部源码格式与其余原步骤的等效门禁退出 0（当时 Web 57、Java 37 中 32 DB/Redis 跳过、Python 1）；收尾仅新增两项契约回归并复跑 Web/契约。1440/768/375 与键盘/异常通过，示例仅测试隔离。收尾核实远端 main 新增至 1cbe62e（未改公共契约/Web），静态发现项目列表 Controller 返回数组而契约要求 ProjectPage，且套件/用例/选择未交付，真实联调 BLOCKED。开发验收基线为 0dfe373，发布事实见上条；未合并新主线或部署，见 [开发 session](sessions/2026-11-18-03-web-v2-catalog.md)。下列“仍 PLANNED”保留历史时点。
+
+- WEB-SYNC-001：VERIFIED（2026-11-18 本地同步、远程发布与发布提交 CI）。codex/web-auth 已包含 main 17ed8ee 的最新代码、设计、契约 1.0.0、规范和记忆；两份同步记录随 1c71344 普通推送远程 Web，SHA 一致且当时工作树干净。发布提交 [CI 44235617730](https://github.com/MiManchhi/TestOpsAI/actions/runs/44235617730) 五个 job 全成功，含容器交付/恢复与隔离清理；Java 37 中 32 项 DB/Redis 测试跳过。本机原完整入口因 pytest 缓存 EPERM 失败，全部源码格式及其余步骤的等效门禁退出 0，见 [同步 session](sessions/2026-11-18-02-web-main-sync.md)。收尾仅补充这两份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准；未改远程 main，WEB-V2-001 仍 PLANNED，下列历史证据保留原范围。
 
 - WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；已合入主线 4cc2d1c 并正常推送。Web 实现提交 ad87e97 已推送 origin/codex/web-auth，当前 main 合并候选本机验证通过，待发布，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。
 - 已实现 Java M1.2 登录、sessionStorage 标签页会话、刷新验证、过期/401/退出清理、403/网络故障重试、概览与响应式导航。知识库/测试用例仅待开放说明；真实 Java 浏览器联调和本机三端冒烟已通过，前端 37 测试与最终 scripts/check.ps1 退出 0；Java 9 项数据库测试跳过，详见 session，见 [web](modules/web.md)。

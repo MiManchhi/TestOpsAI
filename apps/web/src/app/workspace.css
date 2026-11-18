@@ -7,7 +7,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 240px;
+  width: 216px;
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -100,12 +100,12 @@
 }
 .workspace-body {
   min-height: 100dvh;
-  margin-left: 240px;
+  margin-left: 216px;
   display: flex;
   flex-direction: column;
 }
 .topbar {
-  min-height: 76px;
+  min-height: 72px;
   background: #ffffffd9;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -626,7 +626,7 @@
     display: none;
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 700px) {
   .icon-button.mobile-only {
     display: inline-flex;
   }
