@@ -1,5 +1,7 @@
 # 工程记忆导航
 
+2026-11-18：[TestOps AI 系统学习路线与进度](sessions/2026-11-18-06-learning-roadmap.md)；课程顺序、教学约定和用户待确认的学习状态见 [LEARNING](LEARNING.md#testops-ai-系统学习路线)，当前精确起点见 [CURRENT](CURRENT.md#学习任务用户明确授权更新记忆)。每次教学结束同步进度。
+
 2026-11-18：[AI 解析主线集成](sessions/2026-11-18-05-ai-parser-main-merge.md)；已随 a215e34 正常推送 main；本机门禁与证据范围见 CURRENT。
 
 2026-11-18：[设计与契约发布](sessions/2026-11-18-01-design-contract-publish.md)；下一批三端开工见 [并行开发指南](../docs/development/PARALLEL_DEVELOPMENT.md)。

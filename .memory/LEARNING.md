@@ -1,5 +1,40 @@
 # 学习与面试积累
 
+## TestOps AI 系统学习路线
+
+2026-11-18。状态：IN_PROGRESS；当前进度与恢复点见 [学习 session](sessions/2026-11-18-06-learning-roadmap.md) 和 [CURRENT](CURRENT.md)。本计划按用户要求严格顺序推进：先全局业务/架构/技术/目录，再沿真实端到端业务链路学习；不临时扩展路线外主题。C/C++ 差异仅在遇到相关代码时插入解释。
+
+### 固定教学方式
+
+- 每次教学注明路线阶段、当前目标、项目文件/架构位置、已讲到哪里、下一步。
+- 一节只完成一个目标：先给上下文，再按真实代码逐段解释；新术语当场定义；给提示后做一个小验证。
+- 用户答“不知道”或表现不清楚时，留在当前知识点，拆小解释并引导验证，不跳到新主题；不因讲过就推定掌握。
+- 每次教学对话收尾更新本节进度、自测情况与下一精确起点；更新本文件、CURRENT 和对应 session。纯粹的状态确认若无新事实可只更新 session/CURRENT，不重复堆叠正文。
+- 代码/契约只读；讲解严格区分已实现、已冻结设计、规划中。不得为教学修改应用文件。
+
+### 课程路线
+
+| 阶段 | 内容与顺序 | 完成标志 | 状态 |
+| --- | --- | --- | --- |
+| 0. 全局地图 | 产品解决什么业务问题；用户和主要流程；Web/Java/Python/Nginx/MySQL/Redis/Qdrant 的职责；当前实现、冻结契约与规划的边界；仓库目录 | 用户能按自己的话描述一条业务主线、三端职责和目录归属 | IN_PROGRESS：已零散介绍，需重新完整、连贯讲解并验证 |
+| 1. 一条 Web 请求 | 浏览器→Vite/Nginx→Java；HTTP 方法/路径/状态/JSON；Spring Security→MVC 路由→Controller；响应序列化及前端校验 | 能沿登录请求说出请求/响应在哪些文件和组件间流转 | PLANNED：零散触及，尚未形成主线 |
+| 2. Java 业务调用链 | Controller→Service→Repository/JDBC→MySQL；DTO 与实体；依赖注入、Spring Bean、异常处理 | 能解释一次真实登录或知识库/用例请求的调用顺序 | PLANNED |
+| 3. 数据与可靠性 | 表/主键/外键/索引；Flyway 迁移；事务；Redis 缓存与限流；错误与 requestId | 能解释一条写入的持久化、事务和失败边界 | PLANNED |
+| 4. 身份与授权 | 密码验证、JWT、认证 Filter、401/403、角色与资源数据权限 | 能按请求链说明身份如何建立、资源权限在哪里判断 | PLANNED |
+| 5. Web 界面闭环 | Vue 页面/组件/路由/会话、请求、加载/错误状态、响应式页面 | 能将一次用户操作对应到 Vue 状态和 Java API | PLANNED |
+| 6. Python AI 服务 | FastAPI 路由/应用组装、Pydantic、类型、async、Robot 静态解析 | 能解释 AI 服务接收和验证输入、处理后返回什么 | PLANNED |
+| 7. AI 业务链 | 文档解析、Embedding、Qdrant、RAG 引用、工具调用、SSE/事件、草稿确认/审计 | 能区分精确业务数据与检索文本，并说明 Java 授权边界 | PLANNED |
+| 8. 运行与验收 | Dockerfile/镜像/容器/Compose、Nginx、配置/密钥、测试层次与部署健康证据 | 能说明本地、容器和上线环境的请求拓扑及验收范围 | PLANNED |
+
+路线依据：[最终产品设计](../docs/PRODUCT_DESIGN.md)、[架构](../docs/ARCHITECTURE.md)、[领域模型](../docs/DOMAIN_MODEL.md)、[冻结契约](../docs/contracts/README.md)、[目录指南](../docs/development/DIRECTORY_LAYOUT.md)。这些文档描述设计时，以实际代码和当前状态核对实现。
+
+### 学习进度（掌握度待确认）
+
+- 已展示过：Java 对象引用别名/值传递、`==` 与 `equals()`、`final` 引用；Spring Bean 在启动时创建；开发/部署请求入口差异；Compose 的概念；HTTP 请求/响应；DTO 到 JSON 的登录链路。
+- 用户已正确回答过对象参数练习的结果、字符串相等练习、开发与部署入口、Bean 创建时点等局部问题。每个知识点仍需结合新主线再验证，不代表已系统掌握。
+- 用户明确反馈前面讲解缺少整体主线、全局业务/架构/技术/目录地图，且验证环节不足。故阶段 0 必须重新开讲；当前不得进入 Controller/JSON 扩展或新的语言知识点。
+- 下一节：从智能电表 Robot 测试协作的业务目标讲起，画清角色→项目/套件/用例/运行结果/知识→AI 助手的业务流；对应 Java/Web/Python 与 MySQL/Redis/Qdrant/Nginx/Compose 的职责；逐目录定位并标明“已实现/冻结/规划”。只讲这张系统地图，最后用简短复述确认理解。
+
 2026-11-17 容器交付，状态：IN_PROGRESS（待用户自测确认）。学习：构建镜像与启动容器的区别，tag/digest/依赖锁各锁定什么，多阶段构建和非 root 的作用，running 与 healthy 的区别，以及 stop/down/删除卷的不同后果。自测：为什么 Java/AI 健康但仍不能证明数据库业务或 AI 调用链完成？为什么 CI 可以清理自己的临时卷，本机验收必须保留卷？材料见 [容器指南](../docs/development/CONTAINERS.md) 与 [session](sessions/2026-11-17-05-container-delivery.md)。
 
 2026-11-17 CI 跨平台实践，状态：IN_PROGRESS（待用户自测确认）。自测：为什么运行时 os.name 判断能工作，mypy 仍会报告 Windows 专用常量错误？为什么点文件在 Windows 与 Linux 的 Hidden 属性不同？为什么本地构建通过不能等同远端 CI 通过？实践与验证见 [修复会话](sessions/2026-11-17-04-ci-portability-fix.md)；不推定用户已掌握。
