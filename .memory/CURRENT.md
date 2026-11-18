@@ -6,7 +6,7 @@
 
 ## 集成
 
-- DESIGN-CONTRACT-PUBLISH-001：IN_PROGRESS（2026-11-18）。用户已认可并授权提交推送最终设计/契约；fetch 核实 main/origin/main 均为 41ef74c。新增 [三端并行开工指南](../docs/development/PARALLEL_DEVELOPMENT.md)，定义 SERVER-V2-001 / WEB-V2-001 / AI-PARSER-001 首批任务与可粘贴指令；三个工作区只读核实均干净，尚未同步冻结基线，不自动启动业务开发。发布结果见 [session](sessions/2026-11-18-01-design-contract-publish.md)。
+- DESIGN-CONTRACT-PUBLISH-001：VERIFIED（2026-11-18 提交/正常推送与远端 SHA 核对）。用户认可的最终设计/契约、检查与 [三端开工指南](../docs/development/PARALLEL_DEVELOPMENT.md) 已随 0a1a2b3 推送 origin/main；本轮完整 scripts/check.ps1 退出 0（Web 37，Java 37 项中 32 项 DB/Redis 测试跳过，Python 1 项与检查/构建通过）。指南定义 SERVER-V2-001 / WEB-V2-001 / AI-PARSER-001 首批任务与可粘贴指令；三个工作区只读核实均干净，但尚未同步冻结基线、未自动启动业务任务。收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准；新远端 CI 未核实。见 [session](sessions/2026-11-18-01-design-contract-publish.md)。
 
 - DESIGN-CONTRACT-001：VERIFIED（2026-11-17 最终设计原型/契约自身/工程门禁，不代表新业务运行）。已 pull --ff-only 至 main 41ef74c，M1.4 保留。已保留 Robot 背景，交付 [最终产品设计](../docs/PRODUCT_DESIGN.md)、[领域模型](../docs/DOMAIN_MODEL.md)、[契约 1.0.0](../docs/contracts/README.md) 与 15 页面原型；取代 WEB-002 的选图流程。109 schema/65 operation/827 引用/45 示例与非法输入、SSE 序列检查通过；完整 scripts/check.ps1 退出 0（Web 37 测试，Java 37 项中 32 项 DB/Redis 测试跳过，Python 检查/测试/构建通过）。浏览器主要链路及桌面/手机/平板范围见 [session](sessions/2026-11-17-14-final-design-contract.md)。未提交、未推送，新增业务仍 PLANNED；后续直接消费冻结接口并补真实 provider 测试。
 

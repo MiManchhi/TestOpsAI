@@ -45,3 +45,7 @@ Scope: 用户要求直接确定最终页面（含登录、知识库、工作台�
 - 下一步直接按 docs/PRODUCT_DESIGN.md、docs/contracts/README.md 和 pages.json 分切片实现；先 server 项目/精确查询/导入，再 AI 静态解析/知识与工具，同时 web 消费冻结契约。每片补 provider 测试，不能依据旧 V0.1 或立项原草案重定义字段。
 - BLOCKED：无；未经授权不提交、不推送，不同步其他 worktree。
 - [CURRENT](../CURRENT.md)。
+
+## 后续发布
+
+2026-11-18 用户认可最终设计并授权提交推送，设计/契约与相关记忆已随 0a1a2b3 发布；原“未提交”表述保留当时事实，后续实际结果见 [发布 session](2026-11-18-01-design-contract-publish.md)。
