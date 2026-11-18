@@ -8,6 +8,9 @@
 
 <!-- lane:integration -->
 
+- DEBUG-V2-PROJECTS-001：VERIFIED（2026-11-18）。按用户决定改后端对齐冻结契约：`GET /api/v2/projects` 返回 `{items,total,page,size}`，支持 page/size 与 400 校验；`description` null 归一为空串。真实 MySQL 下 ProjectApiTest 11/11 通过；同源 ajv 校验 12 条 item 全部合规；浏览器登录后概览页正常显示当前项目。仍未实现：`/api/v2/projects/{id}/test-suites`、`/test-cases`、`/overview` 返回 404，Robot 用例页因此不可用。见 [session](sessions/2026-11-18-09-web-blank-csp-debug.md)。未提交。
+- DEBUG-WEB-CSP-001：VERIFIED（2026-11-18，只调试）。白屏根因为 CSP `script-src 'self'` 阻断 Ajv 运行期 `new Function` 编译，抛 EvalError 导致 Vue 未挂载；已在 infra/nginx/default.conf 放开 `'unsafe-eval'` 并重建 web，CDP 复核 `/login` 正常渲染、浏览器内 admin 登录可进入 `/overview`。同时修复 smoke.ps1 的 docker ps JSON 解析（UTF-8 解码 + 数组/逐行兼容），`local.ps1 start -SkipBuild` 在 PowerShell 5.1 下退出 0。**未修复**：`GET /api/v2/projects` 返回裸数组与 `ProjectPage` 契约不符，概览页显示「无法读取项目」，属契约级变更待决策。未提交。见 [session](sessions/2026-11-18-09-web-blank-csp-debug.md)。
+
 ## 集成
 
 - AUDIT-FIX-001：VERIFIED（2026-11-18，P0/P1/P2 审查修复）。V7 迁移修正种子数据 owner_id；PageResponse 统一到 platform/web（删除 2 份域内副本）；ARCHITECTURE/ROADMAP/DATABASE/API 状态标记同步至 M1.5 + 契约冻结 + Web v2 + AI 解析；API.md 新增 v1/v2 共存策略。完整门禁 exit 0。DB 集成测试因 Docker Desktop 未运行阻塞，待解除。见 [session](sessions/2026-11-18-08-audit-fixes.md)。
@@ -47,6 +50,8 @@
 - 开发入口：同级 TestOpsAI-server / codex/server-m1。源码、规范与记忆就绪；本机环境和依赖按需单独准备。
 
 <!-- lane:web -->
+
+- WEB-CSP-FIX：IMPLEMENTED（未提交）。v2 项目列表已按契约改为分页响应，概览页在真实浏览器可用（2026-11-18 复核）；容器内白屏已定位并修复（CSP unsafe-eval + smoke 解析）；登录页与工作台外壳在真实浏览器可用。项目上下文读取仍因 v2 返回裸数组而失败，页面显示「无法读取项目」，待后端分页契约对齐后复测。
 
 ## Web
 
