@@ -40,6 +40,10 @@
 
 ## Web
 
+- WEB-V2-001 发布：IN_PROGRESS（2026-11-18）。用户已追加授权本轮代码与记忆正常提交、推送 codex/web-auth，明确暂不合并；起点 HEAD/远端 Web 均为 0dfe373，main 只读核实为 1cbe62e。仅发布下述已验证前端切片，保留真实 API 联调阻塞与本机门禁限制，不合并分支、不推送 main；结果见 [开发/发布 session](sessions/2026-11-18-03-web-v2-catalog.md)。
+
+- WEB-V2-001：IMPLEMENTED（2026-11-18）；Web 类型/lint/最终 59 测试/构建、契约与隔离浏览器范围 VERIFIED。正式布局、项目上下文/资料/账户、套件树、精确筛选排序分页、跨页选择快照及只读详情/来源已实现。原完整入口受 pytest 缓存 EPERM 阻断，全部源码格式与其余原步骤的等效门禁退出 0（当时 Web 57、Java 37 中 32 DB/Redis 跳过、Python 1）；收尾仅新增两项契约回归并复跑 Web/契约。1440/768/375 与键盘/异常通过，示例仅测试隔离。收尾核实远端 main 新增至 1cbe62e（未改公共契约/Web），静态发现项目列表 Controller 返回数组而契约要求 ProjectPage，且套件/用例/选择未交付，真实联调 BLOCKED。当前工作区仍基于 0dfe373，未合并新主线、未提交推送或部署，见 [开发 session](sessions/2026-11-18-03-web-v2-catalog.md)。下列“仍 PLANNED”保留历史时点。
+
 - WEB-SYNC-001：VERIFIED（2026-11-18 本地同步、远程发布与发布提交 CI）。codex/web-auth 已包含 main 17ed8ee 的最新代码、设计、契约 1.0.0、规范和记忆；两份同步记录随 1c71344 普通推送远程 Web，SHA 一致且当时工作树干净。发布提交 [CI 44235617730](https://github.com/MiManchhi/TestOpsAI/actions/runs/44235617730) 五个 job 全成功，含容器交付/恢复与隔离清理；Java 37 中 32 项 DB/Redis 测试跳过。本机原完整入口因 pytest 缓存 EPERM 失败，全部源码格式及其余步骤的等效门禁退出 0，见 [同步 session](sessions/2026-11-18-02-web-main-sync.md)。收尾仅补充这两份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准；未改远程 main，WEB-V2-001 仍 PLANNED，下列历史证据保留原范围。
 
 - WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；已合入主线 4cc2d1c 并正常推送。Web 实现提交 ad87e97 已推送 origin/codex/web-auth，当前 main 合并候选本机验证通过，待发布，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。

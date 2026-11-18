@@ -1,4 +1,5 @@
 @import url('./workspace.css');
+@import url('./catalog.css');
 :root {
   font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
   color: #102a43;
@@ -8,7 +9,7 @@
   -webkit-font-smoothing: antialiased;
   --primary: #256b5b;
   --primary-hover: #195343;
-  --muted: #627d98;
+  --muted: #526d82;
   --border: #dce5eb;
   --danger: #b42318;
 }
@@ -20,7 +21,8 @@ body {
   min-width: 320px;
 }
 button,
-input {
+input,
+select {
   font: inherit;
 }
 button,

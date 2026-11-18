@@ -4,6 +4,13 @@ import { createAppRouter, safeDestination } from './router';
 import { createAuthSession } from '../features/auth/session';
 
 afterEach(() => vi.unstubAllGlobals());
+it('preserves valid project detail destinations while dropping unrelated query parameters', () => {
+  expect(safeDestination('/test-cases/9223372036854775807?projectId=1&token=secret')).toBe(
+    '/test-cases/9223372036854775807?projectId=1',
+  );
+  expect(safeDestination('/test-cases/invalid?projectId=1')).toBe('/overview');
+  expect(safeDestination('/test-cases/1?projectId=bad')).toBe('/test-cases/1');
+});
 it.each(['https://example.com', '//example.com', '/login', ['/knowledge'], undefined])(
   'rejects unsafe or unsupported redirect %j',
   (target) => {

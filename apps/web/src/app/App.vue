@@ -10,7 +10,7 @@ watch(
   () => auth.state.phase,
   (phase) => {
     if (phase === 'anonymous' && route.path !== '/login')
-      void router.replace({ path: '/login', query: { redirect: safeDestination(route.path) } });
+      void router.replace({ path: '/login', query: { redirect: safeDestination(route.fullPath) } });
   },
 );
 function checkExpiry() {

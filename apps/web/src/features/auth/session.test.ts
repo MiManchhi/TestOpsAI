@@ -21,6 +21,27 @@ function setup(saved?: string) {
 }
 const saved = () =>
   JSON.stringify({ accessToken: 'sample-token', expiresAt: Date.now() + 1800_000 });
+it('only exposes a business request token after verification and rechecks expiry on access', async () => {
+  const { session } = setup(saved());
+  let resolve!: (value: Response) => void;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(
+      () =>
+        new Promise<Response>((callback) => {
+          resolve = callback;
+        }),
+    ),
+  );
+  const restoring = session.restore();
+  expect(session.getAccessToken()).toBeNull();
+  resolve(Response.json(user));
+  await restoring;
+  expect(session.getAccessToken()).toBe('sample-token');
+  vi.setSystemTime(Date.now() + 1_800_001);
+  expect(session.getAccessToken()).toBeNull();
+  expect(session.state.phase).toBe('anonymous');
+});
 beforeEach(() => {
   vi.useFakeTimers();
 });

@@ -1,23 +1,63 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import AppIcon from '../../app/AppIcon.vue';
 import { auth } from '../auth/session';
+import { projects } from '../projects/context';
+import { caseCatalog } from '../test-cases/catalog';
 
 const route = useRoute();
+const router = useRouter();
+const selectedProject = computed({ get: () => projects.state.selectedId, set: projects.select });
+const projectQuery = computed(() =>
+  projects.state.selectedId ? { projectId: projects.state.selectedId } : {},
+);
 const menuOpen = ref(false);
 const menuButton = ref<HTMLButtonElement>();
 const sidebar = ref<HTMLElement>();
-const mobileViewport = window.matchMedia('(max-width: 760px)');
+const mobileViewport = window.matchMedia('(max-width: 700px)');
 function handleViewportChange(event: MediaQueryListEvent) {
   if (!event.matches) menuOpen.value = false;
 }
 onMounted(() => mobileViewport.addEventListener('change', handleViewportChange));
+onMounted(() => {
+  void projects.load(route.query.projectId);
+});
 const navigation = [
-  { path: '/overview', label: '概览', icon: 'grid' },
-  { path: '/knowledge', label: '知识库', icon: 'book' },
-  { path: '/test-cases', label: '测试用例', icon: 'check' },
+  { path: '/overview', label: '工作台', icon: 'grid', enabled: true },
+  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: false },
+  { path: '/knowledge', label: '知识库', icon: 'book', enabled: false },
+  { path: '/test-cases', label: 'Robot 用例', icon: 'check', enabled: true },
+  { path: '/runs', label: '运行记录', icon: 'activity', enabled: false },
+  { path: '/imports', label: '数据导入', icon: 'arrow', enabled: false },
 ] as const;
+watch(
+  () => projects.state.selectedId,
+  (id, previous) => {
+    caseCatalog.setProject(id);
+    if (!id) return;
+    const changedProject =
+      Boolean(previous) ||
+      (typeof route.query.projectId === 'string' && route.query.projectId !== id);
+    const path =
+      changedProject && route.path.startsWith('/test-cases/') ? '/test-cases' : route.path;
+    if (route.query.projectId !== id || path !== route.path)
+      void router.replace({ path, query: { projectId: id } });
+  },
+);
+watch(
+  () => route.query.projectId,
+  (id) => {
+    if (
+      projects.state.phase !== 'ready' ||
+      typeof id !== 'string' ||
+      id === projects.state.selectedId
+    )
+      return;
+    if (projects.state.items.some((project) => project.id === id)) projects.select(id);
+    else void projects.load(id);
+  },
+);
 
 async function setMenu(open: boolean) {
   menuOpen.value = open;
@@ -35,7 +75,7 @@ function focusDrawer(event: TransitionEvent) {
 }
 function trapFocus(event: KeyboardEvent) {
   if (!menuOpen.value || event.key !== 'Tab') return;
-  const elements = sidebar.value?.querySelectorAll<HTMLElement>('a, button');
+  const elements = sidebar.value?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled)');
   const first = elements?.[0];
   const last = elements?.[elements.length - 1];
   if (event.shiftKey && document.activeElement === first) {
@@ -61,6 +101,8 @@ function focusHeading() {
 onBeforeUnmount(() => {
   document.body.style.overflow = '';
   mobileViewport.removeEventListener('change', handleViewportChange);
+  projects.reset();
+  caseCatalog.setProject('');
 });
 function logout() {
   auth.logout('你已退出登录。');
@@ -90,31 +132,56 @@ function logout() {
       @transitionend="focusDrawer"
     >
       <div class="sidebar-brand-row">
-        <RouterLink to="/overview" class="brand" @click="setMenu(false)"
+        <RouterLink
+          :to="{ path: '/overview', query: projectQuery }"
+          class="brand"
+          @click="setMenu(false)"
           ><span class="brand-mark">t<span>·</span></span
           ><span>TestOps <b>AI</b></span></RouterLink
         ><button class="icon-button mobile-only" aria-label="关闭导航" @click="setMenu(false)">
           <AppIcon name="close" />
         </button>
       </div>
-      <p class="sidebar-caption">测试协作空间</p>
+      <p class="sidebar-caption">智能电表测试协作</p>
       <nav aria-label="主导航">
+        <template v-for="item in navigation" :key="item.path">
+          <RouterLink
+            v-if="item.enabled"
+            :to="{ path: item.path, query: projectQuery }"
+            class="nav-item"
+            :class="{
+              'router-link-active':
+                item.path === '/test-cases' && route.path.startsWith('/test-cases/'),
+            }"
+            @click="setMenu(false)"
+            ><AppIcon :name="item.icon" /><span>{{ item.label }}</span></RouterLink
+          >
+          <button
+            v-else
+            class="nav-item nav-unavailable"
+            disabled
+            :aria-label="`${item.label}，当前不可用`"
+          >
+            <AppIcon :name="item.icon" /><span>{{ item.label }}</span>
+          </button>
+        </template>
+      </nav>
+      <nav class="secondary-navigation" aria-label="设置导航">
         <RouterLink
-          v-for="item in navigation"
-          :key="item.path"
-          :to="item.path"
+          :to="{ path: '/settings/project', query: projectQuery }"
           class="nav-item"
           @click="setMenu(false)"
-          ><AppIcon :name="item.icon" /><span>{{ item.label }}</span
-          ><span v-if="item.path !== '/overview'" class="nav-soon">待开放</span></RouterLink
+          ><AppIcon name="shield" />项目与成员</RouterLink
         >
+        <button class="nav-item nav-unavailable" disabled aria-label="审计记录，当前不可用">
+          <AppIcon name="book" />审计记录
+        </button>
       </nav>
-      <div class="sidebar-note">
-        <span class="sidebar-note-icon"><AppIcon name="book" /></span
-        ><strong>好经验，值得被留下。</strong>
-        <p>让知识沉淀，让测试协作<br />更进一步。</p>
+      <div class="sidebar-footer">
+        <RouterLink to="/settings/account" class="nav-item" @click="setMenu(false)"
+          ><AppIcon name="user" />账户</RouterLink
+        >
       </div>
-      <div class="sidebar-footer"><span class="small-dot" /><span>TestOps AI 工作台</span></div>
     </aside>
     <div class="workspace-body" :inert="menuOpen">
       <header class="topbar">
@@ -127,9 +194,23 @@ function logout() {
             aria-controls="workspace-navigation"
             @click="setMenu(true)"
           >
-            <AppIcon name="menu" /></button
-          ><span class="topbar-product">协作空间</span
-          ><AppIcon class="breadcrumb-divider" name="chevron" /><span>{{ route.meta.title }}</span>
+            <AppIcon name="menu" />
+          </button>
+          <div class="project-picker">
+            <label for="active-project">当前项目</label
+            ><select
+              id="active-project"
+              v-model="selectedProject"
+              :disabled="projects.state.phase !== 'ready' || !projects.state.items.length"
+            >
+              <option v-if="!projects.state.selectedId" value="">
+                {{ projects.state.phase === 'loading' ? '正在读取项目…' : '选择项目' }}
+              </option>
+              <option v-for="project in projects.state.items" :key="project.id" :value="project.id">
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
         </div>
         <div class="topbar-account">
           <span class="avatar">{{ auth.state.user?.username.slice(0, 1).toUpperCase() }}</span><span
@@ -144,13 +225,54 @@ function logout() {
         <div v-if="auth.state.storageWarning" class="notice" role="status">
           {{ auth.state.storageWarning }}
         </div>
-        <RouterView v-slot="{ Component, route: childRoute }"
-          ><Transition name="page" mode="out-in" appear @after-enter="focusHeading"
-            ><component :is="Component" :key="childRoute.path" /></Transition
-        ></RouterView>
+        <section
+          v-if="route.meta.project && projects.state.phase !== 'ready'"
+          class="panel context-state"
+          :aria-busy="projects.state.phase === 'loading'"
+        >
+          <template v-if="projects.state.phase === 'error'"
+            ><span class="section-kicker">PROJECT / 项目</span>
+            <h1 data-page-heading tabindex="-1">无法读取项目</h1>
+            <p role="alert">{{ projects.state.error }}</p>
+            <small v-if="projects.state.requestId">请求编号：{{ projects.state.requestId }}</small
+            ><button class="button button-primary" @click="projects.load(route.query.projectId)">
+              重新读取
+            </button></template
+          >
+          <p v-else role="status"><span class="spinner" />正在读取可访问项目…</p>
+        </section>
+        <section
+          v-else-if="route.meta.project && !projects.state.selectedId"
+          class="panel context-state"
+        >
+          <h1 data-page-heading tabindex="-1">
+            {{ projects.state.items.length ? '请选择项目' : '暂无可访问项目' }}
+          </h1>
+          <p>
+            {{
+              projects.state.items.length
+                ? projects.state.error
+                : '请联系项目所有者添加成员权限，然后重新读取。'
+            }}
+          </p>
+          <button class="button button-primary" @click="projects.load()">重新读取</button>
+        </section>
+        <template v-else>
+          <p
+            v-if="projects.state.error && projects.state.phase === 'ready'"
+            class="notice"
+            role="status"
+          >
+            {{ projects.state.error }}
+          </p>
+          <RouterView v-slot="{ Component, route: childRoute }"
+            ><Transition name="page" mode="out-in" appear @after-enter="focusHeading"
+              ><component :is="Component" :key="childRoute.path" /></Transition
+          ></RouterView>
+        </template>
       </main>
       <footer class="workspace-footer">
-        <span>TestOps AI</span><span>每一次积累，都让下一次测试更从容。</span>
+        <span>TestOps AI</span><span>测试事实 · 知识依据 · AI 协作</span>
       </footer>
     </div>
   </div>

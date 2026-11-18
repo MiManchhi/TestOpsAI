@@ -171,7 +171,12 @@ export function createAuthSession(storage: SessionStorage | null = browserStorag
     await verify(version, signal);
   }
 
-  return { state: readonly(state), signIn, restore, retry, logout, checkExpiry };
+  function getAccessToken(): string | null {
+    checkExpiry();
+    return state.phase === 'authenticated' ? (credentials?.accessToken ?? null) : null;
+  }
+
+  return { state: readonly(state), signIn, restore, retry, logout, checkExpiry, getAccessToken };
 }
 
 export type AuthSession = ReturnType<typeof createAuthSession>;

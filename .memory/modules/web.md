@@ -1,5 +1,9 @@
 # Vue 模块
 
+2026-11-18 追加授权：用户要求提交推送 WEB-V2-001，暂不合并；发布结果见同一切片交接，以下“未提交”保留开发阶段事实。
+
+2026-11-18 / WEB-V2-001：IMPLEMENTED；[切片交接](../sessions/2026-11-18-03-web-v2-catalog.md) 记录最终 59 测试、契约与隔离浏览器验证。projects feature 管授权项目上下文；test-cases feature 管分页套件/用例查询、精确过滤、选择与只读详情。app/contracts.ts 类型从冻结 schema 提取并以同源 Ajv 验证；app/http.ts 经 auth.getAccessToken 获取验证后的短期令牌、处理取消/超时/401 与旧会话响应。项目选择以 URL projectId 表示，无权/歧义深链接不自动切换数据；切换项目或退出清理内容与选择，FILTER 快照由 Java 确认，网络重试复用请求键。测试示例只在 test-data.ts 与忽略目录，生产没有回退。无新增依赖、公共契约或后端变更；未提交推送。收尾新 main 1cbe62e 未同步；其项目列表静态返回数组与冻结 ProjectPage 不符，v2 套件/用例/选择仍待交付，真实联调受阻。以下为设计与 WEB-001 的历史范围，不能外推为本片真实后端已联调。
+
 2026-11-17 最终设计更新：[PRODUCT_DESIGN](../../docs/PRODUCT_DESIGN.md) 与 [15 页面原型](../../docs/design/index.html) 取代 V0.1 三方向探索。工作台聚合运行/资料/待办；AI 助手专门承担问答/引用/草稿；登录、知识库、Robot 用例、运行、导入、管理均有完整设计。Web 仅消费 [public.openapi](../../docs/contracts/public.openapi.json)，页面 operationId 映射见 pages.json；新业务 v2，认证沿用 v1。生产 Vue 未替换，本轮产出为最终设计与跨端契约。
 
 2026-11-17：用户明确产品面向智能电表测试；[总体页面设计](../../docs/WEB_UI_DESIGN.md) 已产出（IMPLEMENTED，仅设计材料，待评审），包含四项导航、领域上下文、AI 问答/来源阅读/草稿保存及三张视觉稿。业务前端与 AI 能力没有新增；后续从 [WEB-002-DESIGN](../sessions/2026-11-17-13-web-ai-design.md) 恢复，不把图片当运行证据。
