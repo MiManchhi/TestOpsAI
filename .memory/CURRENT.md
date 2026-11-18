@@ -40,7 +40,7 @@
 
 ## Web
 
-- WEB-SYNC-001：VERIFIED（2026-11-18 本地同步与候选检查）；追加远程发布 IN_PROGRESS。codex/web-auth 已安全快进至 main 17ed8ee，最新设计、契约 1.0.0、M1.4、规范和记忆已进入工作区。用户已授权仅提交两份同步记忆并普通推送 Web 分支；原完整入口因既有 pytest 缓存 EPERM 失败，按全部源码分批格式并执行其余原步骤的等效门禁退出 0（Web 37、Java 37 中 32 项 DB/Redis 跳过、Python 1）。远端发布与新 CI 待核实，见 [同步 session](sessions/2026-11-18-02-web-main-sync.md)。不修改远程 main、不启动 WEB-V2-001；下列 WEB-001 验证保留原版本范围。
+- WEB-SYNC-001：VERIFIED（2026-11-18 本地同步、远程发布与发布提交 CI）。codex/web-auth 已包含 main 17ed8ee 的最新代码、设计、契约 1.0.0、规范和记忆；两份同步记录随 1c71344 普通推送远程 Web，SHA 一致且当时工作树干净。发布提交 [CI 44235617730](https://github.com/MiManchhi/TestOpsAI/actions/runs/44235617730) 五个 job 全成功，含容器交付/恢复与隔离清理；Java 37 中 32 项 DB/Redis 测试跳过。本机原完整入口因 pytest 缓存 EPERM 失败，全部源码格式及其余步骤的等效门禁退出 0，见 [同步 session](sessions/2026-11-18-02-web-main-sync.md)。收尾仅补充这两份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准；未改远程 main，WEB-V2-001 仍 PLANNED，下列历史证据保留原范围。
 
 - WEB-001：VERIFIED（2026-11-17 本机最终门禁、浏览器与三端冒烟）；已合入主线 4cc2d1c 并正常推送。Web 实现提交 ad87e97 已推送 origin/codex/web-auth，当前 main 合并候选本机验证通过，待发布，见 [任务 session](sessions/2026-11-17-11-web-auth-workspace.md)。
 - 已实现 Java M1.2 登录、sessionStorage 标签页会话、刷新验证、过期/401/退出清理、403/网络故障重试、概览与响应式导航。知识库/测试用例仅待开放说明；真实 Java 浏览器联调和本机三端冒烟已通过，前端 37 测试与最终 scripts/check.ps1 退出 0；Java 9 项数据库测试跳过，详见 session，见 [web](modules/web.md)。

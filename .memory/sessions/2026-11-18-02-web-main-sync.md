@@ -1,6 +1,6 @@
 # Web 工作区同步冻结设计主线
 
-更新：2026-11-18。状态：VERIFIED（本地同步与定向检查）。
+更新：2026-11-18。状态：VERIFIED（本地同步、远程发布与发布提交 CI）。
 
 <!-- handoff:v1 -->
 
@@ -54,3 +54,13 @@ Scope: 用户先授权拉取远程最新 main 并同步当前 codex/web-auth，�
 - 使用忽略目录内的等效 runner，保持入口的其余步骤不变；格式按 Git 列出的全部源码与新增 session 分批执行同版本 Prettier，保留原 .prettierignore。初次整批调用超过 Windows 命令行长度，分批后解决。沙箱内 Java 附加命名管道失败而中止，获批环境重跑最终退出 0。
 - 2026-11-18 / Windows / 17ed8ee + 两份同步记忆候选：全部源码格式、33 份记忆、布局/9 项回归/记忆反例/14 份脚本解析、契约（109 schema、65 operation、827 引用、15 页面、45 示例与非法输入/SSE 序列）、Web 类型/lint/37 测试/构建、Java verify/Spotless（52 文件、37 项中 32 项 DB/Redis 测试跳过）、Python lock/Ruff/mypy/双平台 smoke 类型检查/1 测试/构建通过。
 - 保留 Java agent/MockBean、Starlette 弃用及 pytest 缓存不可写提示；没有真实 DB/Redis 回归、本机容器部署或业务浏览器复跑。本次不改业务代码；发布及新 CI 结果随后以实际 refs/Actions 核实，收尾只更新本记录与 CURRENT。
+
+### 发布结果与下一起点
+
+- 提交 1c71344812b5a1a725e8831a3ef329a2dca2f325（docs(memory): record web main synchronization）仅含 CURRENT 与本 session，git diff --cached --check 通过；普通 git push origin HEAD:refs/heads/codex/web-auth 退出 0，无强推。
+- 推送后 ls-remote 核实本地 HEAD 与远程 Web 同为 1c71344，工作树干净；远程 main 仍为 17ed8ee，本任务未修改主线或其他工作区。
+- [CI 44235617730](https://github.com/MiManchhi/TestOpsAI/actions/runs/44235617730) 对应 1c71344，completed/success；Web、server、AI、Compose、containers 五个 job 全成功。已核对 server 日志：37 项中 32 项 DB/Redis 测试跳过；不算真实业务数据库/缓存回归。
+- 已核对 containers 日志：镜像构建、六服务健康、完整冒烟、重复启动、保留三个数据卷的恢复、停止 AI 拒绝及恢复均通过，最终仅清理该 run 的隔离 CI 资源。这是远程验收，不是本机或生产部署。
+- VERIFIED；收尾仅将以上发布事实补入原两份记忆，定向格式/记忆/diff 检查后独立提交并普通推送。最终 tip 与该收尾提交的 CI 以 Git refs/Actions 为准，不循环把文件自身 SHA 写回自身。
+- 下一步仍为 WEB-V2-001（PLANNED）：复用认证，按冻结契约完成正式布局、项目上下文及 Robot 套件/用例查询选择详情；示例与生产请求隔离，分别验收页面和真实 API 联调。本次未启动业务开发。
+- BLOCKED：无发布遗留阻塞；本机完整脚本入口仍受 pytest 缓存权限限制，已明确记录等效检查及远程完整门禁证据，不将本机入口标为通过。
