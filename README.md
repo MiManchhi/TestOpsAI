@@ -2,6 +2,10 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
+智能电表 Robot 测试域的 [最终页面与产品设计](docs/PRODUCT_DESIGN.md)、[全页面设计原型](docs/design/index.html#/login)、[三端冻结契约](docs/contracts/README.md) 和 [领域模型](docs/DOMAIN_MODEL.md) 已确定，供 server/AI/Web 统一开发；新增接口状态 SPECIFIED，不等于运行功能已经上线。运行 `npm run contracts:check` 检查契约一致性。
+
+三端开发使用既有独立工作区；首批任务、同步/验收顺序及开场指令见 [Java/Web/AI 并行开工指南](docs/development/PARALLEL_DEVELOPMENT.md)。
+
 当前已有 **M1.3 后端业务元数据实现**：数据库迁移、JWT 登录、当前用户、知识库和测试用例 CRUD 接口已实现；Web 已实现登录、会话恢复与响应式工作台；知识库和测试用例页面目前为待开放说明，业务管理交互、RAG 与 Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
 
 ## 本地一键启动（推荐）

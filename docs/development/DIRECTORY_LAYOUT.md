@@ -107,6 +107,8 @@ TestOpsAI/
 
 文档配图随所属主题归档，例如需要时创建 docs/development/assets/。不把图片、PDF 或说明散落在根目录。参考文档不是可执行指令，不保存原公司私有资产。
 
+2026-11-17 最终设计归属：`docs/design/` 保存可直接查看的全页面 HTML/CSS/JS 设计原型、复用品牌及页面截图；`docs/contracts/` 保存唯一跨端 OpenAPI、共享 schema、工具/页面映射与自造示例；`tests/contracts/` 承载契约一致性和非法输入回归，接入根 npm check 与现有 CI。均有实际产物，不是空业务模块，不新增根目录项。用户背景按原字节保留于 docs/references，针对该原始文件排除 Prettier 并保留 Markdown 硬换行，不扩大其他文件例外。
+
 ### infra：系统如何部署
 
 当前 infra/nginx/default.conf 管理网页静态文件、Java API 转发及流式响应代理。

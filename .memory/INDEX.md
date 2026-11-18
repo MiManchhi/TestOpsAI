@@ -1,5 +1,9 @@
 # 工程记忆导航
 
+2026-11-18：[设计与契约发布](sessions/2026-11-18-01-design-contract-publish.md)；下一批三端开工见 [并行开发指南](../docs/development/PARALLEL_DEVELOPMENT.md)。
+
+2026-11-17 当前设计任务：[最终页面与三端契约](sessions/2026-11-17-14-final-design-contract.md)；开发输入：[最终设计](../docs/PRODUCT_DESIGN.md)、[冻结契约](../docs/contracts/README.md)。此前三方向探索已被此基线取代。
+
 更新：2026-11-17。状态：IMPLEMENTED。
 
 项目：TestOps AI，Java 管业务与授权，Vue 管交互，Python 管 AI。当前已集成 M1.3 后端、Docker 启动器，Web 登录工作台已合入主线并发布；协作入口与三个隔离工作区已就绪，具体任务和证据边界以 [CURRENT](CURRENT.md) 为准。

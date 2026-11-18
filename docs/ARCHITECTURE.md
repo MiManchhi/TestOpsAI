@@ -1,8 +1,8 @@
 # 架构与边界
 
-状态：M0。Java 是模块化单体业务服务，Python 为独立 AI 运行时；不引入 Spring Cloud。
+更新：2026-11-17。Java 已实现 M1.1–M1.4 业务与工程基线，Python 仍为基础骨架。Java 是模块化单体业务服务，Python 为独立 AI 运行时；不引入 Spring Cloud。新增 Robot/AI 业务依照 [ADR-0007](ADR/0007-final-product-contract.md)、[最终产品设计](PRODUCT_DESIGN.md) 和 [冻结契约](contracts/README.md) 实施。
 
-浏览器 → Nginx（开发时 Vite proxy）→ Java → Python；Python 工具操作回调 Java 并再次授权。Java 持有 MySQL 业务事实，Redis 只缓存，Qdrant 是可重建检索索引。当前仅实现健康端点，未建立 Java/Python 业务调用及存储连接。
+浏览器 → Nginx（开发时 Vite proxy）→ Java → Python；Python 工具操作回调 Java 并再次授权。Java 持有 MySQL 业务事实，Redis 提供已有缓存/登录限流，Qdrant 是待接入的可重建检索索引。当前已有身份、知识库和用例元数据业务，但尚未建立 Java/Python AI 业务调用；设计不能当作已运行证据。
 
 ## 部署
 

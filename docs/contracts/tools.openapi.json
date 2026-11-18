@@ -1,0 +1,827 @@
+{
+  "openapi": "3.1.1",
+  "jsonSchemaDialect": "http://json-schema.org/draft-07/schema#",
+  "info": {
+    "title": "TestOps AI Python to Java tools",
+    "version": "1.0.0",
+    "description": "Frozen development contract. New business operations are specified, not implemented. See README.md for runtime coverage."
+  },
+  "paths": {
+    "/internal/v1/tools/search-test-cases": {
+      "post": {
+        "operationId": "search_test_cases",
+        "summary": "Java 鉴权的受控工具",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/TestCasePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas.json#/definitions/SearchCasesTool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/tools/test-case-detail": {
+      "post": {
+        "operationId": "get_test_case_detail",
+        "summary": "Java 鉴权的受控工具",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/TestCase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas.json#/definitions/CaseDetailTool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/tools/run-summary": {
+      "post": {
+        "operationId": "get_run_summary",
+        "summary": "Java 鉴权的受控工具",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Run"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas.json#/definitions/RunTool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/tools/failed-cases": {
+      "post": {
+        "operationId": "get_failed_cases",
+        "summary": "Java 鉴权的受控工具",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/ResultPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas.json#/definitions/FailedResultsTool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/tools/case-drafts": {
+      "post": {
+        "operationId": "create_case_draft",
+        "summary": "Java 鉴权的受控工具",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Draft"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas.json#/definitions/CreateDraftTool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/objects/{objectId}/content": {
+      "get": {
+        "operationId": "readAuthorizedObject",
+        "summary": "读取授权对象，不接受路径",
+        "x-implementation": "SPECIFIED",
+        "x-min-role": "VIEWER",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "See README error policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas.json#/definitions/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "objectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./schemas.json#/definitions/Uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "UserBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "ServiceBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "Delegation": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Delegation-Token"
+      }
+    }
+  },
+  "security": [
+    {
+      "ServiceBearer": [],
+      "Delegation": []
+    }
+  ]
+}

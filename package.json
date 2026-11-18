@@ -12,11 +12,13 @@
   "scripts": {
     "dev": "npm run dev --workspace @testops/web",
     "build": "npm run build --workspace @testops/web",
-    "check": "npm run check --workspace @testops/web",
+    "check": "npm run contracts:check && npm run check --workspace @testops/web",
+    "contracts:check": "node tests/contracts/check.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "ajv": "6.15.0",
     "prettier": "3.10.1"
   },
   "prettier": {

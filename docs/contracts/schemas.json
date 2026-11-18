@@ -1,0 +1,3383 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://testopsai.local/contracts/1.0.0/schemas.json",
+  "title": "TestOps AI cross-service DTOs 1.0.0",
+  "definitions": {
+    "Id": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$",
+      "maxLength": 19
+    },
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "requestId": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        }
+      },
+      "required": ["code", "message", "requestId"],
+      "additionalProperties": false
+    },
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1
+        },
+        "password": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        }
+      },
+      "required": ["username", "password"],
+      "additionalProperties": false
+    },
+    "LoginResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "expiresIn": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["accessToken", "expiresIn"],
+      "additionalProperties": false
+    },
+    "CurrentUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "username": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 100
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": ["id", "username", "roles", "createdAt"],
+      "additionalProperties": false
+    },
+    "Member": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "username": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "role": {
+          "type": "string",
+          "enum": ["OWNER", "EDITOR", "VIEWER"]
+        }
+      },
+      "required": ["userId", "username", "role"],
+      "additionalProperties": false
+    },
+    "SetMember": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["EDITOR", "VIEWER"]
+        }
+      },
+      "required": ["role"],
+      "additionalProperties": false
+    },
+    "ProjectCreate": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[A-Z][A-Z0-9_-]{1,63}$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": ["key", "name"],
+      "additionalProperties": false
+    },
+    "ProjectPatch": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "key": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "role": {
+          "type": "string",
+          "enum": ["OWNER", "EDITOR", "VIEWER"]
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": ["id", "key", "name", "description", "role", "createdAt"],
+      "additionalProperties": false
+    },
+    "TestContext": {
+      "type": "object",
+      "properties": {
+        "deviceType": {
+          "type": "string",
+          "enum": ["SINGLE_PHASE", "THREE_PHASE", "UNSPECIFIED"]
+        },
+        "productModel": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "firmwareVersion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 64
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hardwareVersion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 64
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "protocolName": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "protocolVersion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 64
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["deviceType"],
+      "additionalProperties": false
+    },
+    "Suite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "parentId": {
+          "anyOf": [
+            {
+              "$ref": "./schemas.json#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "sourcePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "revision": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "caseCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["id", "projectId", "parentId", "name", "sourcePath", "revision", "caseCount"],
+      "additionalProperties": false
+    },
+    "SourceRef": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "revision": {
+          "$ref": "#/definitions/Sha256"
+        }
+      },
+      "required": ["path", "line", "revision"],
+      "additionalProperties": false
+    },
+    "Step": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "maxItems": 50
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["keyword", "arguments", "line"],
+      "additionalProperties": false
+    },
+    "TestCase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "suiteId": {
+          "anyOf": [
+            {
+              "$ref": "./schemas.json#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stableKey": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "module": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 30,
+          "uniqueItems": true
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "lifecycleStatus": {
+          "type": "string",
+          "enum": ["ACTIVE", "ARCHIVED"]
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["ROBOT", "MANUAL"]
+        },
+        "documentation": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "expectedResult": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "sourceRef": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Step"
+          },
+          "maxItems": 500
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "suiteId",
+        "stableKey",
+        "title",
+        "module",
+        "tags",
+        "priority",
+        "lifecycleStatus",
+        "sourceType",
+        "documentation",
+        "expectedResult",
+        "sourceRef",
+        "steps",
+        "version",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "CaseCreate": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "module": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 30,
+          "uniqueItems": true
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "documentation": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "expectedResult": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": ["title", "module", "priority", "expectedResult"],
+      "additionalProperties": false
+    },
+    "CasePatch": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "module": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 30,
+          "uniqueItems": true
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "lifecycleStatus": {
+          "type": "string",
+          "enum": ["ACTIVE", "ARCHIVED"]
+        },
+        "documentation": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "expectedResult": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": ["version"],
+      "additionalProperties": false
+    },
+    "CaseFilter": {
+      "type": "object",
+      "properties": {
+        "suiteId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "includeDescendants": {
+          "type": "boolean",
+          "default": true
+        },
+        "module": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "query": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 30,
+          "uniqueItems": true
+        },
+        "tagsMatch": {
+          "type": "string",
+          "enum": ["ALL", "ANY"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2", "P3"]
+        },
+        "lifecycleStatus": {
+          "type": "string",
+          "enum": ["ACTIVE", "ARCHIVED"]
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["ROBOT", "MANUAL"]
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "SelectionCreate": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["EXPLICIT", "FILTER"]
+        },
+        "caseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "filter": {
+          "$ref": "#/definitions/CaseFilter"
+        },
+        "excludedCaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 1000,
+          "uniqueItems": true
+        }
+      },
+      "required": ["mode"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "mode": {
+              "const": "EXPLICIT"
+            }
+          },
+          "required": ["caseIds"],
+          "not": {
+            "required": ["filter"]
+          }
+        },
+        {
+          "properties": {
+            "mode": {
+              "const": "FILTER"
+            }
+          },
+          "required": ["filter"],
+          "not": {
+            "required": ["caseIds"]
+          }
+        }
+      ]
+    },
+    "CaseVersion": {
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["caseId", "version"],
+      "additionalProperties": false
+    },
+    "Selection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CaseVersion"
+          },
+          "maxItems": 1000
+        },
+        "digest": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "expiresAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": ["id", "projectId", "count", "cases", "digest", "expiresAt"],
+      "additionalProperties": false
+    },
+    "ImportIssue": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "sourcePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "line": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": ["code", "sourcePath", "line", "message"],
+      "additionalProperties": false
+    },
+    "ImportJob": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["ROBOT_CATALOG", "ROBOT_RESULT"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED", "PROCESSING", "SUCCEEDED", "FAILED"]
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "counts": {
+          "type": "object",
+          "properties": {
+            "added": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "updated": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "archived": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unmapped": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": ["added", "updated", "archived", "unmapped"],
+          "additionalProperties": false
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportIssue"
+          },
+          "maxItems": 1000
+        },
+        "runId": {
+          "anyOf": [
+            {
+              "$ref": "./schemas.json#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "kind",
+        "status",
+        "createdAt",
+        "completedAt",
+        "counts",
+        "issues",
+        "runId",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "RunCounts": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pass": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fail": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skip": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["total", "pass", "fail", "skip"],
+      "additionalProperties": false
+    },
+    "Run": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "origin": {
+          "type": "string",
+          "enum": ["IMPORTED", "MOCK"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["COMPLETED", "INCOMPLETE"]
+        },
+        "startedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "elapsedMs": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "counts": {
+          "$ref": "#/definitions/RunCounts"
+        },
+        "catalogRevision": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "testContext": {
+          "$ref": "#/definitions/TestContext"
+        },
+        "importJobId": {
+          "$ref": "#/definitions/Uuid"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "name",
+        "origin",
+        "status",
+        "startedAt",
+        "finishedAt",
+        "elapsedMs",
+        "counts",
+        "catalogRevision",
+        "testContext",
+        "importJobId"
+      ],
+      "additionalProperties": false
+    },
+    "Result": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "caseId": {
+          "anyOf": [
+            {
+              "$ref": "./schemas.json#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suitePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "caseName": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "SKIP"]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "elapsedMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedKeyword": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artifactId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "sourceLine": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "runId",
+        "caseId",
+        "suitePath",
+        "caseName",
+        "status",
+        "message",
+        "elapsedMs",
+        "failedKeyword",
+        "artifactId",
+        "sourceLine"
+      ],
+      "additionalProperties": false
+    },
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["ROBOT_OUTPUT_XML", "LOG_TEXT", "ROBOT_LOG_HTML", "ROBOT_REPORT_HTML"]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/definitions/Sha256"
+        }
+      },
+      "required": ["id", "runId", "kind", "name", "sizeBytes", "sha256"],
+      "additionalProperties": false
+    },
+    "ArtifactLines": {
+      "type": "object",
+      "properties": {
+        "artifactId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "fromLine": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "maxItems": 200
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      },
+      "required": ["artifactId", "fromLine", "lines", "hasMore"],
+      "additionalProperties": false
+    },
+    "KnowledgeBaseCreate": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "category": {
+          "type": "string",
+          "enum": ["METERING", "PROTOCOL", "TARIFF_CLOCK", "PREPAYMENT", "EVENTS", "ROBOT_METHOD"]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["PROJECT", "RESTRICTED"]
+        }
+      },
+      "required": ["name", "category", "visibility"],
+      "additionalProperties": false
+    },
+    "KnowledgeBasePatch": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "category": {
+          "type": "string",
+          "enum": ["METERING", "PROTOCOL", "TARIFF_CLOCK", "PREPAYMENT", "EVENTS", "ROBOT_METHOD"]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["PROJECT", "RESTRICTED"]
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "KnowledgeBase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "category": {
+          "type": "string",
+          "enum": ["METERING", "PROTOCOL", "TARIFF_CLOCK", "PREPAYMENT", "EVENTS", "ROBOT_METHOD"]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["PROJECT", "RESTRICTED"]
+        },
+        "documentCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "readyCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canWrite": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "name",
+        "description",
+        "category",
+        "visibility",
+        "documentCount",
+        "readyCount",
+        "canWrite",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "KnowledgeGrant": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "access": {
+          "type": "string",
+          "enum": ["READ", "WRITE"]
+        }
+      },
+      "required": ["userId", "access"],
+      "additionalProperties": false
+    },
+    "SetKnowledgeGrant": {
+      "type": "object",
+      "properties": {
+        "access": {
+          "type": "string",
+          "enum": ["READ", "WRITE"]
+        }
+      },
+      "required": ["access"],
+      "additionalProperties": false
+    },
+    "Document": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "knowledgeBaseId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "versionLabel": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "contentHash": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "mimeType": {
+          "type": "string",
+          "enum": ["text/markdown", "application/pdf"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED", "PROCESSING", "READY", "FAILED", "DELETING", "DELETED"]
+        },
+        "stage": {
+          "type": "string",
+          "enum": ["UPLOADING", "PARSING", "CHUNKING", "EMBEDDING", "FINISHED", "CLEANUP"]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "knowledgeBaseId",
+        "title",
+        "versionLabel",
+        "contentHash",
+        "mimeType",
+        "status",
+        "stage",
+        "error",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    },
+    "DocumentBlock": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "heading": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "startLine": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["id", "heading", "text", "page", "startLine"],
+      "additionalProperties": false
+    },
+    "DocumentContent": {
+      "type": "object",
+      "properties": {
+        "document": {
+          "$ref": "#/definitions/Document"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentBlock"
+          },
+          "maxItems": 200
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["document", "blocks", "nextCursor"],
+      "additionalProperties": false
+    },
+    "Citation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["DOCUMENT", "TEST_CASE", "TEST_RESULT"]
+        },
+        "resourceId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "locator": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "line": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "excerpt": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": ["id", "kind", "resourceId", "title", "version", "locator", "excerpt"],
+      "additionalProperties": false
+    },
+    "ConversationCreate": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": ["projectId"],
+      "additionalProperties": false
+    },
+    "Conversation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": ["id", "projectId", "title", "updatedAt"],
+      "additionalProperties": false
+    },
+    "MessageContext": {
+      "type": "object",
+      "properties": {
+        "testContext": {
+          "$ref": "#/definitions/TestContext"
+        },
+        "knowledgeBaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "documentIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "selectionId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runId": {
+          "anyOf": [
+            {
+              "$ref": "./schemas.json#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "knowledgeMode": {
+          "type": "string",
+          "enum": ["SELECTED", "NONE"]
+        }
+      },
+      "required": [
+        "testContext",
+        "knowledgeBaseIds",
+        "documentIds",
+        "selectionId",
+        "runId",
+        "knowledgeMode"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "knowledgeMode": {
+                "const": "NONE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "knowledgeBaseIds": {
+                "maxItems": 0
+              },
+              "documentIds": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "anyOf": [
+              {
+                "properties": {
+                  "knowledgeBaseIds": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "documentIds": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "MessageCreate": {
+      "type": "object",
+      "properties": {
+        "clientMessageId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 8000,
+          "minLength": 1
+        },
+        "context": {
+          "$ref": "#/definitions/MessageContext"
+        }
+      },
+      "required": ["clientMessageId", "text", "context"],
+      "additionalProperties": false
+    },
+    "Answer": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "bodyMarkdown": {
+          "type": "string",
+          "maxLength": 30000
+        },
+        "evidenceStatus": {
+          "type": "string",
+          "enum": ["SUFFICIENT", "PARTIAL", "NONE"]
+        },
+        "citationIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Uuid"
+          },
+          "maxItems": 50,
+          "uniqueItems": true
+        },
+        "caseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "resultIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "draftId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "summary",
+        "bodyMarkdown",
+        "evidenceStatus",
+        "citationIds",
+        "caseIds",
+        "resultIds",
+        "draftId",
+        "warnings"
+      ],
+      "additionalProperties": false
+    },
+    "Message": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["USER", "ASSISTANT"]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 30000
+        },
+        "context": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MessageContext"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Answer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "conversationId",
+        "role",
+        "text",
+        "context",
+        "answer",
+        "turnId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    },
+    "Turn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED", "RUNNING", "COMPLETED", "FAILED", "CANCELLED"]
+        },
+        "lastSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requestId": {
+          "$ref": "#/definitions/Uuid"
+        }
+      },
+      "required": ["id", "conversationId", "status", "lastSequence", "requestId"],
+      "additionalProperties": false
+    },
+    "DraftItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "values": {
+          "$ref": "#/definitions/CaseCreate"
+        },
+        "citationIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Uuid"
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        }
+      },
+      "required": ["id", "values", "citationIds"],
+      "additionalProperties": false
+    },
+    "Draft": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": ["EDITABLE", "COMMITTED", "DISCARDED", "EXPIRED"]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DraftItem"
+          },
+          "maxItems": 50
+        },
+        "payloadHash": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "expiresAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "createdCaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 50
+        }
+      },
+      "required": [
+        "id",
+        "projectId",
+        "conversationId",
+        "revision",
+        "status",
+        "items",
+        "payloadHash",
+        "expiresAt",
+        "createdCaseIds"
+      ],
+      "additionalProperties": false
+    },
+    "DraftPatch": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DraftItem"
+          },
+          "maxItems": 50,
+          "minItems": 1
+        }
+      },
+      "required": ["revision", "items"],
+      "additionalProperties": false
+    },
+    "DraftCommit": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "payloadHash": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "selectedItemIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Uuid"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": ["revision", "payloadHash", "selectedItemIds"],
+      "additionalProperties": false
+    },
+    "DraftCommitResult": {
+      "type": "object",
+      "properties": {
+        "draftId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "createdCaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 50
+        },
+        "status": {
+          "type": "string",
+          "enum": ["COMMITTED"]
+        }
+      },
+      "required": ["draftId", "createdCaseIds", "status"],
+      "additionalProperties": false
+    },
+    "AuditEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "actorName": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "action": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "resourceType": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "resourceId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "result": {
+          "type": "string",
+          "enum": ["SUCCESS", "DENIED", "FAILED"]
+        },
+        "requestId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "actorName",
+        "action",
+        "resourceType",
+        "resourceId",
+        "result",
+        "requestId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    },
+    "Overview": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "$ref": "#/definitions/Project"
+        },
+        "catalogCaseCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastRun": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Run"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "readyDocumentCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedDocumentCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recentRuns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Run"
+          },
+          "maxItems": 5
+        },
+        "recentConversations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Conversation"
+          },
+          "maxItems": 5
+        },
+        "attentionDocuments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Document"
+          },
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "project",
+        "catalogCaseCount",
+        "lastRun",
+        "readyDocumentCount",
+        "failedDocumentCount",
+        "recentRuns",
+        "recentConversations",
+        "attentionDocuments"
+      ],
+      "additionalProperties": false
+    },
+    "JobAccepted": {
+      "type": "object",
+      "properties": {
+        "jobId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED"]
+        }
+      },
+      "required": ["jobId", "status"],
+      "additionalProperties": false
+    },
+    "AuthorizedScope": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "actorId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "knowledgeBaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "documentIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "caseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 1000,
+          "uniqueItems": true
+        },
+        "runIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "allowedTools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "search_test_cases",
+              "get_test_case_detail",
+              "get_run_summary",
+              "get_failed_cases",
+              "search_knowledge",
+              "create_case_draft"
+            ]
+          },
+          "maxItems": 6
+        },
+        "expiresAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "caseScope": {
+          "type": "string",
+          "enum": ["PROJECT", "SELECTION"]
+        }
+      },
+      "required": [
+        "projectId",
+        "actorId",
+        "knowledgeBaseIds",
+        "documentIds",
+        "caseIds",
+        "runIds",
+        "allowedTools",
+        "expiresAt",
+        "caseScope"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "caseScope": {
+                "const": "PROJECT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "caseIds": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RespondRequest": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "requestId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "question": {
+          "type": "string",
+          "maxLength": 8000
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["USER", "ASSISTANT"]
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 30000
+              }
+            },
+            "required": ["role", "text"],
+            "additionalProperties": false
+          },
+          "maxItems": 20
+        },
+        "context": {
+          "$ref": "#/definitions/MessageContext"
+        },
+        "scope": {
+          "$ref": "#/definitions/AuthorizedScope"
+        }
+      },
+      "required": [
+        "operationId",
+        "turnId",
+        "conversationId",
+        "requestId",
+        "question",
+        "history",
+        "context",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "ObjectRef": {
+      "type": "object",
+      "properties": {
+        "objectId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sha256": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 52428800
+        },
+        "logicalPath": {
+          "type": "string",
+          "maxLength": 512,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\:]).+$"
+        }
+      },
+      "required": ["objectId", "sha256", "sizeBytes", "logicalPath"],
+      "additionalProperties": false
+    },
+    "RobotParseRequest": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectRef"
+          },
+          "maxItems": 200,
+          "minItems": 1
+        },
+        "projectKey": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["FULL_SNAPSHOT"]
+        }
+      },
+      "required": ["operationId", "files", "projectKey", "mode"],
+      "additionalProperties": false
+    },
+    "ParsedSuite": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "parentPath": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["path", "name", "parentPath"],
+      "additionalProperties": false
+    },
+    "ParsedCase": {
+      "type": "object",
+      "properties": {
+        "suitePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "documentation": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 30
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Step"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": ["suitePath", "name", "documentation", "tags", "source", "steps"],
+      "additionalProperties": false
+    },
+    "RobotParseResult": {
+      "type": "object",
+      "properties": {
+        "suites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParsedSuite"
+          },
+          "maxItems": 1000
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParsedCase"
+          },
+          "maxItems": 10000
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportIssue"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": ["suites", "cases", "issues"],
+      "additionalProperties": false
+    },
+    "ResultParseRequest": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "object": {
+          "$ref": "#/definitions/ObjectRef"
+        }
+      },
+      "required": ["operationId", "object"],
+      "additionalProperties": false
+    },
+    "ParsedResult": {
+      "type": "object",
+      "properties": {
+        "suitePath": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "caseName": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "SKIP"]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "elapsedMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedKeyword": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["suitePath", "caseName", "status", "message", "elapsedMs", "failedKeyword"],
+      "additionalProperties": false
+    },
+    "ResultParseResult": {
+      "type": "object",
+      "properties": {
+        "counts": {
+          "$ref": "#/definitions/RunCounts"
+        },
+        "startedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParsedResult"
+          },
+          "maxItems": 10000
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportIssue"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": ["counts", "startedAt", "finishedAt", "results", "issues"],
+      "additionalProperties": false
+    },
+    "IndexRequest": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "documentId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "knowledgeBaseId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "contentHash": {
+          "$ref": "#/definitions/Sha256"
+        },
+        "object": {
+          "$ref": "#/definitions/ObjectRef"
+        },
+        "parserVersion": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "embeddingProfile": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "operationId",
+        "documentId",
+        "knowledgeBaseId",
+        "contentHash",
+        "object",
+        "parserVersion",
+        "embeddingProfile"
+      ],
+      "additionalProperties": false
+    },
+    "IndexJob": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["QUEUED", "PROCESSING", "SUCCEEDED", "FAILED", "CANCELLED"]
+        },
+        "stage": {
+          "type": "string",
+          "enum": ["PARSING", "CHUNKING", "EMBEDDING", "CLEANUP", "FINISHED"]
+        },
+        "chunkCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["id", "operationId", "status", "stage", "chunkCount", "error"],
+      "additionalProperties": false
+    },
+    "IndexDelete": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "documentId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "contentHash": {
+          "$ref": "#/definitions/Sha256"
+        }
+      },
+      "required": ["operationId", "documentId", "contentHash"],
+      "additionalProperties": false
+    },
+    "SearchCasesTool": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "filter": {
+          "$ref": "#/definitions/CaseFilter"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["projectId", "filter", "page", "size"],
+      "additionalProperties": false
+    },
+    "CaseDetailTool": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "caseId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        }
+      },
+      "required": ["projectId", "caseId"],
+      "additionalProperties": false
+    },
+    "RunTool": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        }
+      },
+      "required": ["projectId", "runId"],
+      "additionalProperties": false
+    },
+    "FailedResultsTool": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["projectId", "runId", "page", "size"],
+      "additionalProperties": false
+    },
+    "KnowledgeSearchTool": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "knowledgeBaseIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "documentIds": {
+          "type": "array",
+          "items": {
+            "$ref": "./schemas.json#/definitions/Id"
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "required": ["query", "knowledgeBaseIds", "documentIds", "limit"],
+      "additionalProperties": false
+    },
+    "KnowledgeSearchResult": {
+      "type": "object",
+      "properties": {
+        "evidenceStatus": {
+          "type": "string",
+          "enum": ["SUFFICIENT", "PARTIAL", "NONE"]
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Citation"
+          },
+          "maxItems": 10
+        }
+      },
+      "required": ["evidenceStatus", "citations"],
+      "additionalProperties": false
+    },
+    "CreateDraftTool": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "$ref": "./schemas.json#/definitions/Id"
+        },
+        "conversationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DraftItem"
+          },
+          "maxItems": 50,
+          "minItems": 1
+        }
+      },
+      "required": ["projectId", "conversationId", "items"],
+      "additionalProperties": false
+    },
+    "StageData": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": ["RETRIEVING", "QUERYING", "DRAFTING", "RESPONDING"]
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": ["stage", "label"],
+      "additionalProperties": false
+    },
+    "ToolStartData": {
+      "type": "object",
+      "properties": {
+        "toolCallId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "search_test_cases",
+            "get_test_case_detail",
+            "get_run_summary",
+            "get_failed_cases",
+            "search_knowledge",
+            "create_case_draft"
+          ]
+        }
+      },
+      "required": ["toolCallId", "tool"],
+      "additionalProperties": false
+    },
+    "ToolEndData": {
+      "type": "object",
+      "properties": {
+        "toolCallId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["SUCCEEDED", "FAILED"]
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": ["toolCallId", "status", "summary"],
+      "additionalProperties": false
+    },
+    "DeltaData": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 8000
+        }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "DoneData": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "answer": {
+          "$ref": "#/definitions/Answer"
+        }
+      },
+      "required": ["messageId", "answer"],
+      "additionalProperties": false
+    },
+    "CancelledData": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": ["USER_REQUEST", "CLIENT_DISCONNECT", "AUTH_REVOKED"]
+        }
+      },
+      "required": ["reason"],
+      "additionalProperties": false
+    },
+    "ErrorData": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": ["code", "message", "retryable"],
+      "additionalProperties": false
+    },
+    "TurnStartedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "turn.started"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/Turn"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "StageChangedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "stage.changed"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/StageData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "ToolStartedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "tool.started"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/ToolStartData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "ToolFinishedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "tool.finished"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/ToolEndData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "AnswerDeltaEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "answer.delta"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/DeltaData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "CitationAvailableEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "citation.available"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/Citation"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "DraftAvailableEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "draft.available"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/Draft"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "TurnCompletedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "turn.completed"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/DoneData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "TurnFailedEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "turn.failed"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/ErrorData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "TurnCancelledEvent": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "const": "turn.cancelled"
+        },
+        "turnId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "data": {
+          "$ref": "#/definitions/CancelledData"
+        }
+      },
+      "required": ["event", "turnId", "sequence", "occurredAt", "data"],
+      "additionalProperties": false
+    },
+    "TurnEvent": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TurnStartedEvent"
+        },
+        {
+          "$ref": "#/definitions/StageChangedEvent"
+        },
+        {
+          "$ref": "#/definitions/ToolStartedEvent"
+        },
+        {
+          "$ref": "#/definitions/ToolFinishedEvent"
+        },
+        {
+          "$ref": "#/definitions/AnswerDeltaEvent"
+        },
+        {
+          "$ref": "#/definitions/CitationAvailableEvent"
+        },
+        {
+          "$ref": "#/definitions/DraftAvailableEvent"
+        },
+        {
+          "$ref": "#/definitions/TurnCompletedEvent"
+        },
+        {
+          "$ref": "#/definitions/TurnFailedEvent"
+        },
+        {
+          "$ref": "#/definitions/TurnCancelledEvent"
+        }
+      ]
+    },
+    "ProjectPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Project"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "MemberPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Member"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "SuitePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Suite"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "ImportJobPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImportJob"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "TestCasePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestCase"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "RunPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Run"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "ResultPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Result"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "ArtifactPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Artifact"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "KnowledgeBasePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KnowledgeBase"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "KnowledgeGrantPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KnowledgeGrant"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "DocumentPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Document"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "ConversationPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Conversation"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "MessagePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Message"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "AuditEntryPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuditEntry"
+          },
+          "maxItems": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["items", "total", "page", "size"],
+      "additionalProperties": false
+    },
+    "ServiceClaims": {
+      "type": "object",
+      "properties": {
+        "iss": {
+          "type": "string",
+          "enum": ["testops-server", "testops-ai"]
+        },
+        "aud": {
+          "type": "string",
+          "enum": ["testops-ai", "testops-server-tools"]
+        },
+        "iat": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "jti": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        }
+      },
+      "required": ["iss", "aud", "iat", "exp", "jti", "operationId"],
+      "additionalProperties": false
+    },
+    "DelegationClaims": {
+      "type": "object",
+      "properties": {
+        "iss": {
+          "const": "testops-server"
+        },
+        "aud": {
+          "const": "testops-server-tools"
+        },
+        "iat": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "jti": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "operationId": {
+          "$ref": "#/definitions/Uuid"
+        },
+        "actorId": {
+          "$ref": "#/definitions/Id"
+        },
+        "projectId": {
+          "$ref": "#/definitions/Id"
+        },
+        "scope": {
+          "$ref": "#/definitions/AuthorizedScope"
+        },
+        "objectIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Uuid"
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        },
+        "authorizationVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "iss",
+        "aud",
+        "iat",
+        "exp",
+        "jti",
+        "operationId",
+        "actorId",
+        "projectId",
+        "scope",
+        "objectIds",
+        "authorizationVersion"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

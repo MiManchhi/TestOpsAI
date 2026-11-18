@@ -1,5 +1,7 @@
 # Java 模块
 
+2026-11-17 集成补充：main 已快进至 41ef74c，包含 M1.4 Redis 缓存/登录限流（实现与原验证见 [M1.4](../sessions/2026-11-17-12-m1-4-cache-ratelimit.md)）。后续 Robot 业务按 [契约 1.0.0](../../docs/contracts/README.md)、[领域模型](../../docs/DOMAIN_MODEL.md) 和 ADR-0007 开发；新业务使用 v2，已有 v1 语义不变。契约冻结不代表新业务接口已实现；进度见 DESIGN-CONTRACT-001。
+
 更新：2026-11-17。状态：IMPLEMENTED（M1.1/M1.2/M1.3；历史本机验证见 session）。
 
 Java 21 / Spring Boot 3.5.16，入口 [TestOpsApplication](../../apps/server/src/main/java/io/testopsai/server/TestOpsApplication.java)，依赖锁定在 [pom](../../apps/server/pom.xml)。业务归 modules/identity、modules/knowledge、modules/testcase，跨域认证与错误处理归 platform；按真实职责拆分，不预建空层。

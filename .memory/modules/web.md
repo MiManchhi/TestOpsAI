@@ -1,5 +1,9 @@
 # Vue 模块
 
+2026-11-17 最终设计更新：[PRODUCT_DESIGN](../../docs/PRODUCT_DESIGN.md) 与 [15 页面原型](../../docs/design/index.html) 取代 V0.1 三方向探索。工作台聚合运行/资料/待办；AI 助手专门承担问答/引用/草稿；登录、知识库、Robot 用例、运行、导入、管理均有完整设计。Web 仅消费 [public.openapi](../../docs/contracts/public.openapi.json)，页面 operationId 映射见 pages.json；新业务 v2，认证沿用 v1。生产 Vue 未替换，本轮产出为最终设计与跨端契约。
+
+2026-11-17：用户明确产品面向智能电表测试；[总体页面设计](../../docs/WEB_UI_DESIGN.md) 已产出（IMPLEMENTED，仅设计材料，待评审），包含四项导航、领域上下文、AI 问答/来源阅读/草稿保存及三张视觉稿。业务前端与 AI 能力没有新增；后续从 [WEB-002-DESIGN](../sessions/2026-11-17-13-web-ai-design.md) 恢复，不把图片当运行证据。
+
 更新：2026-11-17。状态：VERIFIED（WEB-001 本机检查与浏览器范围，Web ad87e97 已发布，main 4cc2d1c 已合并并推送）。
 
 [app](../../apps/web/src/app/App.vue) 组装会话状态与页面，main.ts 注册 Vue Router；style.css 管基础视觉与登录页，workspace.css 管工作台。auth feature 内聚合登录页、API、会话及测试；workspace feature 承载导航布局、概览与待开放说明；[health](../../apps/web/src/features/health/HealthStatus.vue) 展示真实 Java 健康检查。

@@ -10,3 +10,4 @@ package-lock.json
 docs/PROJECT_BLUEPRINT.md
 apps/server/mvnw*
 apps/server/.mvn
+docs/references/2026-11-17-robot-framework-background.md

@@ -7,3 +7,4 @@
 *.zip binary
 # Preserve the supplied baseline's intentional Markdown hard line breaks.
 docs/PROJECT_BLUEPRINT.md whitespace=-blank-at-eol
+docs/references/2026-11-17-robot-framework-background.md whitespace=-blank-at-eol

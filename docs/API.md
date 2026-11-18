@@ -1,5 +1,9 @@
 # API 契约
 
+## 当前开发冻结基线
+
+2026-11-17：新增 [三端开发契约 1.0.0](contracts/README.md)（OpenAPI + 共享 schema + 事件/工具/页面映射），依据智能电表 Robot 背景确定。新业务使用 `/api/v2`，内部 `/internal/v1`；既有 `/api/v1/auth/login`、`/users/me` 与下述历史 CRUD 保持现状。新增契约标为 SPECIFIED，不能当作接口已实现；实际运行事实以下述已实现章节和代码为准。最终页面见 [产品设计](PRODUCT_DESIGN.md)。
+
 ## M0 已实现
 
 | 服务 | 方法与路径                     | 响应                  | 可见性               |
@@ -121,8 +125,8 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 | ------------ | ---- | -------------------- |
 | RATE_LIMITED | 429  | 登录接口超过频率限制 |
 
-## M1–M4 契约草案
+## M1–M4 原草案（历史，已由 1.0.0 冻结契约取代）
 
-外部 REST 前缀 `/api/v1`；Java 为唯一业务入口。结构化错误含 `code/message/requestId`，鉴权失败 401、资源无权 403，分页排序字段白名单，写入按接口规定支持幂等键。具体 schema 与错误码待 M1 实现时冻结并导出 OpenAPI。
+原草案设想外部 REST 前缀 `/api/v1`，具体 schema 尚未冻结。后续新增业务改按上面的 v2 契约实施，不能继续据此各自定义字段。Java 仍为唯一浏览器业务入口，错误保持 `code/message/requestId`。
 
-内部 AI 与 Tool API 使用服务身份、时效和最小授权上下文；不直接传递用户 JWT。流式事件为 `message.delta`、`tool.start`、`tool.end`、`message.done`、`error`，心跳用 SSE 注释行。字段草案见立项基线第 6 章，尚未实现。
+原流式事件名 `message.delta/tool.start/tool.end/message.done/error` 尚未运行实现，现由冻结契约的 `turn.* / stage.changed / tool.started / tool.finished / answer.delta / citation.available / draft.available` 替代。不能混用两套事件名称；心跳仍为 SSE 注释行。
