@@ -23,7 +23,7 @@ public class RequestIdFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws ServletException, IOException {
     String id = request.getHeader(REQUEST_ID_HEADER);
-    if (id == null || id.isBlank()) {
+    if (id == null || id.isBlank() || !isValidRequestId(id)) {
       id = UUID.randomUUID().toString();
     }
     MDC.put(MDC_KEY, id);
@@ -33,5 +33,9 @@ public class RequestIdFilter extends OncePerRequestFilter {
     } finally {
       MDC.remove(MDC_KEY);
     }
+  }
+
+  private boolean isValidRequestId(String id) {
+    return id.length() <= 128 && id.matches("^[a-zA-Z0-9\\-]+$");
   }
 }

@@ -8,8 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import io.testopsai.server.modules.identity.UserRepository;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseRepository;
+import io.testopsai.server.modules.project.ProjectRepository;
 import io.testopsai.server.modules.testcase.TestCaseRepository;
 import io.testopsai.server.platform.cache.RedisCacheService;
+import io.testopsai.server.platform.idempotency.IdempotencyService;
 import io.testopsai.server.platform.ratelimit.RateLimiter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ class ErrorContractTest {
   @MockBean TestCaseRepository testCaseRepository;
   @MockBean RedisCacheService redisCacheService;
   @MockBean RateLimiter rateLimiter;
+  @MockBean ProjectRepository projectRepository;
+  @MockBean IdempotencyService idempotencyService;
 
   @Test
   void healthEndpointRemainsPublicAndUnaffectedByErrorContract() throws Exception {
