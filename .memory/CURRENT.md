@@ -48,9 +48,12 @@
 
 ## AI
 
-- FastAPI 健康检查骨架已实现；文档解析、分块、模型适配、RAG 与 Agent 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
-- 后续候选：自造样例的独立文档处理；跨服务接入依赖 Java 业务/授权与 AI 契约。暂无已授权的 AI 业务任务。
-- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。没有复制密钥或依赖环境；跨服务接入仍需满足契约前置条件。
+- AI-PARSER-PUBLISH-001：2026-11-18 用户已授权提交并推送 AI 成果和相关记忆；fetch 确认远端无新增 AI 提交，发布进行中。见 [发布 session](sessions/2026-11-18-04-ai-parser-publish.md)。本次不合并 main、不部署；下方未提交状态为发布前快照，完成后更新。
+- AI-PARSER-001：VERIFIED（2026-11-18，17ed8ee 上未提交工作区，限本机 AI 与替身验证）。已实现 Robot/XML 静态解析、严格契约 DTO、RS256 服务/委托校验、授权对象客户端、两条内部路由与可取消/超时回收进程。最终 scripts/check.ps1 退出 0（Python 64、Web 37，Java 37 中 32 项 DB/Redis 跳过），真实 Uvicorn→回环 HTTP 替身→解析子进程冒烟通过。真实 Java 对象接口/签名配置联调与部署仍 PLANNED；本机三端 smoke 因 Java 数据库连接不可用退出 1，不算通过。见 [本任务](sessions/2026-11-18-03-ai-parser.md) 与 [运行说明](../docs/development/AI_PARSER.md)。
+- AI-SYNC-001：2026-11-18 已获授权 fetch origin 并将 codex/ai-ingestion 从 101596d 快进至 origin/main 17ed8ee（12 个提交），最新产品设计、契约 1.0.0 与并行指南已进入本工作区；无冲突、未推送。同步后恢复与收尾验证见 [同步 session](sessions/2026-11-18-02-ai-sync-main.md)。同步任务当时未启动业务开发；当前解析状态见 AI-PARSER-001，本区块的“尚未同步”旧快照已更新，其他工作区状态不外推。
+- FastAPI 健康检查与 Robot/XML 解析接口已实现；知识文档解析/分块、模型适配、RAG 与 Agent 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
+- 当前授权为 AI-PARSER-001，Java 真实联调不在本批完成范围；本批交付后从冻结契约与解析说明协调 Java 对象读取和签名配置，再确定知识文档处理任务。
+- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖在本工作区独立安装，无真实密钥复制；未提交、未推送，主线与其他工作区不受本次改动影响。
 
 ## 历史证据与限制
 
