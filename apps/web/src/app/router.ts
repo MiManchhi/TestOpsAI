@@ -8,11 +8,16 @@ import TestCasesPage from '../features/test-cases/TestCasesPage.vue';
 import CaseDetailPage from '../features/test-cases/CaseDetailPage.vue';
 import ProjectPage from '../features/projects/ProjectPage.vue';
 import AccountPage from '../features/workspace/AccountPage.vue';
+import ImportsPage from '../features/imports/ImportsPage.vue';
+import RunsPage from '../features/runs/RunsPage.vue';
+import RunDetailPage from '../features/runs/RunDetailPage.vue';
 
 const destinations = [
   '/overview',
   '/knowledge',
   '/test-cases',
+  '/runs',
+  '/imports',
   '/settings/project',
   '/settings/account',
 ];
@@ -24,7 +29,7 @@ export function safeDestination(value: unknown): string {
     if (
       url.origin !== 'https://testops.invalid' ||
       (!destinations.includes(url.pathname) &&
-        !/^\/test-cases\/[1-9][0-9]{0,18}$/.test(url.pathname))
+        !/^\/(test-cases|runs)\/[1-9][0-9]{0,18}$/.test(url.pathname))
     )
       return '/overview';
     const projectId = url.searchParams.get('projectId');
@@ -70,7 +75,14 @@ export function createAppRouter(
           {
             path: 'settings/project',
             component: ProjectPage,
-            meta: { title: '项目与成员', project: true },
+            meta: { title: '项目与成员' },
+          },
+          { path: 'imports', component: ImportsPage, meta: { title: '数据导入', project: true } },
+          { path: 'runs', component: RunsPage, meta: { title: '运行记录', project: true } },
+          {
+            path: 'runs/:runId',
+            component: RunDetailPage,
+            meta: { title: '运行详情', project: true },
           },
           { path: 'settings/account', component: AccountPage, meta: { title: '账户' } },
         ],

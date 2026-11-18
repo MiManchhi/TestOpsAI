@@ -24,6 +24,7 @@ export async function requestJSON(
   path: string,
   signal: AbortSignal,
   options: RequestInit = {},
+  timeoutMs = 10_000,
 ): Promise<unknown> {
   const token = auth.getAccessToken();
   if (!token) throw new ApiError('登录已过期，请重新登录。', 401);
@@ -32,7 +33,7 @@ export async function requestJSON(
     response = await fetch(path, {
       ...options,
       headers: { ...options.headers, Authorization: `Bearer ${token}` },
-      signal: AbortSignal.any([signal, AbortSignal.timeout(10_000)]),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]),
     });
   } catch {
     if (signal.aborted) throw new DOMException('Request cancelled', 'AbortError');
@@ -67,11 +68,15 @@ export async function requestJSON(
               ? '选择超过 1000 条，请缩小筛选范围。'
               : response.status === 409
                 ? '数据或选择已发生变化，请重新读取后确认。'
-                : response.status === 400 || response.status === 422
-                  ? '请求条件不符合要求，请检查筛选或选择范围。'
-                  : response.status === 429
-                    ? '请求过于频繁，请稍后重试。'
-                    : '服务暂时不可用，请稍后重试。';
+                : response.status === 413
+                  ? '上传文件超过大小限制，请缩小文件后重试。'
+                  : response.status === 415
+                    ? '不支持此文件类型，请检查文件格式。'
+                    : response.status === 400 || response.status === 422
+                      ? '请求内容不符合要求，请检查输入或文件后重试。'
+                      : response.status === 429
+                        ? '请求过于频繁，请稍后重试。'
+                        : '服务暂时不可用，请稍后重试。';
     throw new ApiError(message, response.status, code, id);
   }
   return body;
