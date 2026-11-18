@@ -6,6 +6,8 @@
 
 ## 集成
 
+- AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成候选）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），待提交并普通推送 main。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。
+
 - DESIGN-CONTRACT-PUBLISH-001：VERIFIED（2026-11-18 提交/正常推送与远端 SHA 核对）。用户认可的最终设计/契约、检查与 [三端开工指南](../docs/development/PARALLEL_DEVELOPMENT.md) 已随 0a1a2b3 推送 origin/main；本轮完整 scripts/check.ps1 退出 0（Web 37，Java 37 项中 32 项 DB/Redis 测试跳过，Python 1 项与检查/构建通过）。指南定义 SERVER-V2-001 / WEB-V2-001 / AI-PARSER-001 首批任务与可粘贴指令；三个工作区只读核实均干净，但尚未同步冻结基线、未自动启动业务任务。收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准；新远端 CI 未核实。见 [session](sessions/2026-11-18-01-design-contract-publish.md)。
 
 - DESIGN-CONTRACT-001：VERIFIED（2026-11-17 最终设计原型/契约自身/工程门禁，不代表新业务运行）。已 pull --ff-only 至 main 41ef74c，M1.4 保留。已保留 Robot 背景，交付 [最终产品设计](../docs/PRODUCT_DESIGN.md)、[领域模型](../docs/DOMAIN_MODEL.md)、[契约 1.0.0](../docs/contracts/README.md) 与 15 页面原型；取代 WEB-002 的选图流程。109 schema/65 operation/827 引用/45 示例与非法输入、SSE 序列检查通过；完整 scripts/check.ps1 退出 0（Web 37 测试，Java 37 项中 32 项 DB/Redis 测试跳过，Python 检查/测试/构建通过）。浏览器主要链路及桌面/手机/平板范围见 [session](sessions/2026-11-17-14-final-design-contract.md)。未提交、未推送，新增业务仍 PLANNED；后续直接消费冻结接口并补真实 provider 测试。
@@ -30,6 +32,7 @@
 
 ## Java
 
+- M1.5 v2 项目隔离与契约基础已随主线 1cbe62e 接受；本次 AI 集成保留项目/成员、幂等框架与 V6，Java 45 项测试中 40 项 DB/Redis 跳过，不能当真实数据库/权限联调通过。源实现见 [M1.5 session](sessions/2026-11-18-01-m1-5-contract-compliance.md)。
 - M1.1/M1.2：IMPLEMENTED；历史本机验证记录为 VERIFIED，见 [M1.1](sessions/2026-11-17-06-m1-1-data-baseline.md)、[M1.2](sessions/2026-11-17-07-m1-2-auth.md)。JWT、登录、当前用户、结构化错误、身份迁移已进入 Git。模块上下文见 [server](modules/server.md)。
 - M1.3 知识库与测试用例 CRUD + 数据级权限：IMPLEMENTED（编译通过、Spotless 通过、Maven verify BUILD SUCCESS；DB 集成测试因无 MYSQL_PASSWORD 跳过）。V5 迁移三表 + 种子数据、两个业务域完整实现、集成测试覆盖 CRUD/权限/分页/过滤/排序白名单/错误码、文档同步 API.md/DATABASE.md/ADR-0005。详见 [M1.3 session](sessions/2026-11-17-11-m1-3-kb-tc-crud.md)。
 - 证据边界：历史 session 记录真实 MySQL Maven verify、完整门禁与容器登录探测；本轮未重跑业务测试或容器验收，不据此确认当前运行健康与最新远端 CI。M1.3 开发分支原验证限于 JDK 21 编译 + Spotless + 非 DB 单元测试；本次 main 集成补验完整 scripts/check.ps1 退出 0（Java 33 项中 28 项 DB 测试跳过）。没有真实 DB 回归或新容器部署证据。
@@ -48,9 +51,12 @@
 
 ## AI
 
-- FastAPI 健康检查骨架已实现；文档解析、分块、模型适配、RAG 与 Agent 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
-- 后续候选：自造样例的独立文档处理；跨服务接入依赖 Java 业务/授权与 AI 契约。暂无已授权的 AI 业务任务。
-- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。没有复制密钥或依赖环境；跨服务接入仍需满足契约前置条件。
+- AI-PARSER-PUBLISH-001：VERIFIED（2026-11-18，Git 发布与远端 SHA 核对）。功能提交 e1a2d23 已正常推送 origin/codex/ai-ingestion，源码/测试/说明和同步记忆一起发布，无强推、未合入 main；收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准。见 [发布 session](sessions/2026-11-18-04-ai-parser-publish.md)。新远端 CI 未核实，不把发布当作部署或真实 Java 联调。
+- AI-PARSER-001：VERIFIED（2026-11-18，功能提交 e1a2d23，限本机 AI 与替身验证）。已实现 Robot/XML 静态解析、严格契约 DTO、RS256 服务/委托校验、授权对象客户端、两条内部路由与可取消/超时回收进程。最终 scripts/check.ps1 退出 0（Python 64、Web 37，Java 37 中 32 项 DB/Redis 跳过），真实 Uvicorn→回环 HTTP 替身→解析子进程冒烟通过。真实 Java 对象接口/签名配置联调与部署仍 PLANNED；本机三端 smoke 因 Java 数据库连接不可用退出 1，不算通过。见 [本任务](sessions/2026-11-18-03-ai-parser.md) 与 [运行说明](../docs/development/AI_PARSER.md)。
+- AI-SYNC-001：2026-11-18 已获授权 fetch origin 并将 codex/ai-ingestion 从 101596d 快进至 origin/main 17ed8ee（12 个提交），最新产品设计、契约 1.0.0 与并行指南已进入本工作区；无冲突、未推送。同步后恢复与收尾验证见 [同步 session](sessions/2026-11-18-02-ai-sync-main.md)。同步任务当时未启动业务开发；当前解析状态见 AI-PARSER-001，本区块的“尚未同步”旧快照已更新，其他工作区状态不外推。
+- FastAPI 健康检查与 Robot/XML 解析接口已实现；知识文档解析/分块、模型适配、RAG 与 Agent 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
+- 当前授权为 AI-PARSER-001，Java 真实联调不在本批完成范围；本批交付后从冻结契约与解析说明协调 Java 对象读取和签名配置，再确定知识文档处理任务。
+- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖在本工作区独立安装，无真实密钥复制；功能提交 e1a2d23 已推送当前 AI 分支，尚未合入 main，其他工作区未自动同步。
 
 ## 历史证据与限制
 

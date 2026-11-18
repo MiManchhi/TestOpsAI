@@ -1,5 +1,7 @@
 # 工程记忆导航
 
+2026-11-18：[AI 解析主线集成](sessions/2026-11-18-05-ai-parser-main-merge.md)；本机合并门禁与证据范围见 CURRENT。
+
 2026-11-18：[设计与契约发布](sessions/2026-11-18-01-design-contract-publish.md)；下一批三端开工见 [并行开发指南](../docs/development/PARALLEL_DEVELOPMENT.md)。
 
 2026-11-17 当前设计任务：[最终页面与三端契约](sessions/2026-11-17-14-final-design-contract.md)；开发输入：[最终设计](../docs/PRODUCT_DESIGN.md)、[冻结契约](../docs/contracts/README.md)。此前三方向探索已被此基线取代。

@@ -3,10 +3,13 @@ name = "testops-ai-service"
 version = "0.1.0"
 description = "Internal AI service for TestOps AI"
 requires-python = ">=3.12,<3.13"
-dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "pydantic-settings>=2.7,<3"]
+dependencies = [
+    "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "pydantic-settings>=2.7,<3",
+    "httpx>=0.28,<1", "robotframework>=7.3,<8", "defusedxml==0.7.1", "pyjwt[crypto]>=2.10,<3",
+]
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "httpx>=0.28,<1", "ruff>=0.11,<1", "mypy>=1.15,<2"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "jsonschema>=4,<5", "types-defusedxml>=0.7,<1"]
 
 [build-system]
 requires = ["hatchling>=1.27,<2"]
