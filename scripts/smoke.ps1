@@ -3,9 +3,21 @@ $ErrorActionPreference = 'Stop'
 $BaseUrl = $BaseUrl.TrimEnd('/')
 Push-Location (Split-Path $PSScriptRoot -Parent)
 try {
-    $stateLines = docker compose ps --all --format json
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect container state' }
-    $states = @($stateLines | ForEach-Object { $_ | ConvertFrom-Json })
+    # Decode docker output as UTF-8; PowerShell 5.1 defaults to ANSI and corrupts JSON text.
+    $previousEncoding = [Console]::OutputEncoding
+    [Console]::OutputEncoding = [Text.Encoding]::UTF8
+    try {
+        $stateRaw = (docker compose ps --all --format json) -join "`n"
+        if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect container state' }
+    } finally { [Console]::OutputEncoding = $previousEncoding }
+    $stateText = $stateRaw.Trim()
+    if (-not $stateText) { throw 'Cannot inspect container state' }
+    # Compose may emit a JSON array or one JSON object per line; accept both.
+    if ($stateText.StartsWith('[')) {
+        $states = @($stateText | ConvertFrom-Json)
+    } else {
+        $states = @($stateText -split "`n" | Where-Object { $_.Trim() } | ForEach-Object { $_ | ConvertFrom-Json })
+    }
     $services = @('mysql', 'redis', 'qdrant')
     if (-not $InfraOnly) { $services += @('server', 'ai-service', 'web') }
     $ports = @{ mysql = @(3306, 3306); redis = @(6379, 6379); qdrant = @(6333, 6333); web = @(80, 8088) }
