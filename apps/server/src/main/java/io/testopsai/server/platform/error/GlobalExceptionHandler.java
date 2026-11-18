@@ -2,8 +2,13 @@ package io.testopsai.server.platform.error;
 
 import io.testopsai.server.modules.knowledge.KnowledgeBaseNameDuplicateException;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseNotFoundException;
+import io.testopsai.server.modules.project.LastOwnerException;
+import io.testopsai.server.modules.project.NotProjectMemberException;
+import io.testopsai.server.modules.project.ProjectKeyDuplicateException;
+import io.testopsai.server.modules.project.ProjectNotFoundException;
 import io.testopsai.server.modules.testcase.InvalidSortFieldException;
 import io.testopsai.server.modules.testcase.TestCaseNotFoundException;
+import io.testopsai.server.platform.idempotency.IdempotencyConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -36,10 +41,34 @@ class GlobalExceptionHandler {
         .body(new ErrorResponse("TC_NOT_FOUND", ex.getMessage(), currentRequestId()));
   }
 
+  @ExceptionHandler(ProjectNotFoundException.class)
+  ResponseEntity<ErrorResponse> handleProjectNotFound(ProjectNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ErrorResponse("PROJECT_NOT_FOUND", ex.getMessage(), currentRequestId()));
+  }
+
   @ExceptionHandler(KnowledgeBaseNameDuplicateException.class)
   ResponseEntity<ErrorResponse> handleKbNameDuplicate(KnowledgeBaseNameDuplicateException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(new ErrorResponse("KB_NAME_DUPLICATE", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(ProjectKeyDuplicateException.class)
+  ResponseEntity<ErrorResponse> handleProjectKeyDuplicate(ProjectKeyDuplicateException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ErrorResponse("PROJECT_KEY_DUPLICATE", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(LastOwnerException.class)
+  ResponseEntity<ErrorResponse> handleLastOwner(LastOwnerException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ErrorResponse("LAST_OWNER", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(IdempotencyConflictException.class)
+  ResponseEntity<ErrorResponse> handleIdempotencyConflict(IdempotencyConflictException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ErrorResponse("IDEMPOTENCY_CONFLICT", ex.getMessage(), currentRequestId()));
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
@@ -56,6 +85,12 @@ class GlobalExceptionHandler {
 
   @ExceptionHandler(AccessDeniedException.class)
   ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(new ErrorResponse("FORBIDDEN", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(NotProjectMemberException.class)
+  ResponseEntity<ErrorResponse> handleNotMember(NotProjectMemberException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(new ErrorResponse("FORBIDDEN", ex.getMessage(), currentRequestId()));
   }
