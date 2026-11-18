@@ -40,9 +40,9 @@
 
 ## Web
 
-- WEB-V2-001 发布：IN_PROGRESS（2026-11-18）。用户授权提交推送、暂不合并；功能 c74c03b 已正常推送 Web 分支，main 未改。CI 44255908854 四项质量检查通过、containers 因 Web 镜像未复制契约 JSON 失败；正最小补齐现有 .dockerignore 两文件白名单与 Web Dockerfile COPY，再推送修复。保留真实联调阻塞，不合并分支或推送 main；见 [开发/发布 session](sessions/2026-11-18-03-web-v2-catalog.md)。
+- WEB-V2-001 发布：VERIFIED（2026-11-18 提交/正常推送与远端 CI）。功能 c74c03b 与最小镜像修复 35b5a59 已普通推送 Web；[CI 44256756644](https://github.com/MiManchhi/TestOpsAI/actions/runs/44256756644) 五项全成功，含 Web 59 测试、镜像构建、六服务交付/恢复与隔离清理。初次 JSON 缺失失败及本机 Docker 未运行限制保留在 [session](sessions/2026-11-18-03-web-v2-catalog.md)；修复仅为 .dockerignore 两文件白名单与 Web Dockerfile COPY。暂不合并，未推送 main，真实 v2 联调仍 BLOCKED。收尾仅补充三份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准。
 
-- WEB-V2-001：IMPLEMENTED（2026-11-18）；Web 类型/lint/最终 59 测试/构建、契约与隔离浏览器范围 VERIFIED。正式布局、项目上下文/资料/账户、套件树、精确筛选排序分页、跨页选择快照及只读详情/来源已实现。原完整入口受 pytest 缓存 EPERM 阻断，全部源码格式与其余原步骤的等效门禁退出 0（当时 Web 57、Java 37 中 32 DB/Redis 跳过、Python 1）；收尾仅新增两项契约回归并复跑 Web/契约。1440/768/375 与键盘/异常通过，示例仅测试隔离。收尾核实远端 main 新增至 1cbe62e（未改公共契约/Web），静态发现项目列表 Controller 返回数组而契约要求 ProjectPage，且套件/用例/选择未交付，真实联调 BLOCKED。当前工作区仍基于 0dfe373，未合并新主线、未提交推送或部署，见 [开发 session](sessions/2026-11-18-03-web-v2-catalog.md)。下列“仍 PLANNED”保留历史时点。
+- WEB-V2-001：IMPLEMENTED（2026-11-18）；Web 类型/lint/最终 59 测试/构建、契约与隔离浏览器范围 VERIFIED。正式布局、项目上下文/资料/账户、套件树、精确筛选排序分页、跨页选择快照及只读详情/来源已实现。原完整入口受 pytest 缓存 EPERM 阻断，全部源码格式与其余原步骤的等效门禁退出 0（当时 Web 57、Java 37 中 32 DB/Redis 跳过、Python 1）；收尾仅新增两项契约回归并复跑 Web/契约。1440/768/375 与键盘/异常通过，示例仅测试隔离。收尾核实远端 main 新增至 1cbe62e（未改公共契约/Web），静态发现项目列表 Controller 返回数组而契约要求 ProjectPage，且套件/用例/选择未交付，真实联调 BLOCKED。开发验收基线为 0dfe373，发布事实见上条；未合并新主线或部署，见 [开发 session](sessions/2026-11-18-03-web-v2-catalog.md)。下列“仍 PLANNED”保留历史时点。
 
 - WEB-SYNC-001：VERIFIED（2026-11-18 本地同步、远程发布与发布提交 CI）。codex/web-auth 已包含 main 17ed8ee 的最新代码、设计、契约 1.0.0、规范和记忆；两份同步记录随 1c71344 普通推送远程 Web，SHA 一致且当时工作树干净。发布提交 [CI 44235617730](https://github.com/MiManchhi/TestOpsAI/actions/runs/44235617730) 五个 job 全成功，含容器交付/恢复与隔离清理；Java 37 中 32 项 DB/Redis 测试跳过。本机原完整入口因 pytest 缓存 EPERM 失败，全部源码格式及其余步骤的等效门禁退出 0，见 [同步 session](sessions/2026-11-18-02-web-main-sync.md)。收尾仅补充这两份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准；未改远程 main，WEB-V2-001 仍 PLANNED，下列历史证据保留原范围。
 
