@@ -6,7 +6,7 @@
 
 ## 集成
 
-- AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成候选）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），待提交并普通推送 main。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。
+- AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成门禁与主线发布）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），已随合并提交 a215e34 正常推送 origin/main，远端 SHA 一致；收尾记忆随后独立提交，最终 tip 以 Git refs 为准。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。
 
 - DESIGN-CONTRACT-PUBLISH-001：VERIFIED（2026-11-18 提交/正常推送与远端 SHA 核对）。用户认可的最终设计/契约、检查与 [三端开工指南](../docs/development/PARALLEL_DEVELOPMENT.md) 已随 0a1a2b3 推送 origin/main；本轮完整 scripts/check.ps1 退出 0（Web 37，Java 37 项中 32 项 DB/Redis 测试跳过，Python 1 项与检查/构建通过）。指南定义 SERVER-V2-001 / WEB-V2-001 / AI-PARSER-001 首批任务与可粘贴指令；三个工作区只读核实均干净，但尚未同步冻结基线、未自动启动业务任务。收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准；新远端 CI 未核实。见 [session](sessions/2026-11-18-01-design-contract-publish.md)。
 
@@ -51,12 +51,12 @@
 
 ## AI
 
-- AI-PARSER-PUBLISH-001：VERIFIED（2026-11-18，Git 发布与远端 SHA 核对）。功能提交 e1a2d23 已正常推送 origin/codex/ai-ingestion，源码/测试/说明和同步记忆一起发布，无强推、未合入 main；收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准。见 [发布 session](sessions/2026-11-18-04-ai-parser-publish.md)。新远端 CI 未核实，不把发布当作部署或真实 Java 联调。
+- AI-PARSER-PUBLISH-001：VERIFIED（2026-11-18，Git 发布与远端 SHA 核对）。功能提交 e1a2d23 已正常推送 origin/codex/ai-ingestion，源码/测试/说明和同步记忆一起发布，无强推，后续已通过 a215e34 合入 main；收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准。见 [发布 session](sessions/2026-11-18-04-ai-parser-publish.md)。新远端 CI 未核实，不把发布当作部署或真实 Java 联调。
 - AI-PARSER-001：VERIFIED（2026-11-18，功能提交 e1a2d23，限本机 AI 与替身验证）。已实现 Robot/XML 静态解析、严格契约 DTO、RS256 服务/委托校验、授权对象客户端、两条内部路由与可取消/超时回收进程。最终 scripts/check.ps1 退出 0（Python 64、Web 37，Java 37 中 32 项 DB/Redis 跳过），真实 Uvicorn→回环 HTTP 替身→解析子进程冒烟通过。真实 Java 对象接口/签名配置联调与部署仍 PLANNED；本机三端 smoke 因 Java 数据库连接不可用退出 1，不算通过。见 [本任务](sessions/2026-11-18-03-ai-parser.md) 与 [运行说明](../docs/development/AI_PARSER.md)。
 - AI-SYNC-001：2026-11-18 已获授权 fetch origin 并将 codex/ai-ingestion 从 101596d 快进至 origin/main 17ed8ee（12 个提交），最新产品设计、契约 1.0.0 与并行指南已进入本工作区；无冲突、未推送。同步后恢复与收尾验证见 [同步 session](sessions/2026-11-18-02-ai-sync-main.md)。同步任务当时未启动业务开发；当前解析状态见 AI-PARSER-001，本区块的“尚未同步”旧快照已更新，其他工作区状态不外推。
 - FastAPI 健康检查与 Robot/XML 解析接口已实现；知识文档解析/分块、模型适配、RAG 与 Agent 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
 - 当前授权为 AI-PARSER-001，Java 真实联调不在本批完成范围；本批交付后从冻结契约与解析说明协调 Java 对象读取和签名配置，再确定知识文档处理任务。
-- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖在本工作区独立安装，无真实密钥复制；功能提交 e1a2d23 已推送当前 AI 分支，尚未合入 main，其他工作区未自动同步。
+- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖在本工作区独立安装，无真实密钥复制；功能提交 e1a2d23 已推送 AI 分支，现已通过 a215e34 合入 main；其他工作区未自动同步。
 
 ## 历史证据与限制
 

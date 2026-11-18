@@ -2,9 +2,9 @@
 
 ## E19：AI 解析与最新 Java 主线集成（2026-11-18）
 
-状态：VERIFIED（本机合并候选工程门禁；Git 发布结果见 session）。
+状态：VERIFIED（本机集成工程门禁与 Git 主线发布；远端新 CI 未核实）。
 
-- 适用 main 1cbe62e + AI 852697e 的无冲突合并候选；保留 Java M1.5 项目/成员/V6 与既有 Web，不修改冻结契约。
+- 适用 main 1cbe62e + AI 852697e 的无冲突合并，提交 a215e34 已正常推送 origin/main 并核实远端 SHA；保留 Java M1.5 项目/成员/V6 与既有 Web，不修改冻结契约。
 - scripts/check.ps1 退出 0：37 份记忆、布局/回归/14 份脚本解析、全仓格式、契约 109 schema/65 operation/827 引用/15 页面/45 示例及非法输入/SSE、Web 37 测试/类型/lint/构建、Java verify/Spotless（45 项中 40 项 DB/Redis 跳过）、Python lock/Ruff/mypy/双平台脚本/64 测试/打包通过。
 - AI 分支独立真实 Uvicorn/授权 HTTP 替身/解析子进程证据保持原版本范围；本轮未重新运行三端 smoke、容器部署或真实 Java 对象联调，不把 DB 跳过视为通过，新远端 CI 未核实。
 - [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)、[实现证据与限制](sessions/2026-11-18-03-ai-parser.md)。

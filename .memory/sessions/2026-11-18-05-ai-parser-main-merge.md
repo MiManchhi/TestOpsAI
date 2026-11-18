@@ -1,6 +1,6 @@
 # AI 解析分支合入主线
 
-更新：2026-11-18。状态：VERIFIED（本机合并候选完整门禁；主线发布待完成）。
+更新：2026-11-18。状态：VERIFIED（本机集成完整门禁、主线合并与远端发布）。
 
 <!-- handoff:v1 -->
 
@@ -18,7 +18,7 @@ Scope: 用户明确要求合并到 main；安全合并 codex/ai-ingestion、集�
 
 ## 实施与选择
 
-- 在 main 再次核对预期 SHA 和干净状态后执行 git merge --no-ff --no-commit codex/ai-ingestion，退出 0，无冲突，暂存差异检查通过。尚未创建合并提交。
+- 在 main 再次核对预期 SHA 和干净状态后执行 git merge --no-ff --no-commit codex/ai-ingestion，退出 0，无冲突，暂存差异检查通过。当时尚未创建合并提交；最终发布见下文。
 - 保留 V6/Java 项目域、既有 Web 与冻结契约；AI 接口的真实 Java 对象读取/密钥配置联调仍未完成，不将合并当部署。
 - 新 Java session 报告此前前端类型检查失败，本轮以主线真实完整门禁结果为准；DB/Redis 跳过项单列。
 
@@ -28,10 +28,13 @@ Scope: 用户明确要求合并到 main；安全合并 codex/ai-ingestion、集�
 
 - fetch、主线/AI 状态/差异核对、自动合并及 cached diff --check 退出 0。完整 scripts/check.ps1 在主线 1cbe62e + AI 852697e 合并候选上退出 0：37 份记忆、目录与工程反例、14 份 PowerShell 解析、全仓格式与契约（109 schema/65 operation/827 引用/15 页面/45 示例及非法输入/SSE）、Web 类型/零警告 lint/37 测试/构建、Java verify/Spotless（45 项中 40 项 DB/Redis 跳过）、Python lock/Ruff/strict/双平台脚本/64 测试/构建通过。
 
+- git commit 创建 a215e34，git push origin main 退出 0（1cbe62e→a215e34），git ls-remote 与父提交核对通过。收尾仅补发布事实并复核格式/memory/diff 后独立 docs 提交推送，最终 tip 以 Git refs 为准。
+
 ## 交接
 
 <!-- next -->
 
-- 合并候选 VERIFIED；下一步补记忆、创建合并提交并普通推送 main。AI 源码/锁文件/说明与 852697e 一致，Java 源码/V6/ADR 与主线 1cbe62e 一致；cached diff --check 无空白问题，无未解决冲突。
+- 集成与发布 VERIFIED；合并提交 a215e3471df5731d3291d625cbe6656fc1d9a34d 已正常推送 origin/main，git ls-remote 与本地 SHA 一致；父提交分别为 1cbe62e 与 852697e，无强推，推送后工作区干净。AI 源码/锁文件/说明与 852697e 一致，Java 源码/V6/ADR 与主线 1cbe62e 一致；cached diff --check 无空白问题，无未解决冲突。
 - BLOCKED：无本次合并阻塞；真实 Java 对象接口/签名配置联调、部署仍 PLANNED，原三端 smoke 数据库限制与 40 项跳过不算通过。本轮不重新运行已知缺 DB 环境的 smoke，不据本机门禁推定远端 CI 或运行健康。
+- 下一步从最新 main 协调 Java 对象接口与 RS256 配置；AI/Web/Server 开发工作区本轮不自动同步，远端新 CI 未核实。
 - [CURRENT](../CURRENT.md)、[AI 发布](2026-11-18-04-ai-parser-publish.md)。
