@@ -10,6 +10,10 @@
 !apps/web/vite.config.ts
 !apps/web/src/
 !apps/web/src/**
+!docs/
+!docs/contracts/
+!docs/contracts/schemas.json
+!docs/contracts/examples.json
 !infra/
 !infra/nginx/
 !infra/nginx/default.conf

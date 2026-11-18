@@ -40,7 +40,7 @@
 
 ## Web
 
-- WEB-V2-001 发布：IN_PROGRESS（2026-11-18）。用户已追加授权本轮代码与记忆正常提交、推送 codex/web-auth，明确暂不合并；起点 HEAD/远端 Web 均为 0dfe373，main 只读核实为 1cbe62e。仅发布下述已验证前端切片，保留真实 API 联调阻塞与本机门禁限制，不合并分支、不推送 main；结果见 [开发/发布 session](sessions/2026-11-18-03-web-v2-catalog.md)。
+- WEB-V2-001 发布：IN_PROGRESS（2026-11-18）。用户授权提交推送、暂不合并；功能 c74c03b 已正常推送 Web 分支，main 未改。CI 44255908854 四项质量检查通过、containers 因 Web 镜像未复制契约 JSON 失败；正最小补齐现有 .dockerignore 两文件白名单与 Web Dockerfile COPY，再推送修复。保留真实联调阻塞，不合并分支或推送 main；见 [开发/发布 session](sessions/2026-11-18-03-web-v2-catalog.md)。
 
 - WEB-V2-001：IMPLEMENTED（2026-11-18）；Web 类型/lint/最终 59 测试/构建、契约与隔离浏览器范围 VERIFIED。正式布局、项目上下文/资料/账户、套件树、精确筛选排序分页、跨页选择快照及只读详情/来源已实现。原完整入口受 pytest 缓存 EPERM 阻断，全部源码格式与其余原步骤的等效门禁退出 0（当时 Web 57、Java 37 中 32 DB/Redis 跳过、Python 1）；收尾仅新增两项契约回归并复跑 Web/契约。1440/768/375 与键盘/异常通过，示例仅测试隔离。收尾核实远端 main 新增至 1cbe62e（未改公共契约/Web），静态发现项目列表 Controller 返回数组而契约要求 ProjectPage，且套件/用例/选择未交付，真实联调 BLOCKED。当前工作区仍基于 0dfe373，未合并新主线、未提交推送或部署，见 [开发 session](sessions/2026-11-18-03-web-v2-catalog.md)。下列“仍 PLANNED”保留历史时点。
 
