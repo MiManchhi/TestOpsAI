@@ -26,10 +26,13 @@ Scope: 用户授权更新 .memory 中的学习规划与进度；应用/契约/�
 
 <!-- checks -->
 
-| 日期 / 命令 | 目录 / 代码版本 / 环境 | 结果 | 范围与跳过项 |
-| --- | --- | --- | --- |
-| 2026-11-18 `scripts/memory.ps1 -Mode Restore -ListOnly` | 仓库根目录，main，起始 HEAD 8c3d493 | 退出 0 | 读取清单并核对 Git；只读 |
-| 2026-11-18 `scripts/memory.ps1 -Mode Check` | 仓库根目录，main，起始 HEAD 8c3d493 | 退出 0 | 38 条记录通过；只检查记忆结构与导航 |
+| 日期 / 命令                                             | 目录 / 代码版本 / 环境               | 结果   | 范围与跳过项                                    |
+| ------------------------------------------------------- | ------------------------------------ | ------ | ----------------------------------------------- |
+| 2026-11-18 `scripts/memory.ps1 -Mode Restore -ListOnly` | 仓库根目录，main，起始 HEAD 8c3d493  | 退出 0 | 读取清单并核对 Git；只读                        |
+| 2026-11-18 `scripts/memory.ps1 -Mode Check`             | 仓库根目录，main，起始 HEAD 8c3d493  | 退出 0 | 38 条记录通过；只检查记忆结构与导航             |
+| CI `npm run format:check`（用户截图）                   | 提交 d0b5d4b，GitHub Actions web job | 退出 1 | 两个 Markdown 文件未符合 Prettier；后续步骤跳过 |
+| `npm run format:check`                                  | 修复后工作区                         | 退出 0 | 全仓 Prettier 检查通过                          |
+| `scripts/memory.ps1 -Mode Check`                        | 修复后工作区                         | 退出 0 | 38 条记录通过                                   |
 
 ## 交接
 
@@ -39,3 +42,9 @@ Scope: 用户授权更新 .memory 中的学习规划与进度；应用/契约/�
 - 下次精确起点：阶段 0。先讲智能电表 Robot 测试业务流、全系统职责图与目录地图，清楚标注已实现/冻结/规划；用一个简短复述确认后才进入阶段 1。
 - 每次后续教学对话收尾更新 LEARNING、CURRENT、本 session 的进度和下一步。纯问答若无进度变化记录原因即可。
 - BLOCKED：无。未执行应用测试或构建；本任务只涉及记忆结构检查。
+
+## 后续进度
+
+2026-11-18（本次课程回顾）：用户要求先了解整体学习计划和知识点。本轮已按固定阶段回顾路线，没有进入具体技术课；未进行阶段 0 理解验证，不推断掌握。纠正实现状态：Python Robot 静态解析已合入 main；Java 对象接口/密钥联调、RAG、模型接入与 Agent 仍待实现或联调。下一步保持阶段 0，连贯讲业务流、系统架构及目录地图，再做理解确认。
+
+2026-11-18（CI 格式修复）：用户提供 Actions 截图显示 web job 的 `npm run format:check` 因本路线表及验证表的 Markdown 排版退出 1；`Run npm run check` 和后续 Node setup 步骤因此跳过。按仓库 Prettier 格式化 `.memory/LEARNING.md` 与本 session 后，全仓 `npm run format:check`、`scripts/memory.ps1 -Mode Check` 和 `git diff --check` 均退出 0。只改记忆文件；未运行应用测试/构建。跟进提交推送待本次任务完成。
