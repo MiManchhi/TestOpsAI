@@ -10,7 +10,7 @@
 
 ## 集成
 
-- WEB-V2-MERGE-001：IN_PROGRESS（2026-11-18）。用户追加“合并吧”授权；已 fetch 最新 main ff9f671，并在独立集成目录无冲突合并 Web 20b8e2e，保留 Java M1.5/V6、AI 解析与学习路线。依赖已安装；门禁环境入口失败、尚未开始测试。用户明确已验证并要求直接合并，停止追加验证，直接提交并普通推送。以后明确要求推送、合并时直接执行，不重复确认；冲突、分歧或未提交工作则保留现场说明。范围与恢复起点见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)。真实 v2 provider 联调仍 BLOCKED，不能以合并或旧 CI 解除。
+- WEB-V2-MERGE-001：VERIFIED（2026-11-18，Git 合并与普通推送）。合并提交 a6a5fad 已正常推送 origin/main，无冲突、无强推；用户追加“合并吧”授权；已 fetch 最新 main ff9f671，并在独立集成目录无冲突合并 Web 20b8e2e，保留 Java M1.5/V6、AI 解析与学习路线。依赖已安装；门禁环境入口失败、尚未开始测试。用户明确已验证并要求直接合并，停止追加验证，直接提交并普通推送。以后明确要求推送、合并时直接执行，不重复确认；冲突、分歧或未提交工作则保留现场说明。范围与恢复起点见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)。真实 v2 provider 联调仍 BLOCKED，不能以合并或旧 CI 解除。
 
 - AI-PARSER-MERGE-001：VERIFIED（2026-11-18，本机集成门禁与主线发布）。主线 1cbe62e 与 AI 分支 852697e 无冲突合并，Java M1.5 项目域/V6 保留；完整 scripts/check.ps1 退出 0（Web 37、Python 64，Java 45 中 40 项 DB/Redis 跳过），已随合并提交 a215e34 正常推送 origin/main，远端 SHA 一致；收尾记忆随后独立提交，最终 tip 以 Git refs 为准。见 [集成 session](sessions/2026-11-18-05-ai-parser-main-merge.md)。真实 Java 对象/密钥联调与部署仍待做，新远端 CI 未核实。
 
@@ -49,7 +49,7 @@
 
 ## Web
 
-- WEB-V2-MERGE-001：IN_PROGRESS（2026-11-18）。Web tip 20b8e2e 的最终 [CI 44257614573](https://github.com/MiManchhi/TestOpsAI/actions/runs/44257614573) 五项成功；用户已追加授权合入最新 main，先前“暂不合并”属于历史事实。本次合并与发布证据见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)；真实 API 联调阻塞保持。
+- WEB-V2-MERGE-001：VERIFIED（2026-11-18，Git 合并与发布，未追加业务验证）。已随 a6a5fad 合入并普通推送 main；Web tip 20b8e2e 的最终 [CI 44257614573](https://github.com/MiManchhi/TestOpsAI/actions/runs/44257614573) 五项成功；用户已追加授权合入最新 main，先前“暂不合并”属于历史事实。本次合并与发布证据见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)；真实 API 联调阻塞保持。
 
 - WEB-V2-001 发布：VERIFIED（2026-11-18 提交/正常推送与远端 CI）。功能 c74c03b 与最小镜像修复 35b5a59 已普通推送 Web；[CI 44256756644](https://github.com/MiManchhi/TestOpsAI/actions/runs/44256756644) 五项全成功，含 Web 59 测试、镜像构建、六服务交付/恢复与隔离清理。初次 JSON 缺失失败及本机 Docker 未运行限制保留在 [session](sessions/2026-11-18-03-web-v2-catalog.md)；修复仅为 .dockerignore 两文件白名单与 Web Dockerfile COPY。暂不合并，未推送 main，真实 v2 联调仍 BLOCKED。收尾仅补充三份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准。
 

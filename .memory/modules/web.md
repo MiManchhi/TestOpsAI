@@ -1,5 +1,7 @@
 # Vue 模块
 
+2026-11-18 主线集成：合并提交 a6a5fad 已普通推送 main，保留最新 Java/AI/学习记录。用户明确已验证、要求直接合并，停止追加门禁；新 CI 未核实，真实 v2 联调阻塞保持。以后明确要求推送或合并时直接执行，遇冲突、远端分歧或未提交工作则保留现场说明。详见 [集成 session](../sessions/2026-11-18-07-web-v2-main-merge.md)。
+
 2026-11-18 发布 VERIFIED：用户追加授权提交推送 WEB-V2-001、暂不合并。功能 c74c03b、最小 Docker 上下文修复 35b5a59 已普通推送 Web；[CI 44256756644](https://github.com/MiManchhi/TestOpsAI/actions/runs/44256756644) 五项全成功，含 Web 59 测试和六服务构建/健康/恢复/隔离清理。首次失败来自镜像未复制 schemas/examples JSON，修复仅增加现有 .dockerignore 两文件白名单与 Web Dockerfile COPY，没有改契约或合并主线；本机 Docker 引擎未运行，未本机部署。收尾仅补发布记忆，最终 tip/CI 以 refs/Actions 为准。以下“未提交”保留开发阶段事实，真实 v2 联调阻塞不因此解除。
 
 2026-11-18 / WEB-V2-001：IMPLEMENTED；[切片交接](../sessions/2026-11-18-03-web-v2-catalog.md) 记录最终 59 测试、契约与隔离浏览器验证。projects feature 管授权项目上下文；test-cases feature 管分页套件/用例查询、精确过滤、选择与只读详情。app/contracts.ts 类型从冻结 schema 提取并以同源 Ajv 验证；app/http.ts 经 auth.getAccessToken 获取验证后的短期令牌、处理取消/超时/401 与旧会话响应。项目选择以 URL projectId 表示，无权/歧义深链接不自动切换数据；切换项目或退出清理内容与选择，FILTER 快照由 Java 确认，网络重试复用请求键。测试示例只在 test-data.ts 与忽略目录，生产没有回退。无新增依赖、公共契约或后端变更；未提交推送。收尾新 main 1cbe62e 未同步；其项目列表静态返回数组与冻结 ProjectPage 不符，v2 套件/用例/选择仍待交付，真实联调受阻。以下为设计与 WEB-001 的历史范围，不能外推为本片真实后端已联调。
