@@ -1,6 +1,7 @@
 package io.testopsai.server.modules.project;
 
 import io.testopsai.server.modules.identity.AppUser;
+import io.testopsai.server.platform.web.PageResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -18,17 +19,27 @@ public class ProjectService {
     this.repository = repository;
   }
 
-  public List<ProjectResponse> listAuthorized(AppUser user) {
+  public PageResponse<ProjectResponse> listAuthorized(AppUser user, int page, int size) {
+    PageResponse.validatePagination(page, size);
     boolean isAdmin = user.roles().contains("ADMIN");
-    List<Project> projects = repository.findAuthorizedProjects(user.id(), isAdmin);
-    return projects.stream()
-        .map(
-            p -> {
-              String role =
-                  isAdmin ? "OWNER" : repository.getMemberRole(p.id(), user.id()).orElse("VIEWER");
-              return ProjectResponse.from(p, role);
-            })
-        .toList();
+    long total = repository.countAuthorizedProjects(user.id(), isAdmin);
+    long offset = (long) page * size;
+    List<Project> projects =
+        total == 0 || offset >= total
+            ? List.of()
+            : repository.findAuthorizedProjects(user.id(), isAdmin, size, offset);
+    List<ProjectResponse> items =
+        projects.stream()
+            .map(
+                p -> {
+                  String role =
+                      isAdmin
+                          ? "OWNER"
+                          : repository.getMemberRole(p.id(), user.id()).orElse("VIEWER");
+                  return ProjectResponse.from(p, role);
+                })
+            .toList();
+    return new PageResponse<>(items, total, page, size);
   }
 
   @Transactional

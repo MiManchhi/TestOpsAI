@@ -33,18 +33,37 @@ public class ProjectRepository {
     return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
   }
 
-  public List<Project> findAuthorizedProjects(Long userId, boolean isAdmin) {
+  public long countAuthorizedProjects(Long userId, boolean isAdmin) {
+    Long total =
+        isAdmin
+            ? jdbc.queryForObject("SELECT COUNT(*) FROM projects", Long.class)
+            : jdbc.queryForObject(
+                "SELECT COUNT(*) FROM projects p JOIN project_members pm ON p.id = pm.project_id"
+                    + " WHERE pm.user_id = ?",
+                Long.class,
+                userId);
+    return total != null ? total : 0L;
+  }
+
+  public List<Project> findAuthorizedProjects(
+      Long userId, boolean isAdmin, int limit, long offset) {
+    // ORDER BY id keeps pages stable; the contract requires a deterministic trailing key.
     if (isAdmin) {
       return jdbc.query(
-          "SELECT id, project_key, name, description, created_at FROM projects ORDER BY id",
-          this::mapProject);
+          "SELECT id, project_key, name, description, created_at FROM projects"
+              + " ORDER BY id LIMIT ? OFFSET ?",
+          this::mapProject,
+          limit,
+          offset);
     }
     return jdbc.query(
         "SELECT p.id, p.project_key, p.name, p.description, p.created_at"
             + " FROM projects p JOIN project_members pm ON p.id = pm.project_id"
-            + " WHERE pm.user_id = ? ORDER BY p.id",
+            + " WHERE pm.user_id = ? ORDER BY p.id LIMIT ? OFFSET ?",
         this::mapProject,
-        userId);
+        userId,
+        limit,
+        offset);
   }
 
   public boolean existsByKey(String key) {

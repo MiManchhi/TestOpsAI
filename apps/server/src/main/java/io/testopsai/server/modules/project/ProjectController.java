@@ -2,6 +2,7 @@ package io.testopsai.server.modules.project;
 
 import io.testopsai.server.modules.identity.AppUser;
 import io.testopsai.server.modules.identity.UserRepository;
+import io.testopsai.server.platform.web.PageResponse;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,8 +30,11 @@ public class ProjectController {
   }
 
   @GetMapping
-  public ResponseEntity<List<ProjectResponse>> list(Authentication auth) {
-    return ResponseEntity.ok(service.listAuthorized(resolveUser(auth)));
+  public ResponseEntity<PageResponse<ProjectResponse>> list(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      Authentication auth) {
+    return ResponseEntity.ok(service.listAuthorized(resolveUser(auth), page, size));
   }
 
   @PostMapping

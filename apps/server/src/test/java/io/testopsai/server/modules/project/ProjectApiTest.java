@@ -71,13 +71,46 @@ class ProjectApiTest {
   }
 
   @Test
-  void listProjectsReturnsSeededDemo() throws Exception {
+  void listProjectsReturnsPaginatedShape() throws Exception {
     String token = loginAsAdmin();
     mvc.perform(get("/api/v2/projects").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].key").value("DEMO"))
-        .andExpect(jsonPath("$[0].role").value("OWNER"))
-        .andExpect(jsonPath("$[0].id").isString()); // v2 string ID
+        .andExpect(jsonPath("$.items[0].key").value("DEMO"))
+        .andExpect(jsonPath("$.items[0].role").value("OWNER"))
+        .andExpect(jsonPath("$.items[0].id").isString()) // v2 string ID
+        .andExpect(jsonPath("$.total").isNumber())
+        .andExpect(jsonPath("$.page").value(0))
+        .andExpect(jsonPath("$.size").value(20));
+  }
+
+  @Test
+  void listProjectsHonoursPagination() throws Exception {
+    String token = loginAsAdmin();
+    MvcResult all =
+        mvc.perform(
+                get("/api/v2/projects?page=0&size=100").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn();
+    int total = objectMapper.readTree(all.getResponse().getContentAsString()).get("total").asInt();
+    if (total < 2) return; // pagination needs at least two rows to be observable
+
+    mvc.perform(get("/api/v2/projects?page=1&size=1").header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(1))
+        .andExpect(jsonPath("$.page").value(1))
+        .andExpect(jsonPath("$.size").value(1))
+        .andExpect(jsonPath("$.total").value(total));
+  }
+
+  @Test
+  void invalidPaginationReturns400() throws Exception {
+    String token = loginAsAdmin();
+    mvc.perform(get("/api/v2/projects?size=101").header("Authorization", "Bearer " + token))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    mvc.perform(get("/api/v2/projects?page=-1").header("Authorization", "Bearer " + token))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
   }
 
   @Test
@@ -101,6 +134,28 @@ class ProjectApiTest {
     mvc.perform(get("/api/v2/projects/" + id).header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.key").value(key));
+  }
+
+  @Test
+  void projectWithoutDescriptionReturnsEmptyString() throws Exception {
+    String token = loginAsAdmin();
+    String key = "NODESC-" + System.nanoTime() % 100000;
+    var req = new CreateProjectRequest(key, "No Description", null);
+    MvcResult created =
+        mvc.perform(
+                post("/api/v2/projects")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.description").value(""))
+            .andReturn();
+    String id =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asText();
+
+    mvc.perform(get("/api/v2/projects/" + id).header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.description").value(""));
   }
 
   @Test
