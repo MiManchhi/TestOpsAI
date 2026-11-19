@@ -44,6 +44,20 @@
 | kb_members      | kb_id FK→knowledge_bases, user_id FK→users, access_level VARCHAR(16), PK(kb_id, user_id), CASCADE                                                                            | SHARED 模式下的共享授权 |
 | test_cases      | id BIGINT PK, project_key VARCHAR(64), module VARCHAR(128), title VARCHAR(256), tags VARCHAR(512), priority VARCHAR(16), owner_id FK→users, IDX(project_key, module, status) | 自建模拟测试用例        |
 
+## M1.6 已实现：v2 用例目录
+
+- 迁移脚本：`apps/server/src/main/resources/db/migration/V8__project_case_catalog.sql`
+- v1 `test_cases`（owner_id + 逗号标签）保持原语义；v2 使用独立表，避免同名冲突，详见 [ADR-0009](ADR/0009-v2-case-catalog.md)。
+- 演示套件与 6 条自造 ROBOT 用例绑定 DEMO 项目，字段与 `docs/contracts/examples.json` 对齐；Robot 导入切片接入后将由解析快照替换。
+
+| 表                 | 关键字段与约束                                                                                                                                     | 备注                                   |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| suites             | id PK, project_id FK→projects, parent_id FK→suites, name, source_path, revision CHAR(64), UQ(project_id, source_path, revision)                    | Robot 套件树                           |
+| project_test_cases | id PK, project_id FK, suite_id FK NULL, stable_key, title, module, priority, lifecycle_status, source_type, source_* 快照, steps_json, version INT | UQ(project_id, stable_key)；版本乐观锁 |
+| project_case_tags  | PK(case_id, tag), case_id FK→project_test_cases CASCADE                                                                                            | 精确标签索引                           |
+| case_selections    | id CHAR(36) PK, project_id FK, created_by FK→users, selection_mode, case_count, digest, filter_json, expires_at                                    | 不可变选择快照，24 小时有效            |
+| selection_items    | PK(selection_id, case_id), case_version INT                                                                                                        | 固化 caseId + version 集合             |
+
 ## 后续草案（未实现）
 
 | 数据域   | 实体与关系                                   | 初步约束/索引                                    |

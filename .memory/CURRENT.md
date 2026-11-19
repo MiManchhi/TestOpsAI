@@ -42,6 +42,7 @@
 
 ## Java
 
+- M1.6 v2 用例目录：IMPLEMENTED（未提交）。V8 迁移（suites、project_test_cases、project_case_tags、case_selections、selection_items）与 modules/catalog 交付 listSuites、listTestCases、getTestCase、createTestCase、updateTestCase、createCaseSelection 六个契约操作；CaseFilter 同时服务 HTTP 与后续工具查询。详见 [M1.6 session](sessions/2026-11-18-10-m1-6-case-catalog.md)、[ADR-0009](../docs/ADR/0009-v2-case-catalog.md)。证据：mvn verify BUILD SUCCESS（64 项，59 项因无 MYSQL_PASSWORD/REDIS_PASSWORD 跳过）、Spotless/contracts/memory/layout/Prettier 通过；**真实数据库未复验**，V8 与 CaseCatalogApiTest 仍需 MySQL 环境执行。
 - M1.5 v2 项目隔离与契约基础已随主线 1cbe62e 接受；本次 AI 集成保留项目/成员、幂等框架与 V6，Java 45 项测试中 40 项 DB/Redis 跳过，不能当真实数据库/权限联调通过。源实现见 [M1.5 session](sessions/2026-11-18-01-m1-5-contract-compliance.md)。
 - M1.1/M1.2：IMPLEMENTED；历史本机验证记录为 VERIFIED，见 [M1.1](sessions/2026-11-17-06-m1-1-data-baseline.md)、[M1.2](sessions/2026-11-17-07-m1-2-auth.md)。JWT、登录、当前用户、结构化错误、身份迁移已进入 Git。模块上下文见 [server](modules/server.md)。
 - M1.3 知识库与测试用例 CRUD + 数据级权限：IMPLEMENTED（编译通过、Spotless 通过、Maven verify BUILD SUCCESS；DB 集成测试因无 MYSQL_PASSWORD 跳过）。V5 迁移三表 + 种子数据、两个业务域完整实现、集成测试覆盖 CRUD/权限/分页/过滤/排序白名单/错误码、文档同步 API.md/DATABASE.md/ADR-0005。详见 [M1.3 session](sessions/2026-11-17-11-m1-3-kb-tc-crud.md)。

@@ -132,6 +132,47 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 | ------------ | ---- | -------------------- |
 | RATE_LIMITED | 429  | 登录接口超过频率限制 |
 
+## M1.6 已实现：v2 用例目录（套件 / 用例 / 选择快照）
+
+按契约 1.0.0 实现项目内 Robot 套件、用例精确查询与跨页选择快照；v1 的知识库与用例 CRUD 语义不变。
+
+### 接口
+
+| 方法  | 路径                                             | 用途                   | 权限        | operationId         |
+| ----- | ------------------------------------------------ | ---------------------- | ----------- | ------------------- |
+| GET   | /api/v2/projects/{projectId}/test-suites         | Robot 套件树（分页）   | 项目 VIEWER | listSuites          |
+| GET   | /api/v2/projects/{projectId}/test-cases          | 精确筛选用例（分页）   | 项目 VIEWER | listTestCases       |
+| POST  | /api/v2/projects/{projectId}/test-cases          | 创建人工用例           | 项目 EDITOR | createTestCase      |
+| GET   | /api/v2/projects/{projectId}/test-cases/{caseId} | 用例详情               | 项目 VIEWER | getTestCase         |
+| PATCH | /api/v2/projects/{projectId}/test-cases/{caseId} | 编辑人工用例（版本锁） | 项目 EDITOR | updateTestCase      |
+| POST  | /api/v2/projects/{projectId}/case-selections     | 固化跨页选择集合       | 项目 VIEWER | createCaseSelection |
+
+### 过滤与排序
+
+- `suiteId` + `includeDescendants`（默认 true）：服务端递归解析子孙套件。
+- `module` 精确匹配；`query` 对标题与说明做大小写不敏感包含；`tags` 精确匹配，`tagsMatch` 默认 ALL；`priority`、`sourceType`、`lifecycleStatus` 精确。
+- `lifecycleStatus` 默认 ACTIVE（列表默认不返回归档用例）。
+- `sort` 仅接受 `title,asc`、`title,desc`、`updatedAt,asc`、`updatedAt,desc`，默认 `title,asc`，末位以 ID 稳定排序。
+- 分页 `page` 从 0 开始、`size` 1–100、默认 20；越界返回 400，不做静默截断。
+
+### 写入规则
+
+- `POST /test-cases` 必须携带 `Idempotency-Key`（UUID）。同键同内容重放返回首次创建的用例；同键不同内容返回 409 `IDEMPOTENCY_CONFLICT`。
+- `PATCH /test-cases/{caseId}` 必须携带 `version`；版本过期返回 409 `VERSION_CONFLICT`；ROBOT 来源用例只读，返回 409 `ROBOT_CASE_READ_ONLY`。
+- 选择快照 `mode` 为 `EXPLICIT` 或 `FILTER`，二者互斥：EXPLICIT 必须给出 `caseIds` 且不得带 `filter`/`excludedCaseIds`，FILTER 必须给出 `filter` 且不得带 `caseIds`，否则 400。FILTER 结果超过 1000 条返回 422 `SELECTION_TOO_LARGE`。
+- 快照保存不可变 `caseId/version` 集合、摘要与 `expiresAt`（24 小时）。
+
+### 错误码扩展
+
+| code                 | HTTP | 场景                             |
+| -------------------- | ---- | -------------------------------- |
+| CASE_NOT_FOUND       | 404  | 用例不存在或不属于该项目         |
+| SUITE_NOT_FOUND      | 404  | 套件不存在或不属于该项目         |
+| VERSION_CONFLICT     | 409  | 用例版本过期                     |
+| ROBOT_CASE_READ_ONLY | 409  | Robot 来源用例不可直接编辑       |
+| SELECTION_TOO_LARGE  | 422  | FILTER 选择结果超过 1000 条      |
+| VALIDATION_ERROR     | 400  | 请求体不可读、参数/枚举/分页非法 |
+
 ## M1–M4 原草案（历史，已由 1.0.0 冻结契约取代）
 
 原草案设想外部 REST 前缀 `/api/v1`，具体 schema 尚未冻结。后续新增业务改按上面的 v2 契约实施，不能继续据此各自定义字段。Java 仍为唯一浏览器业务入口，错误保持 `code/message/requestId`。

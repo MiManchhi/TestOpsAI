@@ -1,7 +1,7 @@
 package io.testopsai.server.modules.project;
 
 import io.testopsai.server.modules.identity.AppUser;
-import io.testopsai.server.modules.identity.UserRepository;
+import io.testopsai.server.platform.security.CurrentUserResolver;
 import io.testopsai.server.platform.web.PageResponse;
 import java.net.URI;
 import java.util.List;
@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v2/projects")
 public class ProjectController {
   private final ProjectService service;
-  private final UserRepository userRepository;
+  private final CurrentUserResolver currentUserResolver;
 
-  public ProjectController(ProjectService service, UserRepository userRepository) {
+  public ProjectController(ProjectService service, CurrentUserResolver currentUserResolver) {
     this.service = service;
-    this.userRepository = userRepository;
+    this.currentUserResolver = currentUserResolver;
   }
 
   @GetMapping
@@ -79,8 +79,6 @@ public class ProjectController {
   }
 
   private AppUser resolveUser(Authentication auth) {
-    return userRepository
-        .findByUsername(auth.getName())
-        .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
+    return currentUserResolver.resolve(auth);
   }
 }
