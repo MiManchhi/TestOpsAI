@@ -56,6 +56,16 @@
 
 ## Web
 
+- WEB-V2-003：VERIFIED（2026-11-19，Web 与隔离浏览器）。已完成知识库/文档/授权/引用、AI 会话与认证 SSE、人工草稿修订/确认保存和业务上下文入口；94 测试、类型/lint/构建与契约检查通过，严格 CSP、权限/重连/停止/IME/项目切换和 375px/768px 已验。新批未提交推送、未合并 main、未做真实 API/模型联调；上一批 ed88272 已推送且 CI 44326861254 成功，见 [本批交接](sessions/2026-11-18-12-web-knowledge-assistant.md)。
+
+- WEB-V2-002：VERIFIED（2026-11-18，仅 Web 与隔离浏览器）。按冻结契约完成导入、任务历史/轮询、运行记录/结果/日志证据、工作台真实聚合、项目创建/设置和成员操作；构建期校验器替代浏览器 Ajv 编译，在严格 CSP 下可用。Web 75 测试、类型/lint/构建与契约检查通过，生产 dist 的桌面/375px/768px、权限/异常/项目切换已验证。只改 apps/web 与 Web 记忆；已随 ed88272 正常推送 Web，真实 API 未联调；知识库/AI 状态见 WEB-V2-003，见 [本批交接](sessions/2026-11-18-11-web-v2-workflows.md)。
+
+- WEB-V2-003 门禁边界（2026-11-19）：完整 scripts/check.ps1 仍在既有 AI .pytest_cache 格式扫描处 EPERM，中断前 45 条记忆、目录/记忆回归与 14 脚本语法通过；不处理其他端，Web 独立 94 测试与构建等检查通过。
+
+- WEB-V2-002 门禁边界：完整 scripts/check.ps1 在全仓 Prettier 扫描既有 AI .pytest_cache 时 EPERM 中断，未处理非 Web 目录；Web 独立检查与契约通过，不将其外推为全栈门禁成功。
+
+- WEB-NEXT-PLAN-001：PLANNED（2026-11-18）。用户要求扩大下一阶段范围；拟按基础与真实用例联调 → Robot/XML 导入 → 运行证据 → 工作台/成员 → 知识文档 → AI 会话/草稿推进。本轮仅规划，尚未启动开发；跨端依赖、主线未提交 CSP 调试与验收边界见 [计划交接](sessions/2026-11-18-10-web-next-stage-plan.md)。
+
 - WEB-V2-MERGE-001：VERIFIED（2026-11-18，Git 合并与发布，未追加业务验证）。已随 a6a5fad 合入并普通推送 main；Web tip 20b8e2e 的最终 [CI 44257614573](https://github.com/MiManchhi/TestOpsAI/actions/runs/44257614573) 五项成功；用户已追加授权合入最新 main，先前“暂不合并”属于历史事实。本次合并与发布证据见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)；真实 API 联调阻塞保持。
 
 - WEB-V2-001 发布：VERIFIED（2026-11-18 提交/正常推送与远端 CI）。功能 c74c03b 与最小镜像修复 35b5a59 已普通推送 Web；[CI 44256756644](https://github.com/MiManchhi/TestOpsAI/actions/runs/44256756644) 五项全成功，含 Web 59 测试、镜像构建、六服务交付/恢复与隔离清理。初次 JSON 缺失失败及本机 Docker 未运行限制保留在 [session](sessions/2026-11-18-03-web-v2-catalog.md)；修复仅为 .dockerignore 两文件白名单与 Web Dockerfile COPY。暂不合并，未推送 main，真实 v2 联调仍 BLOCKED。收尾仅补充三份记忆并普通推送，最终 tip/CI 以 refs/Actions 为准。

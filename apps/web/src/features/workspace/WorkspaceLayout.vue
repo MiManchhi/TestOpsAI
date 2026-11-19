@@ -25,11 +25,11 @@ onMounted(() => {
 });
 const navigation = [
   { path: '/overview', label: '工作台', icon: 'grid', enabled: true },
-  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: false },
-  { path: '/knowledge', label: '知识库', icon: 'book', enabled: false },
+  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: true },
+  { path: '/knowledge', label: '知识库', icon: 'book', enabled: true },
   { path: '/test-cases', label: 'Robot 用例', icon: 'check', enabled: true },
-  { path: '/runs', label: '运行记录', icon: 'activity', enabled: false },
-  { path: '/imports', label: '数据导入', icon: 'arrow', enabled: false },
+  { path: '/runs', label: '运行记录', icon: 'activity', enabled: true },
+  { path: '/imports', label: '数据导入', icon: 'arrow', enabled: true },
 ] as const;
 watch(
   () => projects.state.selectedId,
@@ -40,7 +40,16 @@ watch(
       Boolean(previous) ||
       (typeof route.query.projectId === 'string' && route.query.projectId !== id);
     const path =
-      changedProject && route.path.startsWith('/test-cases/') ? '/test-cases' : route.path;
+      changedProject && route.path.startsWith('/test-cases/')
+        ? '/test-cases'
+        : changedProject && route.path.startsWith('/runs/')
+          ? '/runs'
+          : changedProject && route.path.startsWith('/knowledge/')
+            ? '/knowledge'
+            : changedProject &&
+                (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))
+              ? '/assistant'
+              : route.path;
     if (route.query.projectId !== id || path !== route.path)
       void router.replace({ path, query: { projectId: id } });
   },
@@ -151,7 +160,11 @@ function logout() {
             class="nav-item"
             :class="{
               'router-link-active':
-                item.path === '/test-cases' && route.path.startsWith('/test-cases/'),
+                (item.path === '/test-cases' && route.path.startsWith('/test-cases/')) ||
+                (item.path === '/runs' && route.path.startsWith('/runs/')) ||
+                (item.path === '/knowledge' && route.path.startsWith('/knowledge/')) ||
+                (item.path === '/assistant' &&
+                  (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))),
             }"
             @click="setMenu(false)"
             ><AppIcon :name="item.icon" /><span>{{ item.label }}</span></RouterLink

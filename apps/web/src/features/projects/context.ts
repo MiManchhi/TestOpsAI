@@ -18,6 +18,10 @@ export function createProjectContext(loadPage = listProjects) {
   function select(id: string) {
     if (state.items.some((project) => project.id === id)) state.selectedId = id;
   }
+  function updateCurrent(project: Project) {
+    if (state.selectedId === project.id)
+      state.items = state.items.map((item) => (item.id === project.id ? project : item));
+  }
   function reset() {
     version++;
     controller?.abort();
@@ -65,7 +69,7 @@ export function createProjectContext(loadPage = listProjects) {
       state.requestId = requestId(error);
     }
   }
-  return { state: readonly(state), current, select, load, reset };
+  return { state: readonly(state), current, select, updateCurrent, load, reset };
 }
 
 export const projects = createProjectContext();

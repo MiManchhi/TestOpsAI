@@ -293,6 +293,15 @@ function date(value: string) {
             expired ? '选择快照已过期，请重新确认' : `已确认 ${state.selection.count} 条用例`
           }}</strong>
           <p>有效期至 {{ date(state.selection.expiresAt) }}。用例及版本已由服务端固定。</p>
+          <RouterLink
+            v-if="!expired && state.selection.count > 0"
+            class="button button-primary"
+            :to="{
+              path: '/assistant',
+              query: { projectId: projects.state.selectedId, selectionId: state.selection.id },
+            }"
+            >问所选用例 →</RouterLink
+          >
           <button v-if="expired" class="text-button" @click="catalog.renewSelection()">
             重新确认
           </button>
