@@ -30,10 +30,36 @@ const names = [
   'ProjectPatch',
   'SetMember',
   'TestContext',
+  'Uuid',
+  'KnowledgeBaseCreate',
+  'KnowledgeBasePatch',
+  'KnowledgeBase',
+  'KnowledgeBasePage',
+  'KnowledgeGrant',
+  'SetKnowledgeGrant',
+  'KnowledgeGrantPage',
+  'Document',
+  'DocumentPage',
+  'DocumentContent',
+  'Citation',
+  'ConversationCreate',
+  'Conversation',
+  'ConversationPage',
+  'MessageCreate',
+  'MessageContext',
+  'Message',
+  'MessagePage',
+  'Turn',
+  'TurnEvent',
+  'Answer',
+  'Draft',
+  'DraftPatch',
+  'DraftCommit',
+  'DraftCommitResult',
 ];
 
 export function buildContractValidators(): string {
-  const ajv = new Ajv({ sourceCode: true, allErrors: true, schemaId: 'auto' });
+  const ajv = new Ajv({ sourceCode: true, inlineRefs: false, allErrors: true, schemaId: 'auto' });
   ajv.addSchema(schema);
   const ids = new Map<unknown, number>();
   const chunks: string[] = [];
@@ -50,8 +76,11 @@ export function buildContractValidators(): string {
       .replace(/var refVal\d+ = refVal\[\d+\];/g, '')
       .replace(/\brefVal\[(\d+)\]/g, (_match, id: string) => `(${refs[Number(id)]})`)
       .replace(/\brefVal(\d+)\b/g, (_match, id: string) => `(${refs[Number(id)]})`);
+    const attachSchema = source.includes('validate.schema')
+      ? `validate.schema = ${JSON.stringify(compiled.schema)}; `
+      : '';
     chunks.push(
-      `validators[${index}] = (() => { ${source.replace(/return validate;?\s*$/, `validate.schema = ${JSON.stringify(compiled.schema)}; return validate;`)} })();`,
+      `validators[${index}] = (() => { ${source.replace(/return validate;?\s*$/, `${attachSchema}return validate;`)} })();`,
     );
     return `validators[${index}]`;
   }

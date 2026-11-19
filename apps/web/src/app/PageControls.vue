@@ -10,6 +10,7 @@ defineEmits<{ change: [page: number] }>();
     <div>
       <button
         class="button button-secondary"
+        type="button"
         :disabled="busy || page === 0"
         @click="$emit('change', page - 1)"
       >
@@ -17,6 +18,7 @@ defineEmits<{ change: [page: number] }>();
       </button>
       <button
         class="button button-secondary"
+        type="button"
         :disabled="busy || (page + 1) * size >= total"
         @click="$emit('change', page + 1)"
       >

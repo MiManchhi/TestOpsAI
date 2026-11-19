@@ -60,6 +60,12 @@ const query = computed(() => ({ projectId: projects.state.selectedId }));
         <h1 data-page-heading tabindex="-1">{{ run.data.value?.name ?? '运行详情' }}</h1>
         <p class="muted">原始结果只读，可定位失败信息与脱敏文本日志。</p>
       </div>
+      <RouterLink
+        v-if="run.data.value"
+        class="button button-primary"
+        :to="{ path: '/assistant', query: { ...query, runId: run.data.value.id } }"
+        >让 AI 分析本次运行 →</RouterLink
+      >
       <button
         class="button button-secondary"
         @click="

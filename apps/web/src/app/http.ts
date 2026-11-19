@@ -20,12 +20,12 @@ export function requestId(error: unknown): string {
   return error instanceof ApiError ? error.requestId : '';
 }
 
-export async function requestJSON(
+export async function requestResponse(
   path: string,
   signal: AbortSignal,
   options: RequestInit = {},
   timeoutMs = 10_000,
-): Promise<unknown> {
+): Promise<Response> {
   const token = auth.getAccessToken();
   if (!token) throw new ApiError('登录已过期，请重新登录。', 401);
   let response: Response;
@@ -41,15 +41,15 @@ export async function requestJSON(
   }
   if (signal.aborted || auth.getAccessToken() !== token)
     throw new DOMException('Session changed', 'AbortError');
-  let body: unknown;
-  try {
-    body = await response.json();
-  } catch {
-    body = null;
-  }
-  if (signal.aborted || auth.getAccessToken() !== token)
-    throw new DOMException('Session changed', 'AbortError');
   if (!response.ok) {
+    let body: unknown;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+    if (signal.aborted || auth.getAccessToken() !== token)
+      throw new DOMException('Session changed', 'AbortError');
     const record = typeof body === 'object' && body !== null ? body : {};
     const code = 'code' in record && typeof record.code === 'string' ? record.code : '';
     const id =
@@ -79,5 +79,24 @@ export async function requestJSON(
                         : '服务暂时不可用，请稍后重试。';
     throw new ApiError(message, response.status, code, id);
   }
+  return response;
+}
+
+export async function requestJSON(
+  path: string,
+  signal: AbortSignal,
+  options: RequestInit = {},
+  timeoutMs = 10_000,
+): Promise<unknown> {
+  const token = auth.getAccessToken();
+  const response = await requestResponse(path, signal, options, timeoutMs);
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    body = null;
+  }
+  if (signal.aborted || auth.getAccessToken() !== token)
+    throw new DOMException('Session changed', 'AbortError');
   return body;
 }

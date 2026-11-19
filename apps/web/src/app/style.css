@@ -1,6 +1,7 @@
 @import url('./workspace.css');
 @import url('./catalog.css');
 @import url('./workflows.css');
+@import url('./collaboration.css');
 :root {
   font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
   color: #102a43;

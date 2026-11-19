@@ -54,6 +54,14 @@ export type TestCase = {
   version: number;
   updatedAt: Timestamp;
 };
+export type CaseCreate = {
+  title: string;
+  module: string;
+  tags?: Array<string>;
+  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  documentation?: string;
+  expectedResult: string;
+};
 export type CaseFilter = {
   suiteId?: Id;
   includeDescendants?: boolean;
@@ -137,6 +145,32 @@ export type ArtifactLines = {
   lines: Array<string>;
   hasMore: boolean;
 };
+export type KnowledgeBaseCreate = {
+  name: string;
+  description?: string;
+  category: 'METERING' | 'PROTOCOL' | 'TARIFF_CLOCK' | 'PREPAYMENT' | 'EVENTS' | 'ROBOT_METHOD';
+  visibility: 'PROJECT' | 'RESTRICTED';
+};
+export type KnowledgeBasePatch = {
+  name?: string;
+  description?: string;
+  category?: 'METERING' | 'PROTOCOL' | 'TARIFF_CLOCK' | 'PREPAYMENT' | 'EVENTS' | 'ROBOT_METHOD';
+  visibility?: 'PROJECT' | 'RESTRICTED';
+};
+export type KnowledgeBase = {
+  id: Id;
+  projectId: Id;
+  name: string;
+  description: string;
+  category: 'METERING' | 'PROTOCOL' | 'TARIFF_CLOCK' | 'PREPAYMENT' | 'EVENTS' | 'ROBOT_METHOD';
+  visibility: 'PROJECT' | 'RESTRICTED';
+  documentCount: number;
+  readyCount: number;
+  canWrite: boolean;
+  updatedAt: Timestamp;
+};
+export type KnowledgeGrant = { userId: Id; access: 'READ' | 'WRITE' };
+export type SetKnowledgeGrant = { access: 'READ' | 'WRITE' };
 export type Document = {
   id: Id;
   knowledgeBaseId: Id;
@@ -149,7 +183,80 @@ export type Document = {
   error: Error | null;
   createdAt: Timestamp;
 };
+export type DocumentBlock = {
+  id: string;
+  heading: string;
+  text: string;
+  page: number | null;
+  startLine: number | null;
+};
+export type DocumentContent = {
+  document: Document;
+  blocks: Array<DocumentBlock>;
+  nextCursor: string | null;
+};
+export type Citation = {
+  id: Uuid;
+  kind: 'DOCUMENT' | 'TEST_CASE' | 'TEST_RESULT';
+  resourceId: Id;
+  title: string;
+  version: string;
+  locator: { page?: number | null; line?: number | null; section?: string | null };
+  excerpt: string;
+};
+export type ConversationCreate = { projectId: Id; title?: string };
 export type Conversation = { id: Uuid; projectId: Id; title: string; updatedAt: Timestamp };
+export type MessageContext = {
+  testContext: TestContext;
+  knowledgeBaseIds: Array<Id>;
+  documentIds: Array<Id>;
+  selectionId: Uuid | null;
+  runId: Id | null;
+  knowledgeMode: 'SELECTED' | 'NONE';
+};
+export type MessageCreate = { clientMessageId: Uuid; text: string; context: MessageContext };
+export type Answer = {
+  summary: string;
+  bodyMarkdown: string;
+  evidenceStatus: 'SUFFICIENT' | 'PARTIAL' | 'NONE';
+  citationIds: Array<Uuid>;
+  caseIds: Array<Id>;
+  resultIds: Array<Id>;
+  draftId: Uuid | null;
+  warnings: Array<string>;
+};
+export type Message = {
+  id: Uuid;
+  conversationId: Uuid;
+  role: 'USER' | 'ASSISTANT';
+  text: string;
+  context: MessageContext | null;
+  answer: Answer | null;
+  turnId: Uuid | null;
+  createdAt: Timestamp;
+};
+export type Turn = {
+  id: Uuid;
+  conversationId: Uuid;
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  lastSequence: number;
+  requestId: Uuid;
+};
+export type DraftItem = { id: Uuid; values: CaseCreate; citationIds: Array<Uuid> };
+export type Draft = {
+  id: Uuid;
+  projectId: Id;
+  conversationId: Uuid;
+  revision: number;
+  status: 'EDITABLE' | 'COMMITTED' | 'DISCARDED' | 'EXPIRED';
+  items: Array<DraftItem>;
+  payloadHash: Sha256;
+  expiresAt: Timestamp;
+  createdCaseIds: Array<Id>;
+};
+export type DraftPatch = { revision: number; items: Array<DraftItem> };
+export type DraftCommit = { revision: number; payloadHash: Sha256; selectedItemIds: Array<Uuid> };
+export type DraftCommitResult = { draftId: Uuid; createdCaseIds: Array<Id>; status: 'COMMITTED' };
 export type Overview = {
   project: Project;
   catalogCaseCount: number;
@@ -161,6 +268,106 @@ export type Overview = {
   attentionDocuments: Array<Document>;
 };
 export type JobAccepted = { jobId: Uuid; status: 'QUEUED' };
+export type StageData = {
+  stage: 'RETRIEVING' | 'QUERYING' | 'DRAFTING' | 'RESPONDING';
+  label: string;
+};
+export type ToolStartData = {
+  toolCallId: Uuid;
+  tool:
+    | 'search_test_cases'
+    | 'get_test_case_detail'
+    | 'get_run_summary'
+    | 'get_failed_cases'
+    | 'search_knowledge'
+    | 'create_case_draft';
+};
+export type ToolEndData = { toolCallId: Uuid; status: 'SUCCEEDED' | 'FAILED'; summary: string };
+export type DeltaData = { text: string };
+export type DoneData = { messageId: Uuid; answer: Answer };
+export type CancelledData = { reason: 'USER_REQUEST' | 'CLIENT_DISCONNECT' | 'AUTH_REVOKED' };
+export type ErrorData = { code: string; message: string; retryable: boolean };
+export type TurnStartedEvent = {
+  event: 'turn.started';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: Turn;
+};
+export type StageChangedEvent = {
+  event: 'stage.changed';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: StageData;
+};
+export type ToolStartedEvent = {
+  event: 'tool.started';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: ToolStartData;
+};
+export type ToolFinishedEvent = {
+  event: 'tool.finished';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: ToolEndData;
+};
+export type AnswerDeltaEvent = {
+  event: 'answer.delta';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: DeltaData;
+};
+export type CitationAvailableEvent = {
+  event: 'citation.available';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: Citation;
+};
+export type DraftAvailableEvent = {
+  event: 'draft.available';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: Draft;
+};
+export type TurnCompletedEvent = {
+  event: 'turn.completed';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: DoneData;
+};
+export type TurnFailedEvent = {
+  event: 'turn.failed';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: ErrorData;
+};
+export type TurnCancelledEvent = {
+  event: 'turn.cancelled';
+  turnId: Uuid;
+  sequence: number;
+  occurredAt: Timestamp;
+  data: CancelledData;
+};
+export type TurnEvent =
+  | TurnStartedEvent
+  | StageChangedEvent
+  | ToolStartedEvent
+  | ToolFinishedEvent
+  | AnswerDeltaEvent
+  | CitationAvailableEvent
+  | DraftAvailableEvent
+  | TurnCompletedEvent
+  | TurnFailedEvent
+  | TurnCancelledEvent;
 export type ProjectPage = { items: Array<Project>; total: number; page: number; size: number };
 export type MemberPage = { items: Array<Member>; total: number; page: number; size: number };
 export type SuitePage = { items: Array<Suite>; total: number; page: number; size: number };
@@ -169,6 +376,26 @@ export type TestCasePage = { items: Array<TestCase>; total: number; page: number
 export type RunPage = { items: Array<Run>; total: number; page: number; size: number };
 export type ResultPage = { items: Array<Result>; total: number; page: number; size: number };
 export type ArtifactPage = { items: Array<Artifact>; total: number; page: number; size: number };
+export type KnowledgeBasePage = {
+  items: Array<KnowledgeBase>;
+  total: number;
+  page: number;
+  size: number;
+};
+export type KnowledgeGrantPage = {
+  items: Array<KnowledgeGrant>;
+  total: number;
+  page: number;
+  size: number;
+};
+export type DocumentPage = { items: Array<Document>; total: number; page: number; size: number };
+export type ConversationPage = {
+  items: Array<Conversation>;
+  total: number;
+  page: number;
+  size: number;
+};
+export type MessagePage = { items: Array<Message>; total: number; page: number; size: number };
 type ContractTypes = {
   Id: Id;
   Project: Project;
@@ -195,6 +422,32 @@ type ContractTypes = {
   ProjectPatch: ProjectPatch;
   SetMember: SetMember;
   TestContext: TestContext;
+  Uuid: Uuid;
+  KnowledgeBaseCreate: KnowledgeBaseCreate;
+  KnowledgeBasePatch: KnowledgeBasePatch;
+  KnowledgeBase: KnowledgeBase;
+  KnowledgeBasePage: KnowledgeBasePage;
+  KnowledgeGrant: KnowledgeGrant;
+  SetKnowledgeGrant: SetKnowledgeGrant;
+  KnowledgeGrantPage: KnowledgeGrantPage;
+  Document: Document;
+  DocumentPage: DocumentPage;
+  DocumentContent: DocumentContent;
+  Citation: Citation;
+  ConversationCreate: ConversationCreate;
+  Conversation: Conversation;
+  ConversationPage: ConversationPage;
+  MessageCreate: MessageCreate;
+  MessageContext: MessageContext;
+  Message: Message;
+  MessagePage: MessagePage;
+  Turn: Turn;
+  TurnEvent: TurnEvent;
+  Answer: Answer;
+  Draft: Draft;
+  DraftPatch: DraftPatch;
+  DraftCommit: DraftCommit;
+  DraftCommitResult: DraftCommitResult;
 };
 export function readContract<K extends keyof ContractTypes>(
   name: K,

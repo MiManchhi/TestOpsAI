@@ -4,6 +4,7 @@ import { projects } from '../projects/context';
 import { getOverview } from '../../app/api-contract';
 import { useResource } from '../../app/resource';
 import RequestState from '../../app/RequestState.vue';
+import { documentStage, documentStatus } from '../knowledge/api';
 const project = projects.current;
 const overview = useResource(
   () => projects.state.selectedId,
@@ -105,12 +106,43 @@ const query = computed(() => ({ projectId: projects.state.selectedId }));
         <ul v-else class="artifact-list">
           <li v-for="document in overview.data.value.attentionDocuments" :key="document.id">
             <div>
-              <strong>{{ document.title }}</strong><small>{{ document.stage }}</small>
+              <RouterLink
+                class="flow-title-link"
+                :to="{ path: '/knowledge/' + document.knowledgeBaseId, query }"
+                >{{ document.title }}</RouterLink><small>{{ documentStage[document.stage] }}</small>
             </div>
-            <span class="status-tag" :data-status="document.status">{{ document.status }}</span>
+            <span class="status-tag" :data-status="document.status">{{
+              documentStatus[document.status]
+            }}</span>
           </li>
         </ul>
-        <p class="muted">文档管理与 AI 分析将在后续页面开放。</p>
+        <RouterLink class="text-button" :to="{ path: '/knowledge', query }"
+          >管理知识资料 →</RouterLink
+        >
+      </section>
+      <section class="panel flow-panel">
+        <div class="panel-heading">
+          <h2>最近分析会话</h2>
+          <RouterLink class="text-button" :to="{ path: '/assistant', query }"
+            >打开 AI 助手 →</RouterLink
+          >
+        </div>
+        <p v-if="!overview.data.value.recentConversations.length" class="flow-empty">
+          尚无分析会话，可从运行、用例或资料页选择问题范围。
+        </p>
+        <ul v-else class="artifact-list">
+          <li
+            v-for="conversation in overview.data.value.recentConversations"
+            :key="conversation.id"
+          >
+            <RouterLink
+              class="flow-title-link"
+              :to="{ path: '/assistant/' + conversation.id, query }"
+              >{{ conversation.title }}</RouterLink><small>{{
+              new Date(conversation.updatedAt).toLocaleString('zh-CN')
+            }}</small>
+          </li>
+        </ul>
       </section>
     </template>
   </div>

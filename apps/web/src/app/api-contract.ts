@@ -36,6 +36,7 @@ export async function getOverview(projectId: string, signal: AbortSignal) {
   );
   if (value.project.id !== projectId) throw new Error('工作台项目范围异常。');
   value.recentRuns.forEach((run) => inProject(run, projectId));
+  value.recentConversations.forEach((conversation) => inProject(conversation, projectId));
   if (value.lastRun) inProject(value.lastRun, projectId);
   return value;
 }

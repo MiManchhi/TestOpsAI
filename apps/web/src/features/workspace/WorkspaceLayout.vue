@@ -25,8 +25,8 @@ onMounted(() => {
 });
 const navigation = [
   { path: '/overview', label: '工作台', icon: 'grid', enabled: true },
-  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: false },
-  { path: '/knowledge', label: '知识库', icon: 'book', enabled: false },
+  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: true },
+  { path: '/knowledge', label: '知识库', icon: 'book', enabled: true },
   { path: '/test-cases', label: 'Robot 用例', icon: 'check', enabled: true },
   { path: '/runs', label: '运行记录', icon: 'activity', enabled: true },
   { path: '/imports', label: '数据导入', icon: 'arrow', enabled: true },
@@ -44,7 +44,12 @@ watch(
         ? '/test-cases'
         : changedProject && route.path.startsWith('/runs/')
           ? '/runs'
-          : route.path;
+          : changedProject && route.path.startsWith('/knowledge/')
+            ? '/knowledge'
+            : changedProject &&
+                (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))
+              ? '/assistant'
+              : route.path;
     if (route.query.projectId !== id || path !== route.path)
       void router.replace({ path, query: { projectId: id } });
   },
@@ -156,7 +161,10 @@ function logout() {
             :class="{
               'router-link-active':
                 (item.path === '/test-cases' && route.path.startsWith('/test-cases/')) ||
-                (item.path === '/runs' && route.path.startsWith('/runs/')),
+                (item.path === '/runs' && route.path.startsWith('/runs/')) ||
+                (item.path === '/knowledge' && route.path.startsWith('/knowledge/')) ||
+                (item.path === '/assistant' &&
+                  (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))),
             }"
             @click="setMenu(false)"
             ><AppIcon :name="item.icon" /><span>{{ item.label }}</span></RouterLink

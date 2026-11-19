@@ -10,6 +10,6 @@ defineEmits<{ retry: [] }>();
     <strong>暂时无法完成请求</strong>
     <p>{{ error }}</p>
     <small v-if="trace">请求编号：{{ trace }}</small>
-    <button class="button button-secondary" @click="$emit('retry')">重新读取</button>
+    <button class="button button-secondary" type="button" @click="$emit('retry')">重新读取</button>
   </div>
 </template>
