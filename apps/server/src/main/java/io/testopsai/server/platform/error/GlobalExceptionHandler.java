@@ -1,5 +1,10 @@
 package io.testopsai.server.platform.error;
 
+import io.testopsai.server.modules.catalog.CaseNotFoundException;
+import io.testopsai.server.modules.catalog.RobotCaseReadOnlyException;
+import io.testopsai.server.modules.catalog.SelectionTooLargeException;
+import io.testopsai.server.modules.catalog.SuiteNotFoundException;
+import io.testopsai.server.modules.catalog.VersionConflictException;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseNameDuplicateException;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseNotFoundException;
 import io.testopsai.server.modules.project.LastOwnerException;
@@ -14,9 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -93,6 +102,54 @@ class GlobalExceptionHandler {
   ResponseEntity<ErrorResponse> handleNotMember(NotProjectMemberException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(new ErrorResponse("FORBIDDEN", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(CaseNotFoundException.class)
+  ResponseEntity<ErrorResponse> handleCaseNotFound(CaseNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ErrorResponse("CASE_NOT_FOUND", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(SuiteNotFoundException.class)
+  ResponseEntity<ErrorResponse> handleSuiteNotFound(SuiteNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ErrorResponse("SUITE_NOT_FOUND", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(VersionConflictException.class)
+  ResponseEntity<ErrorResponse> handleVersionConflict(VersionConflictException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ErrorResponse("VERSION_CONFLICT", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(RobotCaseReadOnlyException.class)
+  ResponseEntity<ErrorResponse> handleRobotCaseReadOnly(RobotCaseReadOnlyException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(new ErrorResponse("ROBOT_CASE_READ_ONLY", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(SelectionTooLargeException.class)
+  ResponseEntity<ErrorResponse> handleSelectionTooLarge(SelectionTooLargeException ex) {
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .body(new ErrorResponse("SELECTION_TOO_LARGE", ex.getMessage(), currentRequestId()));
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            new ErrorResponse(
+                "VALIDATION_ERROR", "Malformed or unknown request body field", currentRequestId()));
+  }
+
+  @ExceptionHandler({
+    MethodArgumentTypeMismatchException.class,
+    MissingServletRequestParameterException.class,
+    MissingRequestHeaderException.class
+  })
+  ResponseEntity<ErrorResponse> handleBadParameter(Exception ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ErrorResponse("VALIDATION_ERROR", ex.getMessage(), currentRequestId()));
   }
 
   @ExceptionHandler(Exception.class)

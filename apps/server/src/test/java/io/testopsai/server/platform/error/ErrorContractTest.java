@@ -6,6 +6,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.testopsai.server.modules.catalog.CaseSelectionRepository;
+import io.testopsai.server.modules.catalog.ProjectCaseRepository;
+import io.testopsai.server.modules.catalog.SuiteRepository;
 import io.testopsai.server.modules.identity.UserRepository;
 import io.testopsai.server.modules.knowledge.KnowledgeBaseRepository;
 import io.testopsai.server.modules.project.ProjectRepository;
@@ -17,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(
@@ -29,13 +32,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class ErrorContractTest {
   @Autowired MockMvc mvc;
-  @MockBean UserRepository userRepository;
-  @MockBean KnowledgeBaseRepository knowledgeBaseRepository;
-  @MockBean TestCaseRepository testCaseRepository;
-  @MockBean RedisCacheService redisCacheService;
-  @MockBean RateLimiter rateLimiter;
-  @MockBean ProjectRepository projectRepository;
-  @MockBean IdempotencyService idempotencyService;
+  @MockitoBean UserRepository userRepository;
+  @MockitoBean KnowledgeBaseRepository knowledgeBaseRepository;
+  @MockitoBean TestCaseRepository testCaseRepository;
+  @MockitoBean RedisCacheService redisCacheService;
+  @MockitoBean RateLimiter rateLimiter;
+  @MockitoBean ProjectRepository projectRepository;
+  @MockitoBean IdempotencyService idempotencyService;
+  @MockitoBean SuiteRepository suiteRepository;
+  @MockitoBean ProjectCaseRepository projectCaseRepository;
+  @MockitoBean CaseSelectionRepository caseSelectionRepository;
 
   @Test
   void healthEndpointRemainsPublicAndUnaffectedByErrorContract() throws Exception {

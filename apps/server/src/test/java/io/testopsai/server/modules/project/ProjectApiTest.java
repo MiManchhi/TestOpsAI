@@ -47,6 +47,8 @@ class ProjectApiTest {
         "testopsai.jwt.secret",
         () ->
             System.getenv().getOrDefault("JWT_SECRET", "test-secret-key-at-least-32-bytes-long!!"));
+    // Keep business tests independent of the login rate limiter (dedicated test covers it).
+    registry.add("testopsai.ratelimit.max-requests", () -> "1000");
     registry.add(
         "spring.data.redis.host", () -> System.getenv().getOrDefault("REDIS_HOST", "127.0.0.1"));
     registry.add(
