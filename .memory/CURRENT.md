@@ -13,6 +13,8 @@
 
 ## 集成
 
+- WEB-V2-PUBLISH-MERGE-001：VERIFIED（2026-11-19，Git 发布）。已先拉取 main 9986ca7，无冲突合入 Web a0a830f（含 ed88272），合并提交 61524f3 已普通推送 main，保留最新 Java/AI/学习记录。用户要求直接执行，本轮不重复测试或等待 CI；真实联调与部署未执行，见 [发布交接](sessions/2026-11-19-01-web-v2-main-merge.md)。
+
 - AUDIT-FIX-001：VERIFIED（2026-11-18，P0/P1/P2 审查修复）。V7 迁移修正种子数据 owner_id；PageResponse 统一到 platform/web（删除 2 份域内副本）；ARCHITECTURE/ROADMAP/DATABASE/API 状态标记同步至 M1.5 + 契约冻结 + Web v2 + AI 解析；API.md 新增 v1/v2 共存策略。完整门禁 exit 0。DB 集成测试因 Docker Desktop 未运行阻塞，待解除。见 [session](sessions/2026-11-18-08-audit-fixes.md)。
 - WEB-V2-MERGE-001：VERIFIED（2026-11-18，Git 合并与普通推送）。合并提交 a6a5fad 已正常推送 origin/main，无冲突、无强推；用户追加“合并吧”授权；已 fetch 最新 main ff9f671，并在独立集成目录无冲突合并 Web 20b8e2e，保留 Java M1.5/V6、AI 解析与学习路线。依赖已安装；门禁环境入口失败、尚未开始测试。用户明确已验证并要求直接合并，停止追加验证，直接提交并普通推送。以后明确要求推送、合并时直接执行，不重复确认；冲突、分歧或未提交工作则保留现场说明。范围与恢复起点见 [集成 session](sessions/2026-11-18-07-web-v2-main-merge.md)。真实 v2 provider 联调仍 BLOCKED，不能以合并或旧 CI 解除。
 
@@ -56,7 +58,7 @@
 
 ## Web
 
-- WEB-V2-003：VERIFIED（2026-11-19，Web 与隔离浏览器）。已完成知识库/文档/授权/引用、AI 会话与认证 SSE、人工草稿修订/确认保存和业务上下文入口；94 测试、类型/lint/构建与契约检查通过，严格 CSP、权限/重连/停止/IME/项目切换和 375px/768px 已验。新批未提交推送、未合并 main、未做真实 API/模型联调；上一批 ed88272 已推送且 CI 44326861254 成功，见 [本批交接](sessions/2026-11-18-12-web-knowledge-assistant.md)。
+- WEB-V2-003：VERIFIED（2026-11-19，Web 与隔离浏览器）。已完成知识库/文档/授权/引用、AI 会话与认证 SSE、人工草稿修订/确认保存和业务上下文入口；94 测试、类型/lint/构建与契约检查通过，严格 CSP、权限/重连/停止/IME/项目切换和 375px/768px 已验。已随 Web a0a830f 提交推送，并经 61524f3 合入与普通推送 main；真实 API/模型未联调；上一批 ed88272 已推送且 CI 44326861254 成功，见 [本批交接](sessions/2026-11-18-12-web-knowledge-assistant.md)。
 
 - WEB-V2-002：VERIFIED（2026-11-18，仅 Web 与隔离浏览器）。按冻结契约完成导入、任务历史/轮询、运行记录/结果/日志证据、工作台真实聚合、项目创建/设置和成员操作；构建期校验器替代浏览器 Ajv 编译，在严格 CSP 下可用。Web 75 测试、类型/lint/构建与契约检查通过，生产 dist 的桌面/375px/768px、权限/异常/项目切换已验证。只改 apps/web 与 Web 记忆；已随 ed88272 正常推送 Web，真实 API 未联调；知识库/AI 状态见 WEB-V2-003，见 [本批交接](sessions/2026-11-18-11-web-v2-workflows.md)。
 

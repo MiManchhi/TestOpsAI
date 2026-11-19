@@ -1,5 +1,7 @@
 # 工程记忆导航
 
+2026-11-19：[Web 工作流与 AI 协作主线发布](sessions/2026-11-19-01-web-v2-main-merge.md)；Web a0a830f 合入最新 main，合并提交 61524f3 已普通推送；按用户要求未追加业务验证。
+
 2026-11-18：[Web v2 主线集成](sessions/2026-11-18-07-web-v2-main-merge.md)；最新主线与已发布 Web 的集成验证、发布和真实联调边界。
 
 2026-11-18：[TestOps AI 系统学习路线与进度](sessions/2026-11-18-06-learning-roadmap.md)；课程顺序、教学约定和用户待确认的学习状态见 [LEARNING](LEARNING.md#testops-ai-系统学习路线)，当前精确起点见 [CURRENT](CURRENT.md#学习任务用户明确授权更新记忆)。每次教学结束同步进度。
