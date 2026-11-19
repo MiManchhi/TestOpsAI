@@ -1,6 +1,6 @@
 # AI 知识索引提交与主线合并
 
-更新：2026-11-19（Asia/Shanghai）。状态：IN_PROGRESS。
+更新：2026-11-19（Asia/Shanghai）。状态：VERIFIED（Git 提交、合并与普通推送）。
 
 <!-- handoff:v1 -->
 
@@ -28,7 +28,7 @@ Scope: 用户明确“提交并合并（直接执行即可）”；提交已验�
 
 <!-- next -->
 
-- 提交/合并/推送进行中；结果以本 session 后续记录及 Git refs 为准。
+- 提交/合并/推送已完成；AI 功能 54eb59d、main 合并 3399234 均已发布。收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准。
 - BLOCKED：无当前 Git 阻塞；不覆盖其他领域工作，不将旧业务证据外推至新增主线功能。
 - [CURRENT](../CURRENT.md)。
 
@@ -37,3 +37,9 @@ Scope: 用户明确“提交并合并（直接执行即可）”；提交已验�
 - AI 功能提交 54eb59d 已创建，26 份文件，含本次授权记录；源码与上一轮已验收成果一致。
 - 主线在操作前由其他会话发布至 6fd6df8（Web 收尾记忆）；已核查只增加 Web/集成记忆，并保留所有字段。main 工作区干净后无冲突合入 AI，cached diff --check 通过。
 - 按用户直接执行要求不重跑业务测试；即将创建合并提交并普通推送 main 与 AI 分支。
+
+## 发布结果
+
+- git commit 创建主线合并 33992340c0dde4f3be17ecc641182910a3dcbfac，父提交分别为最新 main 6fd6df8 和 AI 54eb59d；无冲突，cached diff --check 通过。
+- git push --atomic origin main codex/ai-ingestion 退出 0；ls-remote 核实远端 main 为 3399234、AI 为 54eb59d，与本地一致，两个工作区均干净。没有强推或更改其他开发分支。
+- 本轮定向格式与 memory Check 通过（合并后 50 份记录）；收尾只同步发布事实、AI 状态与导航，再普通推送 main。不追加业务测试、不等待新 CI，不部署或启动真实模型服务。

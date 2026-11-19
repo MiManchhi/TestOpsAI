@@ -13,6 +13,8 @@
 
 ## 集成
 
+- AI-INGESTION-MERGE-001：VERIFIED（2026-11-19，Git 提交/合并/发布）。AI 功能 54eb59d 已无冲突合入最新 main 6fd6df8，合并提交 3399234 已普通推送 main，AI 分支也已正常推送。保留 Java/Web/学习成果，按用户“直接执行”要求未重复业务测试或等待 CI；真实服务验收限制不变，见 [发布交接](sessions/2026-11-19-01-ai-ingestion-merge.md)。
+
 - WEB-V2-PUBLISH-MERGE-001：VERIFIED（2026-11-19，Git 发布）。已先拉取 main 9986ca7，无冲突合入 Web a0a830f（含 ed88272），合并提交 61524f3 已普通推送 main，保留最新 Java/AI/学习记录。用户要求直接执行，本轮不重复测试或等待 CI；真实联调与部署未执行，见 [发布交接](sessions/2026-11-19-01-web-v2-main-merge.md)。
 
 - AUDIT-FIX-001：VERIFIED（2026-11-18，P0/P1/P2 审查修复）。V7 迁移修正种子数据 owner_id；PageResponse 统一到 platform/web（删除 2 份域内副本）；ARCHITECTURE/ROADMAP/DATABASE/API 状态标记同步至 M1.5 + 契约冻结 + Web v2 + AI 解析；API.md 新增 v1/v2 共存策略。完整门禁 exit 0。DB 集成测试因 Docker Desktop 未运行阻塞，待解除。见 [session](sessions/2026-11-18-08-audit-fixes.md)。
@@ -84,13 +86,13 @@
 
 ## AI
 
-- AI-INGESTION-001：VERIFIED（2026-11-19，本机自动与 HTTP 替身范围；起点 424f547，实际基线 210ec4e + 未提交成果）。已交付 Markdown/PDF 定位分块、SQLite 任务/幂等/恢复、三个索引接口、HTTP Embedding、Qdrant 发布/精确删除与可信 READY 受限检索核心；完整 scripts/check.ps1 退出 0，AI 115 passed/2 skipped（保留原 64 项回归），Web 59、Java 48 中 43 项 DB/Redis 跳过。独立 Uvicorn→HTTP 对象/Embedding 替身→解析子进程→本地 Qdrant 冒烟通过；真实 Qdrant HTTP/Embedding 缺显式 VERIFY 配置仍待验收，三端 smoke 因 Java 无数据库密码退出 1。Java READY/引用注册接入、正式回答与部署仍待后续；仅 AI 范围，无提交推送合并。见 [本任务](sessions/2026-11-18-09-ai-ingestion.md) 与 [运行说明](../docs/development/AI_INGESTION.md)。
+- AI-INGESTION-001：VERIFIED（2026-11-19，本机自动与 HTTP 替身范围；起点 424f547，功能提交 54eb59d，已通过 3399234 合入 main）。已交付 Markdown/PDF 定位分块、SQLite 任务/幂等/恢复、三个索引接口、HTTP Embedding、Qdrant 发布/精确删除与可信 READY 受限检索核心；完整 scripts/check.ps1 退出 0，AI 115 passed/2 skipped（保留原 64 项回归），Web 59、Java 48 中 43 项 DB/Redis 跳过。独立 Uvicorn→HTTP 对象/Embedding 替身→解析子进程→本地 Qdrant 冒烟通过；真实 Qdrant HTTP/Embedding 缺显式 VERIFY 配置仍待验收，三端 smoke 因 Java 无数据库密码退出 1。Java READY/引用注册接入、正式回答与部署仍待后续；本批已提交、合入并普通推送 main，见 AI-INGESTION-MERGE-001。见 [本任务](sessions/2026-11-18-09-ai-ingestion.md) 与 [运行说明](../docs/development/AI_INGESTION.md)。
 - AI-PARSER-PUBLISH-001：VERIFIED（2026-11-18，Git 发布与远端 SHA 核对）。功能提交 e1a2d23 已正常推送 origin/codex/ai-ingestion，源码/测试/说明和同步记忆一起发布，无强推，后续已通过 a215e34 合入 main；收尾记忆随后独立提交推送，最终 tip 以 Git refs 为准。见 [发布 session](sessions/2026-11-18-04-ai-parser-publish.md)。新远端 CI 未核实，不把发布当作部署或真实 Java 联调。
 - AI-PARSER-001：VERIFIED（2026-11-18，功能提交 e1a2d23，限本机 AI 与替身验证）。已实现 Robot/XML 静态解析、严格契约 DTO、RS256 服务/委托校验、授权对象客户端、两条内部路由与可取消/超时回收进程。最终 scripts/check.ps1 退出 0（Python 64、Web 37，Java 37 中 32 项 DB/Redis 跳过），真实 Uvicorn→回环 HTTP 替身→解析子进程冒烟通过。真实 Java 对象接口/签名配置联调与部署仍 PLANNED；本机三端 smoke 因 Java 数据库连接不可用退出 1，不算通过。见 [本任务](sessions/2026-11-18-03-ai-parser.md) 与 [运行说明](../docs/development/AI_PARSER.md)。
 - AI-SYNC-001：2026-11-18 已获授权 fetch origin 并将 codex/ai-ingestion 从 101596d 快进至 origin/main 17ed8ee（12 个提交），最新产品设计、契约 1.0.0 与并行指南已进入本工作区；无冲突、未推送。同步后恢复与收尾验证见 [同步 session](sessions/2026-11-18-02-ai-sync-main.md)。同步任务当时未启动业务开发；当前解析状态见 AI-PARSER-001，本区块的“尚未同步”旧快照已更新，其他工作区状态不外推。
 - FastAPI 健康、Robot/XML 解析、知识文档处理与受限检索核心已实现；聊天模型、正式引用注册、RAG 回答与 Agent/SSE 仍 PLANNED，见 [ai-service](modules/ai-service.md)。
 - 当前授权 AI-INGESTION-001 已完成本机交付；下一步仅在显式服务配置就绪后运行说明中的真实 Qdrant/Embedding 验收，并协调 Java 对象/签名、可信 READY 事实和引用注册；不自动扩展问答或跨端实现。
-- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖独立安装，无真实密钥复制；此前解析 e1a2d23 已发布并合入 main，本批索引成果仍未提交。当前本地 HEAD/main 均为 210ec4e，远端未重新 fetch，其他工作区未自动同步。
+- 开发入口：同级 TestOpsAI-ai / codex/ai-ingestion。依赖独立安装，无真实密钥复制；此前解析 e1a2d23 已发布并合入 main，本批索引 54eb59d 已推送 AI 分支，并经 3399234 合入/推送 main；其他开发分支未自动同步。
 
 ## 历史证据与限制
 

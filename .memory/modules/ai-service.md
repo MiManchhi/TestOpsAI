@@ -1,6 +1,6 @@
 # AI 服务模块
 
-2026-11-19：AI-INGESTION-001 VERIFIED（210ec4e + 未提交成果，本机自动/HTTP 替身范围）。features/ingestion 承载 knowledge-v1 文档/定位分块、独立 SQLite 状态、后台恢复/幂等/删除墓碑、HTTP Embedding 与 Qdrant、可信 READY 范围检索；完整门禁与 115 项 AI 测试通过，2 项真实外部验收缺配置跳过。写入取消保持版本锁至请求完成/超时；删除跨 generation，持久 profile 名支持晚到残留补清理。配置与限制见 [运行说明](../../docs/development/AI_INGESTION.md)，证据见 [本任务](../sessions/2026-11-18-09-ai-ingestion.md)。真实服务/Java READY/引用注册仍待接入，聊天模型、RAG 回答/Agent/SSE 未实现，检索不自行生成引用 ID。
+2026-11-19：AI-INGESTION-001 VERIFIED（功能 54eb59d 已通过 3399234 合入并推送 main，本机自动/HTTP 替身范围）。features/ingestion 承载 knowledge-v1 文档/定位分块、独立 SQLite 状态、后台恢复/幂等/删除墓碑、HTTP Embedding 与 Qdrant、可信 READY 范围检索；完整门禁与 115 项 AI 测试通过，2 项真实外部验收缺配置跳过。写入取消保持版本锁至请求完成/超时；删除跨 generation，持久 profile 名支持晚到残留补清理。配置与限制见 [运行说明](../../docs/development/AI_INGESTION.md)，证据见 [本任务](../sessions/2026-11-18-09-ai-ingestion.md)。真实服务/Java READY/引用注册仍待接入，聊天模型、RAG 回答/Agent/SSE 未实现，检索不自行生成引用 ID。
 
 2026-11-18：AI-PARSER-001 VERIFIED（本机解析/HTTP 替身/64 项测试与完整门禁；实现 e1a2d23 已推送 AI 分支，已通过 a215e34 合入 main）。新增 features/robot_parser：严格契约模型、Robot 7 静态 AST、受限 XML、对象客户端、可终止进程与两个 /internal/v1/parsers HTTP 入口；core/service_tokens 管 RS256 服务/委托验签及回调签名。配置、路径/超时/并发与错误策略见 [解析说明](../../docs/development/AI_PARSER.md)，验证范围见 [本任务](../sessions/2026-11-18-03-ai-parser.md)。不执行 Robot、不直写业务表、不调用模型；真实 Java 对象接口、双方密钥部署尚待联调。
 
