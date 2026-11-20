@@ -1,47 +1,23 @@
-# 智能电表 Robot 测试域与迁移设计
+# 最终版数据与迁移
 
-日期：2026-11-17。状态：FROZEN（设计），未执行新迁移。对象字段的网络表示以 [共享 schema](contracts/schemas.json) 为准。
+2026-11-19 · 设计稿。目标 HTTP 字段见[新接口](contracts/workspace.openapi.json)。已执行的 MySQL V1–V8 及现存服务继续以[数据库记录](DATABASE.md)为准。以下描述拟建约束，实施时从实际最新 Flyway 版本往后编号。
 
-## 关系与事实所有权
+| 权威方与聚合          | 数据、键和不可破坏的约束                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Java · 平台/项目      | 现有 users/roles 保存账号及全局 ADMIN；项目含 name、description、首位 owner 及 revision，成员唯一键 (projectId,userId)。新建普通账号存密码哈希、mustChangePassword、enabled、auth/token revision；重置/停用立即撤销现存会话。创建与指派原子提交；单一负责人，普通成员只能 TEST/DEV。交接申请保存旧/新负责人、原角色、申请人、状态、决定人、原因和修订号。普通交接先待确认；离岗代办单独记 ADMIN_PROXY 与原因。生效事务使用项目行锁，同时调整新旧角色、受限读者名单与审计，并使授权缓存失效；新负责人显式成为审核读者，前任的在任审核授权撤回，其独立显式读者资格由现任负责人管理。项目更新用乐观锁。 |
+| Java · 附件和授权     | 随机对象键、内容 hash、原始名称、字节数、所有人、用途、过期时间、项目与业务绑定；一次临时上传可产生会话与正式对象两个独立引用。授权对象读取校验当前委托，临时文件不可按文件名探测。                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Java · 资料与版本     | document 是逻辑资料，version 是不可变内容版本；唯一 (documentId,versionLabel)，每版独立 hash、提交人、说明、reviewStatus、indexStatus、rejectionReason。ACL 按逻辑文档设置，历史版本同样重新鉴权。新文档默认为项目内共享。                                                                                                                                                                                                                                                                                                                                                                           |
+| Java · 审核、索引任务 | PENDING → APPROVED 或 RETURNED；同一版本审核终态不可再次改写，退回后提交新版本。审核 revision 只随人工元数据写入变化，后台索引进度单独记录，避免无关作业破坏审核表单。PENDING/RETURNED 的索引恒为 NOT_STARTED。批准与唯一索引 outbox 同事务，之后 QUEUED → PROCESSING → READY/FAILED，重试创建新的任务尝试。outbox 与业务行同提交，幂等拉取。                                                                                                                                                                                                                                                        |
+| Java · 验收依据       | 项目行串行化发布，每个包有 basisId、唯一 label、revision、生效时间、结束时间和操作者；明细 (basisId,versionId) 记录一组不可变文件。整包写入、旧包闭合和当前指针切换同事务。半开区间 [from,to)，UTC，不允许回填或重叠。                                                                                                                                                                                                                                                                                                                                                                               |
+| Java · 运行与证据     | Run 与 Result、Artifact、LogLine 分表。保留 executedAt 与 registeredAt、providedBy、原始 Robot 状态、源对象 hash、行/页定位。一次导入的聚合统计与子结果事务一致；用户复制的 Robot 草稿不是正式用例资产。                                                                                                                                                                                                                                                                                                                                                                                             |
+| Java · 私人会话       | conversation 所有人、projectId 不可改；turn 与 clientMessageId/幂等键绑定，事件唯一 (turnId,sequence)。消息/答复绑定引用和敏感来源，用当前 ACL 过滤。                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Java · 引用与作业     | citationId 映射到不可变 resource/version/locator/hash 与已验证摘录；case draft 以消息中字符串保存。platformJobs 返回安全投影，不出文件名、正文、提示词、日志行。                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Python · 可重建数据   | 解析、分块、向量和内部作业；每个可检索片段携带 project、不可变 version、hash 和定位。复用 v1 index 时内部 documentId 映射 versionId，稳定知识库 ID 为 Java 分配。Python 不写业务表。                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-| 聚合       | 关系与持久化重点                                                          | 权威方                                      |
-| ---------- | ------------------------------------------------------------------------- | ------------------------------------------- |
-| 项目       | projects → project_members；项目 key 唯一，成员 role=OWNER/EDITOR/VIEWER  | Java / MySQL                                |
-| Robot 目录 | projects → catalog_imports → suites；用例关联 suite 与 source revision    | Java 应用事务；Python 仅静态解析            |
-| 用例       | test_cases 归项目，ROBOT/MANUAL 分开；case_tags 独立精确标签              | Java / MySQL                                |
-| 圈选       | case_selections → selection_items(case_id,version)；不可变快照及摘要/到期 | Java / MySQL                                |
-| 运行       | projects → runs → results；结果保留历史 caseName/suitePath，caseId 可空   | Java / MySQL                                |
-| 产物       | runs → artifacts，随机对象键、sha256、大小、归属                          | Java 元数据 + 对象存储                      |
-| 知识       | projects → knowledge_bases → documents → chunks；限制库 grants            | Java 元数据/ACL；Python 处理；Qdrant 可重建 |
-| 会话       | user + project → conversations → messages → turns → turn_events           | Java / MySQL，事件先持久化再发布            |
-| 草稿       | conversation → drafts → draft_items；确认后生成 MANUAL 用例               | Java / MySQL 事务                           |
-| 审计       | actor/project/requestId/操作/资源/结果/时间；幂等记录与结果关联           | Java / MySQL                                |
+## 迁移与切换
 
-数据库 BIGINT 资源 ID 通过 v2 以字符串输出；会话/轮次/事件归属任务等 UUID 独立。UTC DATETIME(6)，API 为 ISO UTC。所有跨聚合关联查询必须带 projectId，并检查复合资源归属；用户传来的父 ID 不足以证明关联有效。
-
-## 最小持久化约束
-
-- projects.key 唯一；project_members PK(project_id,user_id)，删除最后 OWNER 拒绝。
-- suites 唯一(project_id,source_path,revision)，父子不能跨项目或成环；归档前保留历史 revision。
-- test_cases 唯一(project_id,stable_key)，version 乐观锁。标签唯一(case_id,tag)，迁移时处理旧逗号字符串，不能以 substring LIKE 代替精确标签。
-- runs 绑定 catalogRevision/import_job_id；results 唯一(run_id,suite_path,case_name)，存结果快照；统计从叶子结果计算并校验，而非模型生成。
-- selection_items 唯一(selection_id,case_id)，固定版本集合；删除定义采用归档，历史结果与引用不断链。
-- documents 内容不可变；唯一(kb_id,content_hash,version_label) 或按幂等上传规则返回既有对象；索引任务唯一(document_id,content_hash,parser_version,embedding_profile)。
-- turn_events 唯一(turn_id,sequence)；同会话最多一个活动 turn；终态使用 CAS，序号事务性递增，保留重放 24 小时。conversation 删除采用逻辑隐藏并保留必要审计。
-- drafts.revision/payload_hash/expires_at + unique committed_draft_id；提交与用例创建同一事务。幂等键唯一(actor_id,operation_id,resource_scope,key)，存请求 hash 和结果引用，不存敏感原始内容。
-- 对象文件、块与向量通过 documentId/contentHash 对齐。删除采用 DELETING/清理重试/DELETED，不将仅 SQL 删除当作跨存储删除完成。
-
-## 既有数据迁移顺序
-
-1. 不修改 V1–V5 或其他已执行迁移。实现时从当时最新编号继续，不在设计阶段预占版本号。
-2. 新建项目/成员与 legacy-resource 映射，旧资源保持旧 API；未经明确归属核对不自动共享至所有项目成员。
-3. 为用例增加项目、来源/版本/稳定键与规范化标签，人工旧用例映射 MANUAL。v1 DTO 保持原样，通过适配层输出；v2 只读取已迁移且项目授权有效的数据。
-4. 引入 suites/imports/selection；解析完整快照后事务性切换当前目录版本，再逐步启用用例页面。
-5. 引入运行/结果/产物，完成导入映射与统计一致性后启用运行分析；不提前在产品宣称已接外部执行器。
-6. 引入文档/索引/ACL、会话/事件、草稿/幂等审计，各切片完成后运行 provider 测试，再接对应 Web 页面。
-
-## 实现归属
-
-Java 复用 identity、knowledge、testcase；projects、runs、conversation 等仅在有实现时建立所属业务域。跨域安全技术归 platform。Python 在实际实现时增加 robot_parser、ingestion、assistant，解析与模型调用分离。Vue 按页面域组织，不建立无实际复用的万能 shared。
-
-背景文档中的建议 examples 目录按本仓库约定落到 samples，不能新建根 examples。原企业系统独立运行；本项目不复制其库、关键字实现、设备配置或私有测试数据。
+1. 在隔离库重放既有 Flyway，准备含 OWNER/EDITOR/VIEWER 的项目和未归属 v1 行。新字段/关联表采用前进迁移；为兼容端点保留旧标识，不让回填扩大权限。
+2. 现有唯一 OWNER 映射为负责人；多个 OWNER 的项目必须由管理员明确选一位。EDITOR/VIEWER 不能推断开发或测试，以显式映射清单落地。未映射人员在新版没有成员权限。校验成员数、负责人唯一性、跨项目引用及不可见数据，再切换路由。
+3. 移除全局 ADMIN 的项目业务旁路，包括仍可访问的旧项目、v1 CRUD/下载、工具与缓存。旧资源无明确归属时隔离。兼容旧读写若会绕过新建项目/受限文档规则，在切换时封闭或收紧；在隔离环境验证旧 URL 也无法绕过。
+4. 在运行和索引任务上使用业务行 + outbox、外部调用幂等键和终态 CAS。服务崩溃后根据持久 jobId 恢复。失败不覆盖上一已发布版本；替换/收回读者立即递增 authRevision，索引物理清理可补偿。
+5. 投产切换前备份并演练恢复；发现数据映射或授权异常时关闭新写入与受影响旧读口，保留数据和旧权限映射，修复后前进发布。回滚 UI 不得恢复管理员业务旁路。

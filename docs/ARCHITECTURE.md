@@ -1,8 +1,6 @@
 # 架构与边界
 
-更新：2026-11-18。Java 已实现 M1.1–M1.5（身份、知识库/用例 CRUD、缓存限流、项目隔离）+ 契约 1.0.0 冻结；Web 已实现登录 + v2 用例目录；Python 已实现 Robot 静态解析。Java 是模块化单体业务服务，Python 为独立 AI 运行时；不引入 Spring Cloud。新增 Robot/AI 业务依照 [ADR-0007](ADR/0007-final-product-contract.md)、[最终产品设计](PRODUCT_DESIGN.md) 和 [冻结契约](contracts/README.md) 实施。
-
-浏览器 → Nginx（开发时 Vite proxy）→ Java → Python；Python 工具操作回调 Java 并再次授权。Java 持有 MySQL 业务事实，Redis 提供已有缓存/登录限流，Qdrant 是待接入的可重建检索索引。当前已有身份、知识库、用例、项目隔离业务和 Redis 缓存/限流；Web 登录与 v2 目录已合入；AI Robot 解析独立可用。Java↔Python 业务调用链、RAG、Agent、SSE 事件流尚未建立；冻结契约和设计不能当作已运行证据。
+最终版采用 Vue → Java → Python。Java 持有 MySQL 业务事实与授权，Python 处理 Robot/XML、知识索引与回答；Python 用委托调用 Java 读取授权对象和核实证据。Qdrant 保存可重建向量，Redis 提供缓存与限流。用户操作经 Java 入口，流式回复由 Java 编号、保存并重新鉴权。目标与运行状态分别见[接口](contracts/README.md)、[联调证据](../.memory/sessions/2026-11-19-03-three-tier-integration.md)。
 
 ## 部署
 
@@ -12,7 +10,7 @@ Compose 单机运行，Nginx 发布 8088。Java/Python 无宿主机端口映射�
 
 - 用户身份、资源范围及写操作权限由 Java 计算；Python 和模型提供的 user_id 不可信。
 - 外部文件不成为系统指令。上传需格式/大小白名单、随机对象键、受限解析和来源定位。
-- 有副作用的 Agent 操作先生成草案，确认对象绑定 payload hash，并校验有效期、权限和幂等键。
-- HTTP 调用有超时与有界重试；重试写操作必须先支持幂等。SSE 采用业务事件协议，中断需取消上游请求。
+- 正式登记、审核、成员及依据变更通过独立业务页提交，绑定幂等键和版本；聊天中的 Robot 草稿由用户复制。
+- HTTP 调用有超时与有界重试；重试写操作必须先支持幂等。SSE 采用持久业务事件。客户端断线可凭游标重连，显式停止才取消上游工作。
 - MySQL 元数据、对象文件和 Qdrant 索引按状态机协调删除，失败可补偿。
 - 持久化时间 UTC；可追踪日志在业务入口引入 requestId，禁止记录敏感原文。M0 尚未实现跨服务追踪。

@@ -1,6 +1,6 @@
 # AI 知识文档索引与受限检索
 
-更新：2026-11-19。状态：VERIFIED（本机自动/HTTP 替身范围；真实外部服务待验收）；验证版本、命令与限制见 [任务 session](../../.memory/sessions/2026-11-18-09-ai-ingestion.md)。接口遵守 [冻结契约 1.0.0](../contracts/README.md)，不新增公共 DTO 或查询 HTTP 路由。
+更新：2026-11-19。状态：VERIFIED（本机自动/HTTP 替身范围；真实外部服务待验收）；验证版本、命令与限制见 [任务 session](../../.memory/sessions/2026-11-18-09-ai-ingestion.md)。接口遵守 [现有内部 v1 契约](../contracts/ai.openapi.json)，不新增公共 DTO 或查询 HTTP 路由。
 
 ## 接口与身份
 

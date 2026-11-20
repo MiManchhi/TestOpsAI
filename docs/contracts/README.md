@@ -1,117 +1,68 @@
-# TestOps AI 三端开发契约 1.0.0
+# 三端接口交接
 
-日期：2026-11-17。状态：FROZEN（本轮确定的开发基线）；新增业务运行实现仍为 PLANNED。基线 main `41ef74c`。冻结表示三端必须共同遵守此版本；不表示接口已经部署。
+2026-11-19 · 设计基线 2.0.0。最终版开发契约为 [workspace.openapi.json](workspace.openapi.json)。每个 operationId 都有方法、路径、输入、成功状态、响应 schema、授权域和错误响应。以同一份文件驱动 Web 类型、Java provider、Python Pydantic 一致性测试。页面见[页面表](../WEB_UI_DESIGN.md)。
 
-## 唯一来源与使用方式
+## 地址、身份和职责
 
-| 文件                                       | 职责                                          | 消费方          |
-| ------------------------------------------ | --------------------------------------------- | --------------- |
-| [public.openapi.json](public.openapi.json) | Web → Java：既有登录 + 完整新业务 HTTP 契约   | server / web    |
-| [ai.openapi.json](ai.openapi.json)         | Java → Python：对话生成、确定性解析、索引     | server / ai     |
-| [tools.openapi.json](tools.openapi.json)   | Python → Java：受控工具与授权对象读取         | server / ai     |
-| [schemas.json](schemas.json)               | DTO、状态枚举、事件联合类型；所有契约共同引用 | 全部            |
-| [tools.json](tools.json)                   | 模型可用工具、输入输出与副作用等级            | ai / server     |
-| [pages.json](pages.json)                   | 页面、路由与 operationId 对应                 | web / 验收      |
-| [examples.json](examples.json)             | 可验证的完整自造领域数据与事件序列            | 设计原型 / 测试 |
+| 方向          | 入口                                                                                                                                               | 身份与事实                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 浏览器 → Java | 现有 v1 登录、当前用户；新工作区 /api/v3，按 projects 与 platform 分路                                                                             | 用户 JWT。用户、项目、成员与资料授权由 Java 每次读取；平台角色只适用于 platform 操作          |
+| Java → Python | 已有 /internal/v1/parsers/robot、/robot-output、/index-jobs、索引轮询与删除；新增 /internal/v2/ai/answer 与 /internal/v2/index-jobs/{jobId}/blocks | 短期服务 JWT + Java 签发的 X-Delegation-Token；Java 推导 scope。Python 返回候选证据定位与草稿 |
+| Python → Java | 已有 /internal/v1/objects/{objectId}/content；新增 /internal/v2/evidence/resolve                                                                   | 仅授权对象、运行事实、消息附件和版本。服务身份、委托、operationId、项目、资源、有效期都要匹配 |
+| Java → 浏览器 | startTurn 202，随后 watchTurn 的 SSE；引用在 readCitation 重新鉴权                                                                                 | Java 注册引用、分配事件编号、保存最终回复，原始 Robot 状态来自已登记结果                      |
 
-OpenAPI 采用 3.1.1，显式选择 JSON Schema Draft-07 dialect，以复用仓库已锁定的 Ajv 6.15.0；不是把 Draft-07 伪装为 2020-12。[OpenAPI 官方方言说明](https://spec.openapis.org/oas/v3.1.1.html)允许声明 schema dialect。schema 为纯 JSON，模型工具定义直接引用相同类型，禁止再手写另一套字段。
+标记 java 的内部操作只供 Java 调用；python 只供 Python。服务 JWT 校验签名、issuer/audience、jti、exp ≤5 分钟；委托 ≤120 秒，绑定 actor/project/operation 与资源，撤权即失效。浏览器令牌不交给 Python 或模型。v1 内部参数、请求头及署名以 [AI 接口](ai.openapi.json)、[对象接口](tools.openapi.json) 和[共享类型](schemas.json)为准。已实现登录由 [public.openapi.json](public.openapi.json) 的 login/currentUser 提供。旧 v2、页面映射、工具和样例仍给现存客户端及回归使用，最终页面不消费旧草稿提交、项目概览或手选上下文。
 
-运行 `npm run contracts:check` 校验 DTO schema、所有跨文件引用、分页/鉴权/幂等约束、页面映射、工具映射、自造示例、拒绝非法输入与事件顺序。此命令纳入本地完整门禁和 CI。它验证契约自身一致性，尚不证明未实现服务的行为符合契约；每个业务里程碑还必须加入真实 HTTP provider 验证。
+## HTTP 通则
 
-## 接口版本与兼容性
+- 字符串业务 ID，轮次、附件、引用和任务用 UUID。时间 UTC ISO-8601；UI 按本地时区交互并转换。空数组与未提供字段的语义见 schema。q 为字面包含搜索；页从 0 起、默认 20、上限 100，排序固定并以 ID 收尾。授权过滤先于分页和统计。
+- 新公开写操作要求 Idempotency-Key UUID，24 小时内按 actor、operation、资源及规范化请求哈希去重；同键同体返回同一结果，异体返回 409。上传按原始文件哈希；重放也要重验授权。成员新增 revision=0、修改传当前值，删除用 revision 查询参数，资料/项目/读者有乐观锁。依据首次 expectedRevision=0，后续按项目当前包 revision。
+- 错误体为 code、message、requestId。400 VALIDATION_ERROR、401 UNAUTHENTICATED、403 FORBIDDEN（有身份但缺操作权限）、404 NOT_FOUND（私有或不可见对象）、409 VERSION_CONFLICT/IDEMPOTENCY_CONFLICT/TURN_IN_PROGRESS、413 CONTENT_TOO_LARGE、415 UNSUPPORTED_FORMAT、422 UNPROCESSABLE、429 RATE_LIMITED、503 DEPENDENCY_UNAVAILABLE。SSE 建立前用 HTTP 错误，建立后用终态事件。公开错误仅给脱敏原因。
+- 附件以本人/项目/有效期绑定，返回 attachmentId、文件名、SHA-256、到期时间。未绑定临时文件 24 小时清理；发消息后归本人会话，正式登记后固定独立业务引用，回收按引用计数。待确认资料只给提交人与负责审核且可读的负责人看；索引就绪不等于可检索。限定读者为项目成员，默认包含审核负责人；撤权使缓存及历史摘要立即失效。
+- 项目文件范围：正文 MD ≤2 MiB，PDF、DOCX ≤20 MiB；聊天 .robot/.resource ≤2 MiB、文本日志 ≤5 MiB；output.xml ≤50 MiB。检查内容与类型，DOCX 读取文档 XML、限制解压体积和条目，不运行宏、不加载外链。登记必须有 Robot XML，附日志单独存储并按行定位。仅保留经授权可上传的自造/脱敏资料。
 
-- 保留现有 `/api/v1/auth/login`、`/api/v1/users/me`：数字 ID、令牌有效期和 sessionStorage 行为不变。最新主线登录限流 60 秒/10 次/IP，超限 429 `RATE_LIMITED`，读取 `Retry-After` 秒数；Redis 降级沿用 ADR-0006，不在本轮修改。
-- v1 知识库/用例 CRUD 仍是旧接口；这里不改其真实行为。新项目隔离、数组标签、字符串 ID、Robot 来源与运行语义统一使用 `/api/v2`。最终 Web 新业务只接 v2，不混用 v1/v2 用例或知识库 ID。
-- v1 的登录身份由 Java 映射到 v2 字符串 actorId。v2 资源 ID 为十进制字符串；会话/轮次/导入任务/草稿/引用 ID 为 UUID；禁止浏览器把 BIGINT 转为浮点数。
-- 内部 API 单独版本 `/internal/v1`，只在服务网络开放。v1 用户 JWT 不透传给 Python，不进入模型。
-- 不自动转换旧用例标签、所有权或共享范围。迁移由前进式 Flyway 新脚本完成，先建项目并明确归属，校验后切换，保留既有脚本原文。无映射数据保持 legacy-only。
-- 新增必填字段、改枚举含义、改副作用、改权限属于不兼容变更，必须改版本与 ADR，更新所有消费方及正反例；不允许“前端先临时兼容”。
+## 平台账号与负责人交接
 
-## 通用 HTTP 规则
+v1 登录后调用 myAccount。mustChangePassword=true 的账号仅可访问本人状态与 changePassword，其余公开业务返回 403 PASSWORD_CHANGE_REQUIRED；更新密码、重置或停用都会推进凭据版本并使旧 JWT 失效。管理员用 createAccount 创建普通账号，临时密码仅经加密连接输入，使用现有密码哈希；响应/幂等回执/日志/审计均不含密码，使用带服务端密钥的请求摘要去重。变更密码成功后重新登录。listAccounts 仅列受管理的普通账号，禁止通过这些写接口授予平台 ADMIN、管理内置管理员或停用仍负责项目的账号。平台管理员的初始供应走部署流程。
 
-JSON camelCase；所有时间为带时区 ISO-8601 UTC。v2 请求体拒绝未知字段；空字符串、缺失与 null 按 schema 区分。页面采用 `page=0` 起、`size=20`，最大 100；超出范围返回 400，不悄悄截断。分页响应始终 `items/total/page/size`。列表排序必须稳定并以 ID 作为末位排序，不用不可重现的自然顺序。
+负责人以 projectMembers 选择现有成员，通过 requestOwnerTransfer 建立 PENDING 申请。待决定期间角色和 ACL 不动。ownerTransferHistory/adminTransferHistory 读取项目内记录。管理员通过 decideOwnerTransfer 接受或退回该申请，只有接受才原子换人。原负责人已离岗时 eligibleOwners + proxyOwnerTransfer 可由管理员代办，unavailableReason 必填。已有待办先处理，同项目同时最多一条待办。生效时重查接任人仍在项目且可用、原负责人仍匹配，保存新旧角色和审核读者授权明细，更新 authRevision。代办同样验权并留痕。
 
-错误统一 `{code,message,requestId}`。现有 requestId 在某些限流路径可为 `unknown`，因此 schema 保持非空字符串，不能为好看而虚构 UUID。新增服务应生成 UUID 并透传 `X-Request-Id`。输入错误 400，未认证 401，已知项目无权 403，不可见/跨项目资源 404，版本/状态冲突 409，超限 413，不支持格式 415，内容不可处理 422，频率限制 429，依赖不可用 503。请求体之外的内部异常不得泄露。
+## 三个关键时序
 
-有副作用且标注 Idempotency-Key 的接口要求 UUID 请求键。Java 将键绑定 actor + operation + resource + canonical request hash，保存 24 小时；同键同内容重放原结果/任务 ID，同键不同内容返回 409 `IDEMPOTENCY_CONFLICT`。进行中的相同键返回相同任务，不重复启动。授权在每次请求重新检查；成功后被撤权不允许借重放获得旧资源。单条已有 v1 接口没有此保证，不能宣称其已具备。
+**资料进入可检索范围**。Web 上传附件并提交版本，Java 固定原件和 hash，状态为 PENDING/NOT_STARTED。负责人通过 downloadOriginalVersion 核对原件，退回保存原因，批准才在同一事务写 APPROVED/QUEUED 和索引 outbox。Python 接收 indexDocument，持委托 readAuthorizedObject，再解析、分块、建索引。Java 轮询 getIndexJob，成功后用 exportIndexBlocks 逐页取原文定位，核对版本、hash、parserVersion 和作业号，完整导入后才将版本置 READY。已发布版本的 readVersion 与 resolveEvidence 从同一套定位读取。setBasis 独立发布整包。
 
-## 领域与授权
+**复测结果进入项目**。Web 上传 XML 与可选文本日志 → registerRun 202。Java 保存执行时间、提供人、对象和任务 → parseRobotOutput → Java 校验计数后一次写入运行、用例结果及日志定位。没有用例库映射时仍保留名称、原始状态及运行事实。listRunArtifactsV3 / downloadArtifact 仅对成员开放，下载附件重新鉴权。平台排错只看 platformJobs，序列化白名单字段，不跨用业务对象 DTO。
 
-Project 是用例、套件、运行、知识库、导入和审计的隔离根。OWNER 管项目与成员，EDITOR 导入/维护/保存草稿，VIEWER 只读及问 AI；全局 ADMIN 为受审计的管理特权。创建项目允许已认证用户并成为 OWNER。最后一个 OWNER 不可删除，当前版本不提供所有权转移，返回 409 `LAST_OWNER`。
+**自动查证据与回答**。Web 首问可省略 conversationId，startTurn 在一笔事务中建本人会话并接受轮次；重试携带同一 clientMessageId 和幂等键。项目由路径决定；附件是本人已上传的对象，会话与 runId 必须同项目。Java 按 run.executedAt 取当时生效的整包，再取当前生效包，解析用户有权查看的版本、日志、附件，送入 composeAnswer。Python 在 Java allowlist 内检索，只用 resolveEvidence/授权对象读取补事实。Context.versions 携带每个可读版本对应的 knowledgeBaseId 和 hash，files 携带允许读取的临时对象及 SHA-256，runs 携带确定性的 Result 和有定位的 Proof。Java 在读取入口将同一请求带入的文本和附件约束在本人会话内。Python 从已核实的 RunContext 得到 Robot 状态，从 facts 查实测值；对缺失定位走 resolveEvidence，不凭摘要猜事实。三组载荷必须分别是 scope.versionIds、attachmentIds、runIds 的子集；服务端签发委托的 objectIds 也只含这些对象。多份运行无法唯一识别时返回澄清，禁止猜一份。Java 检查候选资源、内容 hash、定位和原文，核对实测/单位/比较符，创建 citationId 后发布最终回复。复制动作不回写项目，也不触发真实测试执行。
 
-PROJECT 知识库由项目成员读取、EDITOR/OWNER 写入；RESTRICTED 知识库只对授权成员与 OWNER 可见，WRITE 同时要求项目 EDITOR，READ 不授予项目外访问。授权对象必须是现有项目成员。会话只属于创建者；项目成员不能读取他人的会话。引用按当前资源权限实时解析，不因缓存或历史摘要绕过撤权。
+## 整套发布
 
-Java 必须在列表查询、聚合统计、流式订阅、工具执行、引用、草稿提交和文件读取时校验权限。聚合不能先算全量后仅隐藏明细。资源缓存键包含项目与有效权限版本；撤权需失效，Redis 不能成为权限真相。现有 v1 知识库缓存不能直接复用于 v2。
+setBasis 的 label 是项目内唯一的包版本名，versionIds 为一份或多份不可变文档版本，只能来自同一项目、已经 APPROVED/READY，每个逻辑文档至多一版。expectedRevision 对整个项目当前包做 CAS。提交中有一份不合格则整笔失败，旧包仍生效。包内明确适用条款冲突且无法裁定时给 NEEDS_CONFIRMATION 并列可见出处；禁止按文件位置猜优先级。Finding.versionLabel 显示包名，具体文件版本及定位在各条引用中。
 
-### Robot 定义与选择
+## 轮次与证据语义
 
-TestCase 保存定义，不保存某一次运行状态。`lifecycleStatus=ACTIVE/ARCHIVED`；`sourceType=ROBOT/MANUAL`。TestResult 保存运行结果 `PASS/FAIL/SKIP`；Run 表示导入后的 `COMPLETED/INCOMPLETE`，没有“点击按钮已经执行真实设备”的含义。
+- 用户输入 text 与附件至少一项，单会话最多一个活跃 turn。没有 runId 时，已明确提到的合法对象由 Java 在 scope 确定前消歧；禁止空授权集合解释为全集。
+- watchTurn 使用带 Authorization 的 fetch。sequence 从 1 连续增长，SSE id=sequence。turn.started 的 data 为空对象；turn.stage 给出 stage；turn.completed 的 data 为 {answer: Answer}；turn.failed 为 {error: Error}；turn.cancelled 为空对象。心跳 15 秒不编号；最后只允许一个终态。Java 在收到并校验 Python 完整候选答复前可持续给进度，最终文本一次发布。主动停止与完成以单次 CAS 决定终态。
+- 用 Last-Event-ID 补大于该序号的事件；重放前重新鉴权，24 小时后 409 EVENT_REPLAY_EXPIRED，改读 getMyTurn/myMessages；不能自动重复发问。Python 超时或模型不可用时发失败终态，信息不足但模型正常时产生 INSUFFICIENT。权限变化可屏蔽已存回复。引用读失败不返回历史摘录。
+- basisAtRun/basisCurrent 分别为一个 VisibleBasis 或 null；仅下发获准的文件版本。包内有不可见版本时 coverage=PARTIAL，不下发被隐藏的 ID、文件名或条款。若缺的证据影响判断则 INSUFFICIENT。不同包版本则分别给出判断；相同版本可合并显示，保留两个适用身份。时间不明、文件缺失或依据未指定时不虚构。纯设计评审使用 DESIGN 及 NOT_RUN。候选的 sources 只含定位，模型不生成最终 citationId。数值型指标尽量结构化为 metric，Java 重新比较；模糊文本标为待人工确认。
+- 注册表和 DB 约束见[数据模型](../DOMAIN_MODEL.md)。新契约及样例的自检命令为 `node tests/contracts/workspace-review.cjs`；现存兼容契约继续运行 `npm run contracts:check`。真实 provider、真实模型及浏览器验收见[联合验收](../development/PARALLEL_DEVELOPMENT.md)。
 
-Robot 导入只接受用户有权使用的 `.robot/.resource` 完整快照，multipart `files` 与 `logicalPaths` 同长且一一对应。每文件 ≤2 MiB，总计 ≤20 MiB，最多 200 文件；拒绝绝对路径、盘符、反斜线、`..`、重复 logicalPath 和外部资源解析。解析器仅做静态结构提取，不 import Python 库、不求值变量、不执行 setup/关键字。无法静态求值的项记录 issue，不猜测运行值。
+## 操作与代码定位
 
-Java 以项目 + 规范化 suite sourcePath + 原始 caseName 的 UTF-8 长度前缀序列生成 SHA-256 stableKey，保持大小写；同一 suite 内重名拒绝导入。源文件路径变化作为移除/新增处理；sourceRef 保存文件内容 SHA-256 与行号。项目快照 revision 为 logicalPath 排序后的 `path + NUL + contentHash + LF` 串的 SHA-256。只有完整解析和校验成功才事务性应用新快照，缺失的 ROBOT 用例归档，MANUAL 不受影响；失败绝不部分归档。
+[接口实现对照](workspace.bindings.json)逐项指定提供方、处理方法、消费者、工作包和联合验收编号。路径、模型和权限从同名 OpenAPI 操作读取。exportIndexBlocks 每页最多 100 个块，按不可变原文顺序返回；游标绑定作业、版本和解析器版本。首请求不带 cursor，最后一页 nextCursor 为 null。每个 locator 在同一版本内唯一，纯扫描件用 NO_TEXT 提示提交有可读文本的版本。正式业务验收以各端的真实 HTTP 结果为准。
 
-`tags` 为去空白、区分大小写、去重的数组，单标签精确匹配；`tagsMatch=ALL` 默认。query 对标题/说明作大小写不敏感文字包含，module 为精确匹配；suiteId 默认含子套件。直接列表与 `search_test_cases` 使用同一个 Java 查询实现和相同 CaseFilter。禁止让向量库决定命中集合。
+当前提问使用 Context.currentMessageId，用户粘贴内容以 USER_MESSAGE、该 ID 和原始行号核对；允许的历史消息限本会话已重验的 history。复制回复时，Java 产生的 Citation.projectSource 指向共享业务原件，文档带 versionId/locator，运行带 runId/artifactId/fromLine；个人消息和附件为 null，只复制可见文字和来源说明。接手者的浏览器去对应项目页并按本人权限重验；私聊的 citationId 不能作为共享入口。readVersion 首次定位用 locator，下一页用 cursor，两者同时给出返回 400。
 
-跨页选择使用 `EXPLICIT` 或 `FILTER`，二者互斥；FILTER 由 Java 按同一规则计算且应用 excludedCaseIds。结果保存不可变 caseId/version 集合和摘要，最多 1000 条，超限返回 422 `SELECTION_TOO_LARGE`；有效期 24 小时，不接受客户端传入的总数。过期需重新选择，使用时再次验证资源可见性，不能静默丢掉越权项。
+## 内部服务身份的配对
 
-Robot 来源正文与步骤只读；修改需更改有权维护的源文件后重新导入。人工建议保存为 MANUAL，不转换成可执行 Robot 程序，也不冒充已回写外部平台。MANUAL 使用 CasePatch.version 乐观锁，旧版本返回 409 `VERSION_CONFLICT`。
+三项新内部操作使用 Authorization: Bearer 服务 JWT 和 X-Delegation-Token。service.operationId 是本次工作 UUID（问答用 turnId、块导出用 jobId），OpenAPI 的 composeAnswer 等名称是操作类型。两者分开匹配。Java 创建受委托工作时保存 actor、project、业务 UUID、允许动作与对象、授权 revision 和到期时间。私钥只留在签发服务。
 
-### 运行与产物
+| 方向                     | 服务令牌 iss → aud                | 委托和资源约束                                                                                                                                   |
+| ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Java → composeAnswer     | testops-server → testops-ai       | Java 签发问答委托，operationId 等于 scope.turnId；Python 验项目、有效期、scopeDigest 及 allowActions 含 composeAnswer。                          |
+| Python → resolveEvidence | testops-ai → testops-server-tools | Python 用同一 UUID 签 callback_token，并原样回送 Java 的问答委托；Java 验 allowActions、turn 所有人、实时 authRevision、候选引用所属已授权对象。 |
+| Java → exportIndexBlocks | testops-server → testops-ai       | Java 签发只含 exportIndexBlocks 的索引委托，operationId 与 URL 的 jobId 一致；版本 ID、项目、原件 hash 必须匹配成功作业。                        |
 
-导入只接受单个自造/授权 `output.xml`，最大 50 MiB；附 `name/catalogRevision/testContext`，testContext multipart 部分为 `application/json`。只解析白名单 XML 结构；禁用实体/网络/DTD，限制节点、深度和解析时长。`report.html/log.html` 不能作为统计事实来源，也不在本轮首期上传范围。
+新内部端点专用的委托 claims 包含 iss=testops-server、aud=testops-server-tools、iat/exp/jti、operationId、actorId、projectId、authorizationVersion、allowActions。问答委托额外含 scopeDigest，为 UTF-8 JSON 数组 `[projectId,turnId,authRevision,sortedVersionIds,sortedRunIds,sortedAttachmentIds]` 的 SHA-256 小写 hex；各列表去重按 ASCII 字符串升序，紧凑序列化，不含空白。块导出委托额外含 versionId/contentHash。使用与 v1 相同的 RS256 验签材料和生存期，v2 单独建 claims 类型，不改变旧 parser/对象服务所接受的 v1 DTO。长任务由 Java 验权后重新签发，不延长过期 token 的有效期。
 
-用 `catalogRevision + suitePath + caseName` 关联用例，不靠同名猜测；无法匹配时 Result.caseId=null，保留快照名称，计入 unmapped，并置 Run 为 INCOMPLETE，不丢失原始结果。全量结果满足 total=pass+fail+skip；Robot 根套件统计只作核对，不重复累加父子统计。历史 Run 保留当次用例名称/来源，不随定义重导入改变。
-
-结果不可编辑。初版导入页只接受 `.robot/.resource` 与 `output.xml`，无真实执行或外部企业地址配置。解析后的日志通过脱敏文本行 API 展示；未来 HTML 产物只作 attachment 或隔离域 sandbox 展示，不在业务同源执行脚本。
-
-### 知识文档与引用
-
-上传 Markdown ≤2 MiB 或 PDF ≤20 MiB，无远程 URL 导入、无归档包。Java 校验内容类型、签名和配额，生成对象键；Python 从授权对象 API 读取，不接受本地磁盘路径。每次上传为不可变 Document + contentHash + versionLabel，修改内容必须创建新文档版本，不能原地覆盖旧引用。
-
-状态 `QUEUED → PROCESSING → READY/FAILED`；删除进入 DELETING，文件与向量清理完成后 DELETED，失败保持 DELETING 并由补偿重试。READY 只在元数据、分块和向量写入均成功后公布。幂等索引键为 documentId/contentHash/parserVersion/embeddingProfile，版本不同不复用索引。stage 用于显示真实步骤，不伪造百分比。
-
-Java 轮询内部 IndexJob 并更新公开 Document；无需新增一个易重复的回调入口。jobId 与 operationId 的映射持久化在 Java；客户端刷新不丢任务。内容阅读用 blocks + nextCursor，PDF 用页码，Markdown 用行号/章节。
-
-Citation 由 Java 注册/复核后发给浏览器，模型不能自己编 citationId；必须校验资源属于授权范围、版本存在、locator 可定位、excerpt 来自来源。AI 无有效证据返回 evidenceStatus=NONE 或 PARTIAL。打开引用时撤权返回 404，来源已有新版本显示旧版本标记；不能擅自替换旧文档内容。
-
-## 对话与 SSE 精确规则
-
-1. 创建本人会话，绑定 projectId，不允许后续跨项目切换。
-2. POST messages：Java 校验 MessageContext；knowledgeMode=NONE 要求 knowledgeBaseIds/documentIds 为空；SELECTED 至少有一个可读且就绪的文档/知识库。documentIds 必须属于所选知识库。selectionId、runId 必须属于同一项目。保存原始用户消息与资源版本快照。
-3. `clientMessageId` 与 Idempotency-Key 共同去重；同会话一次只允许一个非终态轮次，冲突返回 409 `TURN_IN_PROGRESS`。
-4. 返回 202 Turn 后，Web 使用带 Authorization 的 fetch 读取 `GET turns/{turnId}/events`；不把 JWT 放 URL，不依赖不能设认证头的裸 EventSource。
-5. 事件的 SSE `event` 等于 JSON `event`，SSE `id` 等于 JSON sequence。sequence 从 1 单调递增且在同一轮次连续。JSON 为 `turnId/sequence/occurredAt/event/data`，完整联合类型见 schemas。
-6. 顺序：turn.started；零个或多个 stage/tool/delta/citation/draft 事件；恰好一个 turn.completed/failed/cancelled。completed 的 answer 是持久化最终真相，delta 只是展示增量。引用可早于完成，业务操作只在 completed 后启用。
-7. Java 持久化并编号事件后再发给 Web；Python 事件经 Java 重新校验并编号，不能直接透传供应商协议。心跳 `: heartbeat` 每 15 秒，不占 sequence。单轮总时限 120 秒，单工具 15 秒，重试只读工具最多一次。
-8. 断网不等于用户主动停止；Java 最多保留上游任务 30 秒供重连，超时取消。Web 使用 Last-Event-ID 重放更大的 sequence，去重旧事件；24 小时外返回 409 `EVENT_REPLAY_EXPIRED`，重新读取消息与 Turn，不悄悄重发问题。
-9. 主动停止调用 cancel，Java 持久化 CANCELLED 并关闭上游；取消与完成竞争以数据库终态 CAS 的获胜方为准。已完成后取消返回原 COMPLETED，不追加第二个终态。
-10. HTTP 流建立前出错返回普通错误 JSON；建立后发送 turn.failed 后关闭。流式订阅每次重连重新鉴权，运行中撤权取消并隐藏不可再见内容。删除会话先取消活动轮次，不删除已提交业务用例及审计。
-
-## 内部身份与工具
-
-服务调用使用短期服务 JWT（由部署环境签名配置），`iss=testops-server`/`testops-ai`、固定 `aud`、`exp≤5min`、jti 与 operationId 校验。Java 的授权委托令牌另以 `X-Delegation-Token` 提供给 AI 调用工具/对象接口，含 actor/project/允许工具/资源范围/operationId/exp≤120s；Java 持有授权真相，每次重新校验 membership 与 grant 版本。签名密钥只在服务端，不写入本契约或 Web。
-
-claim 字段分别以 ServiceClaims 和 DelegationClaims 冻结；JWT iat/exp 为 Unix 秒，并验证 exp>iat、时长上限、签名/issuer/audience，不能只做 JSON 校验。Java 调用 AI 的 POST 操作须通过请求头交付不透明委托 token，AI 仅在回调 Java 工具/对象接口时使用，不放入模型提示或日志。对象读取还要验证 objectIds 白名单，不能凭逻辑文件名请求任意对象。
-
-AuthorizedScope 是 Java 推导的上下文，浏览器、模型或 Python 自行提交的 userId 不构成授权。Java→AI respond 只发脱敏历史与最小必要上下文；不发数据库凭据、用户 JWT 或全部原始资料。
-
-caseScope=PROJECT 表示在已授权项目内查询，caseIds 必须为空；caseScope=SELECTION 表示只能读取 caseIds 的固化集合，空集合不代表全部。runIds 是允许读取的明确运行集合，空集合不允许查询运行。knowledgeBaseIds 是可检索库白名单，documentIds 非空时进一步收窄，不得当作扩大范围的并集。
-
-search_knowledge 为 AI 本地受限 RAG 工具，不绕回自己的 HTTP 入口。它先将请求 ID 与 Java scope 取交集，空交集拒绝；Qdrant 使用精确 kb/document/contentHash 过滤且只含 READY 版本。Java 对最终引用再次鉴权。其他工具对应 tools.openapi 的真实 Java 查询；get_failed_cases 固定过滤 FAIL，不能由模型改为任意状态或任意 SQL。
-
-create_case_draft 只创建 EDITABLE 草稿，属于 DRAFT_ONLY；不创建测试用例、不执行 Robot。模型工具中不存在 commitDraft、执行 Shell、任意 URL、设备操作或真实运行工具。所有工具参数受 schema 校验，未知字段/超限拒绝，工具摘要与审计脱敏。
-
-## 草稿人工确认
-
-AI 草稿有效期 24 小时，绑定本人会话、项目与引用。VIEWER 可以看建议，只有 EDITOR/OWNER 可以编辑和提交。PATCH 必带 revision，服务端返回新 revision 和 payloadHash；提交发送当前 revision/hash/selectedItemIds，Java 以存储内容验证，不信任浏览器传入“已批准”。
-
-payloadHash 为 Java 对规范化、字段排序的完整草稿 items JSON（UTF-8、紧凑分隔、不转义中文）的 SHA-256。前端直接使用响应摘要，不自行实现第二套 hash。选中 ID 集合也纳入幂等请求 hash。先重新鉴权、验证版本/有效期/引用可见性及业务字段，再在同一事务中创建选中 MANUAL 用例、标记草稿 COMMITTED 并写审计；任一失败全部回滚。相同草稿不同幂等键也只提交一次，后续返回原 createdCaseIds；不能部分成功然后重复创建。
-
-## 实现交接与验收
-
-server：项目隔离/迁移 → 精确查询与导入事务 → 知识文档/对象 → 会话/事件持久化 → 工具网关 → 草稿确认。ai：静态 Robot/XML 解析 → 文档处理 → 授权 RAG → 受限工具编排。web：按 pages.json 和最终设计开发，所有接口从本目录生成或逐项验证，不从图片猜字段。
-
-每个切片合入前必须有：正常请求、无权/跨项目、schema 非法、状态冲突、幂等重放的 provider 测试；工具查询与直接查询集合一致；Robot 解析与索引一致；事件重连/重复/停止竞争；引用定位/撤权；草稿重复提交。具体页面验收见 [最终产品设计](../PRODUCT_DESIGN.md)。
-
-本轮不创建几十张空表或空服务接口；正式数据模型在 [数据与迁移设计](../DOMAIN_MODEL.md)，只在实现对应切片时添加前进式迁移。接口命名、字段、权限与状态现在冻结，开发可以分阶段完成，禁止用“以后再说”重定义相同对象。
+composeAnswer 携带需读取原文件的 files 时，Java 同时用 X-Object-Delegation-Token 提供现有 v1 对象委托（与回调 service.operationId 相同，只列本次允许的 objectIds）。Python 读取原件时把该值作为旧对象接口的 X-Delegation-Token；文件为空则无需这个头。原件 hash、大小及归属错误立即丢弃。J2/J5 验一次正确往返，以及交换两个作业令牌、撤权后重放和用问答令牌读取未列出的原件。

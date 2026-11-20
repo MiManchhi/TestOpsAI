@@ -1,15 +1,8 @@
 # API 契约
 
-## 当前开发冻结基线
+## 开发与兼容接口
 
-2026-11-17：新增 [三端开发契约 1.0.0](contracts/README.md)（OpenAPI + 共享 schema + 事件/工具/页面映射），依据智能电表 Robot 背景确定。新业务使用 `/api/v2`，内部 `/internal/v1`；既有 `/api/v1/auth/login`、`/users/me` 与下述历史 CRUD 保持现状。新增契约标为 SPECIFIED，不能当作接口已实现；实际运行事实以下述已实现章节和代码为准。最终页面见 [产品设计](PRODUCT_DESIGN.md)。
-
-## v1/v2 共存策略
-
-- **v1 保留范围**：`/api/v1/auth/login`、`/api/v1/users/me`、`/api/v1/knowledge-bases/*`、`/api/v1/test-cases/*`。这些是 M1.1–M1.4 已实现的历史接口，保持现有行为不变。
-- **v2 新增范围**：`/api/v2/*` 按冻结契约 1.0.0 实施，包含项目隔离、字符串 ID、数组标签、Robot 来源、运行语义等新能力。Web 新业务页面只接 v2。
-- **过渡规则**：v1 知识库/用例 CRUD 与 v2 项目域用例不混用 ID；v1 数字 ID 与 v2 字符串 ID 不互转。最终 Web 新业务只接 v2，v1 CRUD 作为 legacy 保留至 v2 对应功能完全替代后由 ADR 决定废弃。
-- **内部 API**：`/internal/v1/*` 仅服务网络开放，不透传用户 JWT。
+最终版以[工作台契约说明](contracts/README.md)与[机器可读 OpenAPI](contracts/workspace.openapi.json)为输入。本文余下部分描述已交付的旧端点，供兼容与迁移核对。v1 登录/当前用户继续复用；新的项目授权语义使用 v3。完成状态见[联调记录](../.memory/sessions/2026-11-19-03-three-tier-integration.md)。
 
 ## M0 已实现
 
@@ -45,7 +38,7 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 - 当前用户 `id` 为数字，`username` 为字符串，`roles` 为角色码字符串数组，`createdAt` 为 ISO-8601 UTC 时间。
 - 凭据错误返回 401，`code=INVALID_CREDENTIALS`；缺失或无效令牌返回 401，权限拒绝返回 403。认证/授权错误 JSON 为 `{ code, message, requestId }`，响应携带 `X-Request-Id`。
 - Web 将令牌与到期时间存入 `sessionStorage`，不保存密码；刷新后调用当前用户接口重新验证。403 保留会话并提示无权限；401 或本地过期清理会话。退出仅清理当前标签页会话，不撤销已签发 JWT。
-- Web 页面路径为 `/login`、`/overview`、`/knowledge`、`/test-cases`。M1.3 知识库/用例 CRUD 已实现；Web v2 用例目录已合入 main（基于冻结契约的 contract provider，真实 v2 API 联调仍 BLOCKED）。
+- 既有 Web 有登录、项目与用例目录等界面，已证实能通的真实链路见联调记录。
 
 - JWT 签名密钥由环境变量 `JWT_SECRET` 提供（至少 32 字节）；token 有效期 30 分钟。
 - 401 响应统一为 `{code: "UNAUTHORIZED", message, requestId}`；403 为 `{code: "FORBIDDEN", message, requestId}`。
@@ -172,9 +165,3 @@ M0 时 Java 的其他匿名路径返回 401；M1.2 已开放下述登录入口�
 | ROBOT_CASE_READ_ONLY | 409  | Robot 来源用例不可直接编辑       |
 | SELECTION_TOO_LARGE  | 422  | FILTER 选择结果超过 1000 条      |
 | VALIDATION_ERROR     | 400  | 请求体不可读、参数/枚举/分页非法 |
-
-## M1–M4 原草案（历史，已由 1.0.0 冻结契约取代）
-
-原草案设想外部 REST 前缀 `/api/v1`，具体 schema 尚未冻结。后续新增业务改按上面的 v2 契约实施，不能继续据此各自定义字段。Java 仍为唯一浏览器业务入口，错误保持 `code/message/requestId`。
-
-原流式事件名 `message.delta/tool.start/tool.end/message.done/error` 尚未运行实现，现由冻结契约的 `turn.* / stage.changed / tool.started / tool.finished / answer.delta / citation.available / draft.available` 替代。不能混用两套事件名称；心跳仍为 SSE 注释行。

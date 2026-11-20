@@ -1,0 +1,396 @@
+{
+  "project": {
+    "name": "电表 A 型验收",
+    "description": "隔离验收项目",
+    "ownerId": "22"
+  },
+  "member": {
+    "role": "TEST",
+    "revision": 0
+  },
+  "turn": {
+    "text": "周一这次复测达标吗？",
+    "clientMessageId": "00000000-0000-4000-8000-000000000001",
+    "attachmentIds": [],
+    "runId": "51"
+  },
+  "answer": {
+    "summary": "Robot 执行通过。按当时 V1 达标，按当前 V2 未达标。",
+    "robotStatus": "PASS",
+    "findings": [
+      {
+        "basis": "AT_RUN",
+        "versionLabel": "验收包 V1",
+        "expected": "≤3 s",
+        "observed": "2.5 s",
+        "verdict": "MEETS",
+        "citationIds": [
+          "00000000-0000-4000-8000-000000000010",
+          "00000000-0000-4000-8000-000000000012"
+        ],
+        "metric": {
+          "unit": "s",
+          "actual": 2.5,
+          "limit": 3,
+          "operator": "LE"
+        }
+      },
+      {
+        "basis": "CURRENT",
+        "versionLabel": "验收包 V2",
+        "expected": "≤2 s",
+        "observed": "2.5 s",
+        "verdict": "DOES_NOT_MEET",
+        "citationIds": [
+          "00000000-0000-4000-8000-000000000011",
+          "00000000-0000-4000-8000-000000000012"
+        ],
+        "metric": {
+          "unit": "s",
+          "actual": 2.5,
+          "limit": 2,
+          "operator": "LE"
+        }
+      }
+    ],
+    "robotDraft": null,
+    "pending": [],
+    "citations": [
+      {
+        "citationId": "00000000-0000-4000-8000-000000000010",
+        "source": {
+          "resourceKind": "DOCUMENT",
+          "resourceId": "11",
+          "version": "V1",
+          "locator": "line 2"
+        },
+        "label": "响应时间规范 V1 · line 2",
+        "excerpt": "设备应在 3 秒内响应。",
+        "projectSource": {
+          "kind": "DOCUMENT",
+          "versionId": "11",
+          "locator": "line 2"
+        }
+      },
+      {
+        "citationId": "00000000-0000-4000-8000-000000000011",
+        "source": {
+          "resourceKind": "DOCUMENT",
+          "resourceId": "12",
+          "version": "V2",
+          "locator": "line 2"
+        },
+        "label": "响应时间规范 V2 · line 2",
+        "excerpt": "设备应在 2 秒内响应。",
+        "projectSource": {
+          "kind": "DOCUMENT",
+          "versionId": "12",
+          "locator": "line 2"
+        }
+      },
+      {
+        "citationId": "00000000-0000-4000-8000-000000000012",
+        "source": {
+          "resourceKind": "RUN_LOG",
+          "resourceId": "61",
+          "version": "1",
+          "locator": "line 1"
+        },
+        "label": "复测日志 · line 1",
+        "excerpt": "response_time = 2.5 s",
+        "projectSource": {
+          "kind": "RUN_LOG",
+          "runId": "51",
+          "artifactId": "61",
+          "fromLine": 1
+        }
+      }
+    ]
+  },
+  "events": [
+    {
+      "turnId": "00000000-0000-4000-8000-000000000002",
+      "event": "turn.started",
+      "sequence": 1,
+      "occurredAt": "2026-11-19T01:00:00Z",
+      "data": {}
+    },
+    {
+      "turnId": "00000000-0000-4000-8000-000000000002",
+      "event": "turn.stage",
+      "sequence": 2,
+      "occurredAt": "2026-11-19T01:00:00Z",
+      "data": {
+        "stage": "RETRIEVING"
+      }
+    },
+    {
+      "turnId": "00000000-0000-4000-8000-000000000002",
+      "event": "turn.completed",
+      "sequence": 3,
+      "occurredAt": "2026-11-19T01:00:00Z",
+      "data": {
+        "answer": {
+          "summary": "Robot 执行通过。按当时 V1 达标，按当前 V2 未达标。",
+          "robotStatus": "PASS",
+          "findings": [
+            {
+              "basis": "AT_RUN",
+              "versionLabel": "验收包 V1",
+              "expected": "≤3 s",
+              "observed": "2.5 s",
+              "verdict": "MEETS",
+              "citationIds": [
+                "00000000-0000-4000-8000-000000000010",
+                "00000000-0000-4000-8000-000000000012"
+              ],
+              "metric": {
+                "unit": "s",
+                "actual": 2.5,
+                "limit": 3,
+                "operator": "LE"
+              }
+            },
+            {
+              "basis": "CURRENT",
+              "versionLabel": "验收包 V2",
+              "expected": "≤2 s",
+              "observed": "2.5 s",
+              "verdict": "DOES_NOT_MEET",
+              "citationIds": [
+                "00000000-0000-4000-8000-000000000011",
+                "00000000-0000-4000-8000-000000000012"
+              ],
+              "metric": {
+                "unit": "s",
+                "actual": 2.5,
+                "limit": 2,
+                "operator": "LE"
+              }
+            }
+          ],
+          "robotDraft": null,
+          "pending": [],
+          "citations": [
+            {
+              "citationId": "00000000-0000-4000-8000-000000000010",
+              "source": {
+                "resourceKind": "DOCUMENT",
+                "resourceId": "11",
+                "version": "V1",
+                "locator": "line 2"
+              },
+              "label": "响应时间规范 V1 · line 2",
+              "excerpt": "设备应在 3 秒内响应。",
+              "projectSource": {
+                "kind": "DOCUMENT",
+                "versionId": "11",
+                "locator": "line 2"
+              }
+            },
+            {
+              "citationId": "00000000-0000-4000-8000-000000000011",
+              "source": {
+                "resourceKind": "DOCUMENT",
+                "resourceId": "12",
+                "version": "V2",
+                "locator": "line 2"
+              },
+              "label": "响应时间规范 V2 · line 2",
+              "excerpt": "设备应在 2 秒内响应。",
+              "projectSource": {
+                "kind": "DOCUMENT",
+                "versionId": "12",
+                "locator": "line 2"
+              }
+            },
+            {
+              "citationId": "00000000-0000-4000-8000-000000000012",
+              "source": {
+                "resourceKind": "RUN_LOG",
+                "resourceId": "61",
+                "version": "1",
+                "locator": "line 1"
+              },
+              "label": "复测日志 · line 1",
+              "excerpt": "response_time = 2.5 s",
+              "projectSource": {
+                "kind": "RUN_LOG",
+                "runId": "51",
+                "artifactId": "61",
+                "fromLine": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "sourceV1": "# 响应时间\n设备应在 3 秒内响应。",
+  "sourceV2": "# 响应时间\n设备应在 2 秒内响应。",
+  "xml": "<robot generator=\"Robot 7.5\" schemaversion=\"5\"><suite name=\"Meter\" source=\"suites/meter.robot\"><test name=\"响应时间\"><kw name=\"Check\"><msg level=\"INFO\">response_time = 2.5 s</msg><status status=\"PASS\"/></kw><status status=\"PASS\" elapsed=\"2.5\"/></test><status status=\"PASS\"/></suite><statistics><total><stat pass=\"1\" fail=\"0\" skip=\"0\">All Tests</stat></total></statistics></robot>",
+  "log": "response_time = 2.5 s",
+  "draftText": "*** Test Cases ***\n拒绝时保留原因\n    # 待确认：项目的触发与读取关键字",
+  "context": {
+    "scope": {
+      "projectId": "1",
+      "turnId": "00000000-0000-4000-8000-000000000001",
+      "versionIds": ["11", "12", "13"],
+      "runIds": ["51"],
+      "attachmentIds": [],
+      "authRevision": 1
+    },
+    "text": "周一这次复测达标吗？",
+    "history": [],
+    "basisAtRun": {
+      "basisId": "1",
+      "label": "验收包 V1",
+      "visibleVersionIds": ["11", "13"],
+      "coverage": "COMPLETE"
+    },
+    "basisCurrent": {
+      "basisId": "2",
+      "label": "验收包 V2",
+      "visibleVersionIds": ["12", "13"],
+      "coverage": "COMPLETE"
+    },
+    "versions": [
+      {
+        "versionId": "11",
+        "knowledgeBaseId": "8",
+        "contentHash": "4a06823e15253ac1ef2ba344106b361f7417106e63518af20fd4f34bb53c61de",
+        "versionLabel": "V1"
+      },
+      {
+        "versionId": "12",
+        "knowledgeBaseId": "8",
+        "contentHash": "6ba1f4a61f0e068ace6bffed4d546fbc315f167803e8fe4a4a95eb9c4d36cd46",
+        "versionLabel": "V2"
+      },
+      {
+        "versionId": "13",
+        "knowledgeBaseId": "8",
+        "versionLabel": "标书 V1",
+        "contentHash": "dfff3cf55376d15ce60778e3ec5d69922d234a8559e03dccc05e80626aacf93c"
+      }
+    ],
+    "files": [],
+    "runs": [
+      {
+        "runId": "51",
+        "name": "周一复测",
+        "executedAt": "2026-11-16T02:00:00Z",
+        "results": [
+          {
+            "resultId": "52",
+            "caseName": "响应时间",
+            "suite": "Meter",
+            "robotStatus": "PASS",
+            "artifactId": "61"
+          }
+        ],
+        "facts": [
+          {
+            "source": {
+              "resourceKind": "RUN_LOG",
+              "resourceId": "61",
+              "version": "1",
+              "locator": "line 1"
+            },
+            "excerpt": "response_time = 2.5 s"
+          }
+        ]
+      }
+    ],
+    "currentMessageId": "00000000-0000-4000-8000-000000000050"
+  },
+  "candidate": {
+    "summary": "Robot 执行通过。按当时 V1 达标，按当前 V2 未达标。",
+    "robotStatus": "PASS",
+    "findings": [
+      {
+        "basis": "AT_RUN",
+        "versionLabel": "验收包 V1",
+        "expected": "≤3 s",
+        "observed": "2.5 s",
+        "verdict": "MEETS",
+        "metric": {
+          "unit": "s",
+          "actual": 2.5,
+          "limit": 3,
+          "operator": "LE"
+        },
+        "sources": [
+          {
+            "resourceKind": "DOCUMENT",
+            "resourceId": "11",
+            "version": "V1",
+            "locator": "line 2"
+          },
+          {
+            "resourceKind": "RUN_LOG",
+            "resourceId": "61",
+            "version": "1",
+            "locator": "line 1"
+          }
+        ]
+      },
+      {
+        "basis": "CURRENT",
+        "versionLabel": "验收包 V2",
+        "expected": "≤2 s",
+        "observed": "2.5 s",
+        "verdict": "DOES_NOT_MEET",
+        "metric": {
+          "unit": "s",
+          "actual": 2.5,
+          "limit": 2,
+          "operator": "LE"
+        },
+        "sources": [
+          {
+            "resourceKind": "DOCUMENT",
+            "resourceId": "12",
+            "version": "V2",
+            "locator": "line 2"
+          },
+          {
+            "resourceKind": "RUN_LOG",
+            "resourceId": "61",
+            "version": "1",
+            "locator": "line 1"
+          }
+        ]
+      }
+    ],
+    "robotDraft": null,
+    "pending": [],
+    "sources": [
+      {
+        "resourceKind": "DOCUMENT",
+        "resourceId": "11",
+        "version": "V1",
+        "locator": "line 2"
+      },
+      {
+        "resourceKind": "DOCUMENT",
+        "resourceId": "12",
+        "version": "V2",
+        "locator": "line 2"
+      },
+      {
+        "resourceKind": "RUN_LOG",
+        "resourceId": "61",
+        "version": "1",
+        "locator": "line 1"
+      }
+    ]
+  },
+  "sourceShared": "# 验收标书\n操作被拒绝时须记录原因。",
+  "basisPublish": {
+    "label": "验收包 V2",
+    "versionIds": ["12", "13"],
+    "expectedRevision": 1
+  },
+  "scopeDigest": "cb3f579172d314664234f69841fb31ab92da7a78408e52f5c951c5528771397d"
+}

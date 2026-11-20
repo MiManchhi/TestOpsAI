@@ -1,6 +1,6 @@
 # AI Robot 解析接口与联调配置
 
-日期：2026-11-18。状态：IMPLEMENTED；真实 Java 对象接口、生产密钥分发与部署仍待集成。本说明对应 [冻结契约 1.0.0](../contracts/README.md)，不改变公共 DTO。
+日期：2026-11-18。状态：IMPLEMENTED；真实 Java 对象接口、生产密钥分发与部署仍待集成。本说明对应 [现有内部 v1 契约](../contracts/ai.openapi.json)，不改变公共 DTO。
 
 ## 接口与数据流
 

@@ -1,5 +1,7 @@
 # 工程记忆导航
 
+2026-11-19：[最终版业务定稿与三端技术蓝图](sessions/2026-11-19-06-workspace-decisions.md)。后续开发统一从[最终版路线图](../docs/ROADMAP.md)进入。
+
 2026-11-19：[AI 知识索引主线发布](sessions/2026-11-19-01-ai-ingestion-merge.md)；功能 54eb59d、合并 3399234 已正常推送，真实外部服务验收边界保留。
 
 2026-11-19：[Web 工作流与 AI 协作主线发布](sessions/2026-11-19-01-web-v2-main-merge.md)；Web a0a830f 合入最新 main，合并提交 61524f3 已普通推送；按用户要求未追加业务验证。
@@ -16,7 +18,7 @@
 
 更新：2026-11-17。状态：IMPLEMENTED。
 
-项目：TestOps AI，Java 管业务与授权，Vue 管交互，Python 管 AI。当前已集成 M1.3 后端、Docker 启动器，Web 登录工作台已合入主线并发布；协作入口与三个隔离工作区已就绪，具体任务和证据边界以 [CURRENT](CURRENT.md) 为准。
+项目：TestOps AI。Java 管业务与授权，Vue 管交互，Python 管 AI。工程状态与版本证据见 [CURRENT](CURRENT.md)。
 
 恢复顺序：[AGENTS](../AGENTS.md) → [CURRENT](CURRENT.md) → 开发规范和[协作指南](../docs/development/AI_COLLABORATION.md) → 所属模块与相关 session → 核对 Git、代码与证据。辅助命令：`scripts/memory.ps1 -Mode Restore`；检查：`scripts/memory.ps1 -Mode Check`。记忆不代替当前证据，不自动同步其他 worktree。
 

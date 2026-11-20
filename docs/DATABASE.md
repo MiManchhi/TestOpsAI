@@ -1,6 +1,6 @@
 # 数据设计草图
 
-> 2026-11-17：新增 Robot/项目/运行/会话/草稿等域的 [最终领域与迁移设计](DOMAIN_MODEL.md)，网络字段以 [共享 schema](contracts/schemas.json) 为准。以下保留已执行迁移事实；后续草案由新设计取代，尚无新增迁移执行。
+> 本页记录已经执行的 V1–V8 迁移。后续设计、兼容映射及回滚边界见[最终版数据模型](DOMAIN_MODEL.md)。
 
 更新：2026-11-18。状态：IMPLEMENTED（V1–V7 迁移已落地：身份基线、种子角色/管理员、业务元数据、项目隔离、种子数据修正）。
 
@@ -48,7 +48,7 @@
 
 - 迁移脚本：`apps/server/src/main/resources/db/migration/V8__project_case_catalog.sql`
 - v1 `test_cases`（owner_id + 逗号标签）保持原语义；v2 使用独立表，避免同名冲突，详见 [ADR-0009](ADR/0009-v2-case-catalog.md)。
-- 演示套件与 6 条自造 ROBOT 用例绑定 DEMO 项目，字段与 `docs/contracts/examples.json` 对齐；Robot 导入切片接入后将由解析快照替换。
+- 演示套件与 6 条自造 ROBOT 用例绑定 DEMO 项目，字段与 `docs/contracts/examples.json` 对齐。
 
 | 表                 | 关键字段与约束                                                                                                                                     | 备注                                   |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
@@ -57,16 +57,3 @@
 | project_case_tags  | PK(case_id, tag), case_id FK→project_test_cases CASCADE                                                                                            | 精确标签索引                           |
 | case_selections    | id CHAR(36) PK, project_id FK, created_by FK→users, selection_mode, case_count, digest, filter_json, expires_at                                    | 不可变选择快照，24 小时有效            |
 | selection_items    | PK(selection_id, case_id), case_version INT                                                                                                        | 固化 caseId + version 集合             |
-
-## 后续草案（未实现）
-
-| 数据域   | 实体与关系                                   | 初步约束/索引                                    |
-| -------- | -------------------------------------------- | ------------------------------------------------ |
-| 知识     | knowledge_bases → documents → ingestion_jobs | owner_id、kb_id/status；checksum 与对象键可追踪  |
-| 用例     | test_cases；后续 test_runs/test_results      | project_key/module/status 组合查询需解释执行计划 |
-| 对话     | conversations → messages、agent_tool_calls   | user_id/created_at，conversation_id/时间索引     |
-| 审批审计 | action_approvals、audit_logs                 | payload_hash、expires_at、幂等键、actor_id/time  |
-
-类型、外键及 ID 生成方案随 M1 首次迁移冻结，不提前制造未验证 SQL。时间统一 UTC；状态遵循立项方案状态机。
-
-Qdrant payload 计划包含 document_id、kb_id、owner_scope、chunk_index、version；查询前按已授权范围过滤。删除跨存储使用状态与补偿，Redis 不作事实唯一来源。

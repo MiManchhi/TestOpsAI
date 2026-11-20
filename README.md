@@ -2,11 +2,9 @@
 
 面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
 
-智能电表 Robot 测试域的 [最终页面与产品设计](docs/PRODUCT_DESIGN.md)、[全页面设计原型](docs/design/index.html#/login)、[三端冻结契约](docs/contracts/README.md) 和 [领域模型](docs/DOMAIN_MODEL.md) 已确定，供 server/AI/Web 统一开发；新增接口状态 SPECIFIED，不等于运行功能已经上线。运行 `npm run contracts:check` 检查契约一致性。
+设计评审从[最终产品蓝图](docs/PRODUCT_DESIGN.md)和[全界面样稿](docs/design/index.html)进入。项目资料、人员、复测和平台管理均可切换角色查看。[页面与权限](docs/WEB_UI_DESIGN.md) · [数据模型](docs/DOMAIN_MODEL.md) · [跨端接口](docs/contracts/README.md)。
 
-三端开发使用既有独立工作区；首批任务、同步/验收顺序及开场指令见 [Java/Web/AI 并行开工指南](docs/development/PARALLEL_DEVELOPMENT.md)。
-
-当前已有 **M1.3 后端业务元数据实现**：数据库迁移、JWT 登录、当前用户、知识库和测试用例 CRUD 接口已实现；Web 已实现登录、会话恢复与响应式工作台；知识库和测试用例页面目前为待开放说明，业务管理交互、RAG 与 Agent 仍待开发。验证版本与范围见 [当前工程记忆](.memory/CURRENT.md)。完整基线见 [立项方案](docs/PROJECT_BLUEPRINT.md)，阶段见 [路线图](docs/ROADMAP.md)。
+后续改造及完整实现以[开发总计划](docs/ROADMAP.md)和[三端联合验收](docs/development/PARALLEL_DEVELOPMENT.md)为入口。用户已确认最终版业务规则与界面方向，设计和验收入口已同步。当前应用的登录、项目与用例目录已有联调证据；确认版本、自动引用与双版本核对仍属于目标能力。[立项缘由](docs/PROJECT_BLUEPRINT.md) · [当前工程交接](.memory/CURRENT.md)。
 
 ## 本地一键启动（推荐）
 
@@ -18,7 +16,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1
 
 首次自动生成随机凭据到本机 `.env`，构建并启动 MySQL、Redis、Qdrant、Java、AI、Web 六个服务，等待就绪并运行冒烟检查。已有 `.env` 保留；此方式无需在宿主机安装 Java、Node、Python 或运行 setup。首次构建需要联网下载镜像与依赖，可能耗时数分钟。
 
-成功后打开 [本地系统](http://127.0.0.1:8088)。重新构建后进入登录页面，登录后可查看工作台概览、当前账户与服务连接。知识库和测试用例入口仅显示待开放说明。
+成功后打开 [本地系统](http://127.0.0.1:8088)。此入口运行实际应用。上面的设计样稿可在浏览器直接打开，查看最终版目标界面。
 
 ```powershell
 # 查看状态 / 持续查看日志（Ctrl+C 退出日志，服务继续运行）
@@ -37,7 +35,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 start -S
 ```text
 apps/web/           Vue 3 + TypeScript，浏览器只访问 Java 入口
 apps/server/        Java 21 + Spring Boot，业务、身份、授权、审计
-apps/ai-service/    Python 3.12 + FastAPI，后续承载 RAG 和 Agent
+apps/ai-service/    Python 3.12 + FastAPI，静态解析、知识索引及后续回答编排
 infra/nginx/        统一入口及 SSE 代理配置
 scripts/           PowerShell 开发、检查与冒烟入口
 docs/              架构、契约、数据草图、ADR、里程碑

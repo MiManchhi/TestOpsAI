@@ -1,0 +1,326 @@
+{
+  "myProjects": {
+    "provider": "project.ProjectV3Controller#myProjects",
+    "consumer": "projects/api",
+    "work": "S2/W1",
+    "accept": "J1"
+  },
+  "readProject": {
+    "provider": "project.ProjectV3Controller#readProject",
+    "consumer": "projects/api",
+    "work": "S2/W1",
+    "accept": "J1"
+  },
+  "editProject": {
+    "provider": "project.ProjectV3Controller#editProject",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "platformProjects": {
+    "provider": "project.PlatformProjectController#platformProjects",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "platformCreate": {
+    "provider": "project.PlatformProjectController#platformCreate",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "platformDetail": {
+    "provider": "project.PlatformProjectController#platformDetail",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "platformUsers": {
+    "provider": "project.PlatformProjectController#platformUsers",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "eligibleOwners": {
+    "provider": "project.PlatformProjectController#eligibleOwners",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "memberCandidates": {
+    "provider": "project.ProjectMemberController#memberCandidates",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "projectMembers": {
+    "provider": "project.ProjectMemberController#projectMembers",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "saveMember": {
+    "provider": "project.ProjectMemberController#saveMember",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "removeMember": {
+    "provider": "project.ProjectMemberController#removeMember",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "requestOwnerTransfer": {
+    "provider": "project.OwnerTransferController#requestOwnerTransfer",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "ownerTransferHistory": {
+    "provider": "project.OwnerTransferController#ownerTransferHistory",
+    "consumer": "projects/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "adminTransferHistory": {
+    "provider": "project.PlatformTransferController#adminTransferHistory",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "decideOwnerTransfer": {
+    "provider": "project.PlatformTransferController#decideOwnerTransfer",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "proxyOwnerTransfer": {
+    "provider": "project.PlatformTransferController#proxyOwnerTransfer",
+    "consumer": "projects/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "myAccount": {
+    "provider": "identity.AccountController#myAccount",
+    "consumer": "auth/api",
+    "work": "S2/W1",
+    "accept": "J1"
+  },
+  "changePassword": {
+    "provider": "identity.AccountController#changePassword",
+    "consumer": "auth/api",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "listAccounts": {
+    "provider": "identity.PlatformAccountController#listAccounts",
+    "consumer": "auth/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "createAccount": {
+    "provider": "identity.PlatformAccountController#createAccount",
+    "consumer": "auth/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "setAccountStatus": {
+    "provider": "identity.PlatformAccountController#setAccountStatus",
+    "consumer": "auth/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "resetPassword": {
+    "provider": "identity.PlatformAccountController#resetPassword",
+    "consumer": "auth/platformApi",
+    "work": "S2/W3",
+    "accept": "J1"
+  },
+  "uploadPrivateFile": {
+    "provider": "knowledge.AttachmentController#uploadPrivateFile",
+    "consumer": "knowledge/attachments",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "submitVersion": {
+    "provider": "knowledge.DocumentVersionController#submitVersion",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "findDocuments": {
+    "provider": "knowledge.DocumentVersionController#findDocuments",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "listVersions": {
+    "provider": "knowledge.DocumentVersionController#listVersions",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "getVersion": {
+    "provider": "knowledge.DocumentVersionController#getVersion",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "readVersion": {
+    "provider": "knowledge.DocumentVersionController#readVersion",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "downloadOriginalVersion": {
+    "provider": "knowledge.DocumentVersionController#downloadOriginalVersion",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "reviewVersion": {
+    "provider": "knowledge.DocumentVersionController#reviewVersion",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "retryIndex": {
+    "provider": "knowledge.DocumentVersionController#retryIndex",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J2"
+  },
+  "getReaders": {
+    "provider": "knowledge.DocumentAccessController#getReaders",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J3"
+  },
+  "setReaders": {
+    "provider": "knowledge.DocumentAccessController#setReaders",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J3"
+  },
+  "listBases": {
+    "provider": "knowledge.AcceptanceBasisController#listBases",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J3/J5"
+  },
+  "setBasis": {
+    "provider": "knowledge.AcceptanceBasisController#setBasis",
+    "consumer": "knowledge/api",
+    "work": "S3/W4",
+    "accept": "J3/J5"
+  },
+  "registerRun": {
+    "provider": "runs.RunController#registerRun",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "listProjectRuns": {
+    "provider": "runs.RunController#listProjectRuns",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "runDetails": {
+    "provider": "runs.RunController#runDetails",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "getResults": {
+    "provider": "runs.RunController#getResults",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "getLogLines": {
+    "provider": "runs.RunArtifactController#getLogLines",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "listRunArtifactsV3": {
+    "provider": "runs.RunArtifactController#listRunArtifactsV3",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "downloadArtifact": {
+    "provider": "runs.RunArtifactController#downloadArtifact",
+    "consumer": "runs/api",
+    "work": "S4/W5",
+    "accept": "J4"
+  },
+  "platformJobs": {
+    "provider": "project.PlatformJobController#platformJobs",
+    "consumer": "projects/platformApi",
+    "work": "S4/W2",
+    "accept": "J2/J4"
+  },
+  "myHistory": {
+    "provider": "assistant.ConversationController#myHistory",
+    "consumer": "assistant/api",
+    "work": "S5/W6",
+    "accept": "J5/J6"
+  },
+  "myMessages": {
+    "provider": "assistant.ConversationController#myMessages",
+    "consumer": "assistant/api",
+    "work": "S5/W6",
+    "accept": "J5/J6"
+  },
+  "startTurn": {
+    "provider": "assistant.ConversationController#startTurn",
+    "consumer": "assistant/api",
+    "work": "S5/W6",
+    "accept": "J5/J6"
+  },
+  "getMyTurn": {
+    "provider": "assistant.ConversationController#getMyTurn",
+    "consumer": "assistant/api",
+    "work": "S5/W6",
+    "accept": "J5/J6"
+  },
+  "stopTurn": {
+    "provider": "assistant.ConversationController#stopTurn",
+    "consumer": "assistant/api",
+    "work": "S5/W6",
+    "accept": "J5/J6"
+  },
+  "watchTurn": {
+    "provider": "assistant.TurnStreamController#watchTurn",
+    "consumer": "assistant/stream",
+    "work": "S5/W6",
+    "accept": "J5/J7"
+  },
+  "readCitation": {
+    "provider": "assistant.CitationController#readCitation",
+    "consumer": "assistant/api",
+    "work": "S6/W7",
+    "accept": "J3/J5"
+  },
+  "resolveEvidence": {
+    "provider": "assistant.EvidenceController#resolveEvidence",
+    "consumer": "answers/EvidenceClient",
+    "work": "S6/A4",
+    "accept": "J5"
+  },
+  "composeAnswer": {
+    "provider": "answers/router#composeAnswer",
+    "consumer": "assistant/AnswerClient",
+    "work": "S6/A4",
+    "accept": "J5/J6"
+  },
+  "exportIndexBlocks": {
+    "provider": "ingestion/router#exportIndexBlocks",
+    "consumer": "knowledge/IndexClient",
+    "work": "S3/A3",
+    "accept": "J2"
+  }
+}

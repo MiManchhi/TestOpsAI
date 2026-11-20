@@ -8,10 +8,20 @@
 
 <!-- lane:integration -->
 
+- WORKSPACE-BLUEPRINT-RELEASE-001（2026-11-20）：[蓝图交付检查与开工交接](sessions/2026-11-20-01-workspace-blueprint-release.md)。后续按[总计划](../docs/ROADMAP.md)完成 G1–G5，以 J1–J7 的真实验收为准。
+
+- WORKSPACE-DECISIONS-001（2026-11-19）：VERIFIED（设计资产，验证范围见本轮交接）。六项集中评审决定已并入[产品蓝图](../docs/PRODUCT_DESIGN.md)、[总计划](../docs/ROADMAP.md)、三端详细执行计划及[联合验收](../docs/development/PARALLEL_DEVELOPMENT.md)。设计验证与未运行的真实链路见[定稿交接](sessions/2026-11-19-06-workspace-decisions.md)。业务实现 PLANNED。
+
 - DEBUG-V2-PROJECTS-001：VERIFIED（2026-11-18）。按用户决定改后端对齐冻结契约：`GET /api/v2/projects` 返回 `{items,total,page,size}`，支持 page/size 与 400 校验；`description` null 归一为空串。真实 MySQL 下 ProjectApiTest 11/11 通过；同源 ajv 校验 12 条 item 全部合规；浏览器登录后概览页正常显示当前项目。仍未实现：`/api/v2/projects/{id}/test-suites`、`/test-cases`、`/overview` 返回 404，Robot 用例页因此不可用。见 [session](sessions/2026-11-18-09-web-blank-csp-debug.md)。未提交。
 - DEBUG-WEB-CSP-001：VERIFIED（2026-11-18，只调试）。白屏根因为 CSP `script-src 'self'` 阻断 Ajv 运行期 `new Function` 编译，抛 EvalError 导致 Vue 未挂载；已在 infra/nginx/default.conf 放开 `'unsafe-eval'` 并重建 web，CDP 复核 `/login` 正常渲染、浏览器内 admin 登录可进入 `/overview`。同时修复 smoke.ps1 的 docker ps JSON 解析（UTF-8 解码 + 数组/逐行兼容），`local.ps1 start -SkipBuild` 在 PowerShell 5.1 下退出 0。**未修复**：`GET /api/v2/projects` 返回裸数组与 `ProjectPage` 契约不符，概览页显示「无法读取项目」，属契约级变更待决策。未提交。见 [session](sessions/2026-11-18-09-web-blank-csp-debug.md)。
 
 ## 集成
+
+- ASSISTANT-CHAT-PLAN-001 与 WORKSPACE-BLUEPRINT-001 为本轮前的设计过程，交互与实施现以 WORKSPACE-DECISIONS-001 为准。
+
+- THREE-TIER-INTEGRATION-001：VERIFIED（2026-11-19，本地已实现链路）。基线 `039c831` 加未提交的 Java 搜索修复，六服务 healthy，V8 已在本机应用；真实浏览器登录、项目、套件与用例筛选详情通过。隔离 MySQL/Redis 上完整门禁退出 0，Web 94 项、Java 65 项无跳过，AI 115 项通过、2 项外部验收跳过，真实 Qdrant HTTP 另验通过。BLOCKED（三端业务闭环）：缺 Java 导入与对象授权等接口，Compose 未启用 AI 解析和索引配置，详见 [联调交接](sessions/2026-11-19-03-three-tier-integration.md)。
+
+- DEV-BRANCHES-MAIN-SYNC-001：VERIFIED（2026-11-19，本地反向同步）。Server、Web、AI 三个工作区已快进至 `main` 的 `039c831`，工作区均干净。远端开发分支尚未推送，见 [同步交接](sessions/2026-11-19-02-dev-branches-main-sync.md)。随后用户允许联调，结果见上条。
 
 - AI-INGESTION-MERGE-001：VERIFIED（2026-11-19，Git 提交/合并/发布）。AI 功能 54eb59d 已无冲突合入最新 main 6fd6df8，合并提交 3399234 已普通推送 main，AI 分支也已正常推送。保留 Java/Web/学习成果，按用户“直接执行”要求未重复业务测试或等待 CI；真实服务验收限制不变，见 [发布交接](sessions/2026-11-19-01-ai-ingestion-merge.md)。
 
