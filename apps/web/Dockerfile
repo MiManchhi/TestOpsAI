@@ -5,7 +5,7 @@ COPY package.json package-lock.json .npmrc ./
 COPY apps/web/package.json apps/web/package.json
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY apps/web apps/web
-COPY docs/contracts/schemas.json docs/contracts/examples.json docs/contracts/
+COPY docs/contracts/schemas.json docs/contracts/examples.json docs/contracts/workspace.openapi.json docs/contracts/
 RUN npm run build
 
 FROM nginx:1.28.0-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284
