@@ -23,6 +23,7 @@ onMounted(() => mobileViewport.addEventListener('change', handleViewportChange))
 onMounted(() => {
   void projects.load(route.query.projectId);
 });
+const platformAdmin = computed(() => auth.state.user?.roles.includes('ADMIN') ?? false);
 const navigation = [
   { path: '/overview', label: '工作台', icon: 'grid', enabled: true },
   { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: true },
@@ -35,7 +36,8 @@ watch(
   () => projects.state.selectedId,
   (id, previous) => {
     caseCatalog.setProject(id);
-    if (!id) return;
+    if (!id || route.meta.platform || route.path === '/projects' || route.path.startsWith('/p/'))
+      return;
     const changedProject =
       Boolean(previous) ||
       (typeof route.query.projectId === 'string' && route.query.projectId !== id);
@@ -153,7 +155,16 @@ function logout() {
       </div>
       <p class="sidebar-caption">智能电表测试协作</p>
       <nav aria-label="主导航">
-        <template v-for="item in navigation" :key="item.path">
+        <RouterLink to="/projects" class="nav-item" @click="setMenu(false)">我的项目</RouterLink>
+        <template v-if="platformAdmin">
+          <RouterLink to="/platform/projects" class="nav-item" @click="setMenu(false)"
+            >平台项目</RouterLink
+          >
+          <RouterLink to="/platform/accounts" class="nav-item" @click="setMenu(false)"
+            >平台账号</RouterLink
+          >
+        </template>
+        <template v-for="item in route.meta.platform ? [] : navigation" :key="item.path">
           <RouterLink
             v-if="item.enabled"
             :to="{ path: item.path, query: projectQuery }"

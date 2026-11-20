@@ -1,6 +1,11 @@
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router';
 import LoginPage from '../features/auth/LoginPage.vue';
 import { auth, type AuthSession } from '../features/auth/session';
+const PlatformAccountsPage = () => import('../features/auth/PlatformAccountsPage.vue');
+const WorkspaceProjectsPage = () => import('../features/projects/WorkspaceProjectsPage.vue');
+const WorkspaceProjectSettingsPage = () =>
+  import('../features/projects/WorkspaceProjectSettingsPage.vue');
+const PasswordPage = () => import('../features/auth/PasswordPage.vue');
 const WorkspaceLayout = () => import('../features/workspace/WorkspaceLayout.vue');
 const OverviewPage = () => import('../features/workspace/OverviewPage.vue');
 const KnowledgePage = () => import('../features/knowledge/KnowledgePage.vue');
@@ -25,6 +30,10 @@ const destinations = [
   '/assistant',
   '/settings/project',
   '/settings/account',
+  '/projects',
+  '/platform/accounts',
+  '/platform/projects',
+  '/account/password',
 ];
 export function safeDestination(value: unknown): string {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//'))
@@ -34,6 +43,8 @@ export function safeDestination(value: unknown): string {
     if (
       url.origin !== 'https://testops.invalid' ||
       (!destinations.includes(url.pathname) &&
+        !/^\/platform\/projects\/[1-9][0-9]{0,18}$/.test(url.pathname) &&
+        !/^\/p\/[1-9][0-9]{0,18}\/settings\/members$/.test(url.pathname) &&
         !/^\/(test-cases|runs)\/[1-9][0-9]{0,18}$/.test(url.pathname) &&
         !/^\/knowledge\/[1-9][0-9]{0,18}(\/documents\/[1-9][0-9]{0,18})?$/.test(url.pathname) &&
         !/^\/(assistant|drafts)\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
@@ -76,12 +87,42 @@ export function createAppRouter(
   const router = createRouter({
     history,
     routes: [
+      { path: '/account/password', component: PasswordPage, meta: { title: '修改密码' } },
       { path: '/login', component: LoginPage, meta: { title: '登录' } },
       {
         path: '/',
         component: WorkspaceLayout,
         children: [
           { path: '', redirect: '/overview' },
+          {
+            path: 'projects',
+            component: WorkspaceProjectsPage,
+            props: { platform: false },
+            meta: { title: '我的项目' },
+          },
+          {
+            path: 'platform/accounts',
+            component: PlatformAccountsPage,
+            meta: { title: '平台账号', platform: true },
+          },
+          {
+            path: 'platform/projects',
+            component: WorkspaceProjectsPage,
+            props: { platform: true },
+            meta: { title: '平台项目', platform: true },
+          },
+          {
+            path: 'platform/projects/:projectId',
+            component: WorkspaceProjectSettingsPage,
+            props: { platform: true },
+            meta: { title: '平台项目详情', platform: true },
+          },
+          {
+            path: 'p/:projectId/settings/members',
+            component: WorkspaceProjectSettingsPage,
+            props: { platform: false },
+            meta: { title: '项目管理' },
+          },
           { path: 'overview', component: OverviewPage, meta: { title: '工作台', project: true } },
           {
             path: 'knowledge',
@@ -139,8 +180,23 @@ export function createAppRouter(
   });
   router.beforeEach(async (to) => {
     await session.restore();
+    if (session.state.phase === 'password-change' && to.path !== '/account/password') {
+      const destination = to.path === '/login' ? to.query.redirect : to.fullPath;
+      return {
+        path: '/account/password',
+        query: { redirect: safeDestination(destination) },
+        replace: true,
+      };
+    }
     if (session.state.phase === 'anonymous' && to.path !== '/login') {
       return { path: '/login', query: { redirect: safeDestination(to.fullPath) }, replace: true };
+    }
+    if (
+      to.meta.platform &&
+      session.state.phase === 'authenticated' &&
+      !session.state.user?.roles.includes('ADMIN')
+    ) {
+      return { path: '/projects', replace: true };
     }
     if (session.state.phase !== 'anonymous' && to.path === '/login')
       return safeDestination(to.query.redirect);

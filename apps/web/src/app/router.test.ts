@@ -49,3 +49,40 @@ it('preserves a protected destination through login', async () => {
     session.logout();
   }
 });
+
+it('sends a temporary-password session to the standalone password page without exposing a business token', async () => {
+  const session = createAuthSession(null);
+  const router = createAppRouter(session, createMemoryHistory());
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(Response.json({ accessToken: 'temporary-token', expiresIn: 1800 }))
+    .mockResolvedValueOnce(Response.json({ code: 'PASSWORD_CHANGE_REQUIRED' }, { status: 403 }))
+    .mockResolvedValueOnce(Response.json({ mustChangePassword: true, enabled: true }))
+    .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  vi.stubGlobal('fetch', fetch);
+  try {
+    await session.signIn('engineer', 'temporary');
+    await router.push('/knowledge');
+    expect(router.currentRoute.value.path).toBe('/account/password');
+    expect(session.getAccessToken()).toBeNull();
+    await session.updatePassword(
+      'temporary',
+      'replacement',
+      'fixture-key',
+      new AbortController().signal,
+    );
+    expect(fetch).toHaveBeenLastCalledWith(
+      '/api/v3/account/password',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer temporary-token',
+          'Idempotency-Key': 'fixture-key',
+        }),
+      }),
+    );
+    expect(session.state.phase).toBe('anonymous');
+  } finally {
+    session.logout();
+  }
+});

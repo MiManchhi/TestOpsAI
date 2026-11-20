@@ -6,6 +6,7 @@ export class AuthError extends Error {
     message: string,
     public readonly status = 0,
     public readonly requestId = '',
+    public readonly code = '',
   ) {
     super(message);
     this.name = 'AuthError';
@@ -38,16 +39,20 @@ async function request(path: string, options: RequestInit, signal: AbortSignal):
       isRecord(body) && typeof body.requestId === 'string'
         ? body.requestId
         : (response.headers.get('X-Request-Id') ?? '');
+    const code = isRecord(body) && typeof body.code === 'string' ? body.code : '';
     const message =
-      response.status === 401
-        ? path.endsWith('/login')
-          ? '用户名或密码不正确，请重新输入。'
-          : '登录已过期，请重新登录。'
-        : response.status === 403
-          ? '你暂时没有访问此内容的权限。'
-          : '服务暂时不可用，请稍后重试。';
-    throw new AuthError(message, response.status, requestId);
+      code === 'PASSWORD_CHANGE_REQUIRED'
+        ? '请先修改临时密码。'
+        : response.status === 401
+          ? path.endsWith('/login')
+            ? '用户名或密码不正确，请重新输入。'
+            : '登录已过期，请重新登录。'
+          : response.status === 403
+            ? '你暂时没有访问此内容的权限。'
+            : '服务暂时不可用，请稍后重试。';
+    throw new AuthError(message, response.status, requestId, code);
   }
+  if (response.status === 204) return null;
   try {
     return await response.json();
   } catch {
@@ -104,4 +109,37 @@ export async function getCurrentUser(token: string, signal: AbortSignal): Promis
     throw new AuthError('服务响应格式异常，请稍后重试。');
   }
   return { id: body.id, username: body.username, roles: body.roles, createdAt: body.createdAt };
+}
+
+export async function confirmPasswordChangeRequired(token: string, signal: AbortSignal) {
+  const response = await request(
+    '/api/v3/account',
+    { headers: { Authorization: `Bearer ${token}` } },
+    signal,
+  );
+  if (!isRecord(response) || response.mustChangePassword !== true || response.enabled !== true) {
+    throw new AuthError('无法读取账户状态，请重试。');
+  }
+}
+
+export async function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+  key: string,
+  signal: AbortSignal,
+) {
+  await request(
+    '/api/v3/account/password',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Idempotency-Key': key,
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    },
+    signal,
+  );
 }

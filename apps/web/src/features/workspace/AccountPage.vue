@@ -29,6 +29,7 @@ import { auth } from '../auth/session';
         </div>
       </dl>
       <p class="muted">会话仅保存在当前标签页，关闭标签页后需要重新登录。</p>
+      <RouterLink class="button button-secondary" to="/account/password">修改密码</RouterLink>
       <button class="button button-secondary" @click="auth.logout('你已退出登录。')">
         退出登录
       </button>

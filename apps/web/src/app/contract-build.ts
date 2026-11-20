@@ -2,6 +2,7 @@
 import { createRequire } from 'node:module';
 import Ajv from 'ajv';
 import schema from '../../../../docs/contracts/schemas.json';
+import workspace from '../../../../docs/contracts/workspace.openapi.json';
 
 type Compiled = Ajv.ValidateFunction & { source: { code: string }; refVal: unknown[] };
 const names = [
@@ -58,9 +59,23 @@ const names = [
   'DraftCommitResult',
 ];
 
+const workspaceNames = [
+  'AccountPage',
+  'Account',
+  'ProjectPage',
+  'Project',
+  'UserPage',
+  'MembershipPage',
+  'Membership',
+  'HandoverPage',
+  'Handover',
+];
+const workspaceId = 'urn:testops:workspace-v2';
+
 export function buildContractValidators(): string {
   const ajv = new Ajv({ sourceCode: true, inlineRefs: false, allErrors: true, schemaId: 'auto' });
   ajv.addSchema(schema);
+  ajv.addSchema({ $id: workspaceId, components: workspace.components });
   const ids = new Map<unknown, number>();
   const chunks: string[] = [];
   function serialize(value: unknown): string {
@@ -89,6 +104,11 @@ export function buildContractValidators(): string {
     if (!validator) throw new Error(`Missing frozen schema: ${name}`);
     return `${JSON.stringify(name)}: ${serialize(validator)}`;
   });
+  for (const name of workspaceNames) {
+    const validator = ajv.getSchema(`${workspaceId}#/components/schemas/${name}`);
+    if (!validator) throw new Error(`Missing workspace schema: ${name}`);
+    exports.push(`${JSON.stringify(`Workspace${name}`)}: ${serialize(validator)}`);
+  }
   const require = createRequire(import.meta.url);
   const equal: unknown = require('fast-deep-equal');
   const length: unknown = require('ajv/lib/compile/ucs2length');

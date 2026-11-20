@@ -1,10 +1,17 @@
 import { readonly, reactive } from 'vue';
-import { AuthError, getCurrentUser, login, type CurrentUser } from './api';
+import {
+  AuthError,
+  changePassword,
+  confirmPasswordChangeRequired,
+  getCurrentUser,
+  login,
+  type CurrentUser,
+} from './api';
 
 export const SESSION_KEY = 'testops.auth.v1';
 type SessionStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 type Credentials = { accessToken: string; expiresAt: number };
-type Phase = 'anonymous' | 'checking' | 'authenticated' | 'unavailable';
+type Phase = 'anonymous' | 'checking' | 'authenticated' | 'password-change' | 'unavailable';
 
 function browserStorage(): SessionStorage | null {
   try {
@@ -83,12 +90,17 @@ export function createAuthSession(storage: SessionStorage | null = browserStorag
   async function verify(version: number, signal: AbortSignal) {
     if (!credentials) return;
     try {
-      const user = await getCurrentUser(credentials.accessToken, signal);
+      const token = credentials.accessToken;
+      const user = await getCurrentUser(token, signal).catch(async (error: unknown) => {
+        if (!(error instanceof AuthError) || error.code !== 'PASSWORD_CHANGE_REQUIRED') throw error;
+        await confirmPasswordChangeRequired(token, signal);
+        return null;
+      });
       if (generation !== version) return;
       checkExpiry();
       if (!credentials) return;
       state.user = user;
-      state.phase = 'authenticated';
+      state.phase = user === null ? 'password-change' : 'authenticated';
     } catch (error) {
       if (generation !== version) return;
       if (error instanceof AuthError && error.status === 401) {
@@ -176,7 +188,32 @@ export function createAuthSession(storage: SessionStorage | null = browserStorag
     return state.phase === 'authenticated' ? (credentials?.accessToken ?? null) : null;
   }
 
-  return { state: readonly(state), signIn, restore, retry, logout, checkExpiry, getAccessToken };
+  async function updatePassword(
+    currentPassword: string,
+    newPassword: string,
+    key: string,
+    signal: AbortSignal,
+  ) {
+    checkExpiry();
+    const token = credentials?.accessToken;
+    if (!token || (state.phase !== 'password-change' && state.phase !== 'authenticated')) {
+      throw new AuthError('登录已过期，请重新登录。', 401);
+    }
+    const version = generation;
+    await changePassword(token, currentPassword, newPassword, key, signal);
+    if (version === generation) logout('密码已修改，请重新登录。');
+  }
+
+  return {
+    state: readonly(state),
+    signIn,
+    restore,
+    retry,
+    logout,
+    checkExpiry,
+    getAccessToken,
+    updatePassword,
+  };
 }
 
 export type AuthSession = ReturnType<typeof createAuthSession>;
