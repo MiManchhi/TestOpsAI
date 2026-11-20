@@ -14,6 +14,7 @@ import io.testopsai.server.modules.project.ProjectNotFoundException;
 import io.testopsai.server.modules.testcase.InvalidSortFieldException;
 import io.testopsai.server.modules.testcase.TestCaseNotFoundException;
 import io.testopsai.server.platform.idempotency.IdempotencyConflictException;
+import io.testopsai.server.platform.web.WorkspaceFailure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -31,6 +32,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 class GlobalExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  @ExceptionHandler(WorkspaceFailure.class)
+  ResponseEntity<ErrorResponse> handleWorkspaceFailure(WorkspaceFailure ex) {
+    return ResponseEntity.status(ex.status())
+        .body(new ErrorResponse(ex.code(), ex.getMessage(), currentRequestId()));
+  }
 
   @ExceptionHandler(NoResourceFoundException.class)
   ResponseEntity<ErrorResponse> handleNotFound(NoResourceFoundException ex) {

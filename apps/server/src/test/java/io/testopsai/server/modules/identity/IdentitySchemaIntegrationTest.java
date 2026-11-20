@@ -13,8 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 @EnabledIfEnvironmentVariable(
     named = "MYSQL_PASSWORD",
     matches = ".+",
@@ -52,7 +54,6 @@ class IdentitySchemaIntegrationTest {
 
   @Test
   void usersEnforcesUniqueUsernameAndNotNullPasswordHash() {
-    jdbc.update("DELETE FROM user_roles");
     jdbc.update("DELETE FROM users WHERE username IN (?, ?)", "u_dup_1", "u_dup_2");
     jdbc.update(
         "INSERT INTO users(username, password_hash, created_at, updated_at) VALUES(?, ?, ?, ?)",
@@ -73,7 +74,6 @@ class IdentitySchemaIntegrationTest {
 
   @Test
   void rolesEnforcesUniqueRoleCode() {
-    jdbc.update("DELETE FROM user_roles");
     jdbc.update("DELETE FROM roles WHERE role_code IN (?, ?)", "r_dup_1", "r_dup_2");
     jdbc.update(
         "INSERT INTO roles(role_code, description, created_at, updated_at) VALUES(?, ?, ?, ?)",

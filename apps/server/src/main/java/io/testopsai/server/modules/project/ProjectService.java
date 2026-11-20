@@ -21,21 +21,18 @@ public class ProjectService {
 
   public PageResponse<ProjectResponse> listAuthorized(AppUser user, int page, int size) {
     PageResponse.validatePagination(page, size);
-    boolean isAdmin = user.roles().contains("ADMIN");
-    long total = repository.countAuthorizedProjects(user.id(), isAdmin);
+    long total = repository.countAuthorizedProjects(user.id());
     long offset = (long) page * size;
     List<Project> projects =
         total == 0 || offset >= total
             ? List.of()
-            : repository.findAuthorizedProjects(user.id(), isAdmin, size, offset);
+            : repository.findAuthorizedProjects(user.id(), size, offset);
     List<ProjectResponse> items =
         projects.stream()
             .map(
                 p -> {
                   String role =
-                      isAdmin
-                          ? "OWNER"
-                          : repository.getMemberRole(p.id(), user.id()).orElse("VIEWER");
+                      legacyRole(repository.getMemberRole(p.id(), user.id()).orElse("VIEWER"));
                   return ProjectResponse.from(p, role);
                 })
             .toList();
@@ -44,6 +41,7 @@ public class ProjectService {
 
   @Transactional
   public ProjectResponse create(CreateProjectRequest req, AppUser user) {
+    WorkspaceProjectService.requireAdmin(user);
     validateKey(req.key());
     if (repository.existsByKey(req.key())) {
       throw new ProjectKeyDuplicateException(req.key());
@@ -87,7 +85,8 @@ public class ProjectService {
             m -> {
               // Username lookup would need UserRepository; for now use userId as username
               // placeholder
-              return new MemberResponse(String.valueOf(m.userId()), "user-" + m.userId(), m.role());
+              return new MemberResponse(
+                  String.valueOf(m.userId()), "user-" + m.userId(), legacyRole(m.role()));
             })
         .toList();
   }
@@ -100,6 +99,9 @@ public class ProjectService {
     requireRole(projectId, user, "OWNER");
     if (!"EDITOR".equals(req.role()) && !"VIEWER".equals(req.role())) {
       throw new IllegalArgumentException("Role must be EDITOR or VIEWER");
+    }
+    if ("OWNER".equals(repository.getMemberRole(projectId, targetUserId).orElse(null))) {
+      throw new LastOwnerException(projectId);
     }
     repository.setMember(projectId, targetUserId, req.role());
   }
@@ -125,14 +127,13 @@ public class ProjectService {
   }
 
   public String resolveRole(Long projectId, AppUser user) {
-    if (user.roles().contains("ADMIN")) return "OWNER";
     return repository
         .getMemberRole(projectId, user.id())
+        .map(ProjectService::legacyRole)
         .orElseThrow(() -> new AccessDeniedException("Not a member of project " + projectId));
   }
 
   public void requireRole(Long projectId, AppUser user, String minRole) {
-    if (user.roles().contains("ADMIN")) return;
     String role =
         repository
             .getMemberRole(projectId, user.id())
@@ -144,17 +145,20 @@ public class ProjectService {
   }
 
   public void requireMembership(Long projectId, AppUser user) {
-    if (user.roles().contains("ADMIN")) return;
     if (!repository.isMember(projectId, user.id())) {
       throw new AccessDeniedException("Not a member of project " + projectId);
     }
+  }
+
+  private static String legacyRole(String role) {
+    return "TEST".equals(role) || "DEV".equals(role) ? "EDITOR" : role;
   }
 
   private boolean hasAtLeast(String role, String minRole) {
     int roleLevel =
         switch (role) {
           case "OWNER" -> 3;
-          case "EDITOR" -> 2;
+          case "EDITOR", "TEST", "DEV" -> 2;
           case "VIEWER" -> 1;
           default -> 0;
         };

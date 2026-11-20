@@ -54,6 +54,8 @@
 
 <!-- lane:server -->
 
+- WORKSPACE-G1-SERVER-001（2026-11-20）：VERIFIED（已实现接口及隔离数据层，67 项回归通过）。S1/S2 账号、项目、成员与负责人交接。见[本轮交接](sessions/2026-11-20-02-workspace-g1-server.md)。
+
 ## Java
 
 - M1.6 v2 用例目录：IMPLEMENTED（未提交）。V8 迁移（suites、project_test_cases、project_case_tags、case_selections、selection_items）与 modules/catalog 交付 listSuites、listTestCases、getTestCase、createTestCase、updateTestCase、createCaseSelection 六个契约操作；CaseFilter 同时服务 HTTP 与后续工具查询。详见 [M1.6 session](sessions/2026-11-18-10-m1-6-case-catalog.md)、[ADR-0009](../docs/ADR/0009-v2-case-catalog.md)。证据：mvn verify BUILD SUCCESS（64 项，59 项因无 MYSQL_PASSWORD/REDIS_PASSWORD 跳过）、Spotless/contracts/memory/layout/Prettier 通过；**真实数据库未复验**，V8 与 CaseCatalogApiTest 仍需 MySQL 环境执行。

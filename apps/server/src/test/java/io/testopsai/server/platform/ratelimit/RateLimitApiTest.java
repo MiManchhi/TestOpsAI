@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,7 +57,7 @@ class RateLimitApiTest {
   void loginWithinLimitSucceeds() throws Exception {
     var body = new LoginRequest("admin", "admin123");
     mvc.perform(
-            post("/api/v1/auth/login")
+            loginFrom("192.0.2.1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
         .andExpect(status().isOk())
@@ -69,18 +70,27 @@ class RateLimitApiTest {
     // Send 11 rapid requests (limit is 10/min)
     for (int i = 0; i < 10; i++) {
       mvc.perform(
-              post("/api/v1/auth/login")
+              loginFrom("192.0.2.2")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(body)))
-          .andReturn(); // Ignore individual results
+          .andExpect(status().isUnauthorized());
     }
     // 11th request should be rate limited
     mvc.perform(
-            post("/api/v1/auth/login")
+            loginFrom("192.0.2.2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
         .andExpect(status().isTooManyRequests())
         .andExpect(jsonPath("$.code").value("RATE_LIMITED"))
         .andExpect(header().exists("Retry-After"));
+  }
+
+  private MockHttpServletRequestBuilder loginFrom(String remoteAddress) {
+    return post("/api/v1/auth/login")
+        .with(
+            request -> {
+              request.setRemoteAddr(remoteAddress);
+              return request;
+            });
   }
 }

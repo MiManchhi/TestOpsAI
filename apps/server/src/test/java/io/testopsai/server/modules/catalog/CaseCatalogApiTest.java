@@ -186,13 +186,13 @@ class CaseCatalogApiTest {
   void filterByTagsUsesExactMatchWithAllDefault() throws Exception {
     JsonNode demo = demoProject();
     String id = demo.get("id").asText();
-    JsonNode smoke = listCases(id, "?tags=smoke&size=100");
+    JsonNode smoke = listCases(id, "?sourceType=ROBOT&tags=smoke&size=100");
     assertThat(smoke.get("total").asInt()).isEqualTo(2);
 
-    JsonNode any = listCases(id, "?tags=smoke,regression&tagsMatch=ANY&size=100");
+    JsonNode any = listCases(id, "?sourceType=ROBOT&tags=smoke,regression&tagsMatch=ANY&size=100");
     assertThat(any.get("total").asInt()).isEqualTo(6);
 
-    JsonNode all = listCases(id, "?tags=smoke,tariff&tagsMatch=ALL&size=100");
+    JsonNode all = listCases(id, "?sourceType=ROBOT&tags=smoke,tariff&tagsMatch=ALL&size=100");
     assertThat(all.get("total").asInt()).isEqualTo(2);
   }
 
@@ -204,6 +204,21 @@ class CaseCatalogApiTest {
     for (JsonNode item : page.get("items")) {
       assertThat(item.get("title").asText()).contains("掉电");
     }
+  }
+
+  @Test
+  void queryMatchesLikeWildcardsAndEscapeCharacterLiterally() throws Exception {
+    String projectId = createProject("LITERAL");
+    String matchingId = createManualCase(projectId, "Power!50%_Ramp", List.of());
+    createManualCase(projectId, "Power!50XARamp", List.of());
+
+    mvc.perform(
+            get("/api/v2/projects/{projectId}/test-cases", projectId)
+                .queryParam("query", "power!50%_ramp")
+                .header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.total").value(1))
+        .andExpect(jsonPath("$.items[0].id").value(matchingId));
   }
 
   @Test

@@ -242,14 +242,15 @@ class ProjectApiTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].role").value("OWNER"));
 
-    // Set member (user 1 = admin, set as EDITOR - but admin is already OWNER, this updates)
+    // The legacy endpoint also protects the only project owner.
     var setReq = new SetMemberRequest("EDITOR");
     mvc.perform(
             put("/api/v2/projects/" + id + "/members/1")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(setReq)))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("LAST_OWNER"));
   }
 
   @Test

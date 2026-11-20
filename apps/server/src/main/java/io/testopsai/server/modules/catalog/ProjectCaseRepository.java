@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -230,9 +231,9 @@ public class ProjectCaseRepository {
       params.add(filter.module());
     }
     if (filter.query() != null && !filter.query().isBlank()) {
-      String pattern = "%" + escapeLike(filter.query().toLowerCase()) + "%";
+      String pattern = "%" + escapeLike(filter.query().toLowerCase(Locale.ROOT)) + "%";
       sql.append(
-          " AND (LOWER(c.title) LIKE ? ESCAPE '\\' OR LOWER(c.documentation) LIKE ? ESCAPE '\\')");
+          " AND (LOWER(c.title) LIKE ? ESCAPE '!' OR LOWER(c.documentation) LIKE ? ESCAPE '!')");
       params.add(pattern);
       params.add(pattern);
     }
@@ -274,7 +275,7 @@ public class ProjectCaseRepository {
   }
 
   private String escapeLike(String value) {
-    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+    return value.replace("!", "!!").replace("%", "!%").replace("_", "!_");
   }
 
   private ProjectCase mapRow(ResultSet rs, int rowNum) throws SQLException {
