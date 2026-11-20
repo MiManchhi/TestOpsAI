@@ -94,6 +94,8 @@
 
 <!-- lane:ai -->
 
+- WORKSPACE-G1-AI-001（2026-11-20）：VERIFIED（A1 校验器与测试）。V2 委托范围、签名和操作绑定已验证，等待后续内部路由接入。见[本轮交接](sessions/2026-11-20-02-workspace-g1-ai.md)。
+
 ## AI
 
 - AI-INGESTION-001：VERIFIED（2026-11-19，本机自动与 HTTP 替身范围；起点 424f547，功能提交 54eb59d，已通过 3399234 合入 main）。已交付 Markdown/PDF 定位分块、SQLite 任务/幂等/恢复、三个索引接口、HTTP Embedding、Qdrant 发布/精确删除与可信 READY 受限检索核心；完整 scripts/check.ps1 退出 0，AI 115 passed/2 skipped（保留原 64 项回归），Web 59、Java 48 中 43 项 DB/Redis 跳过。独立 Uvicorn→HTTP 对象/Embedding 替身→解析子进程→本地 Qdrant 冒烟通过；真实 Qdrant HTTP/Embedding 缺显式 VERIFY 配置仍待验收，三端 smoke 因 Java 无数据库密码退出 1。Java READY/引用注册接入、正式回答与部署仍待后续；本批已提交、合入并普通推送 main，见 AI-INGESTION-MERGE-001。见 [本任务](sessions/2026-11-18-09-ai-ingestion.md) 与 [运行说明](../docs/development/AI_INGESTION.md)。
