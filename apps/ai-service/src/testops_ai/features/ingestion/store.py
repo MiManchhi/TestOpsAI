@@ -16,7 +16,7 @@ from filelock import FileLock, Timeout
 
 from testops_ai.features.robot_parser.errors import ParserError
 
-from .models import IndexJob, JobRecord, Manifest
+from .models import IndexJob, JobRecord, Manifest, SourceBlock
 
 MIGRATIONS = (
     """
@@ -31,6 +31,13 @@ MIGRATIONS = (
                             PRIMARY KEY(project, document, hash));
     CREATE TABLE profiles(name TEXT PRIMARY KEY, fingerprint TEXT NOT NULL);
     CREATE INDEX pending_jobs ON jobs(status, created);
+    """,
+    """
+    CREATE TABLE source_blocks(
+      generation TEXT NOT NULL REFERENCES manifests(generation) ON DELETE CASCADE,
+      ordinal INTEGER NOT NULL, locator TEXT NOT NULL, content TEXT NOT NULL,
+      PRIMARY KEY (generation, ordinal), UNIQUE(generation, locator)
+    );
     """,
 )
 
@@ -306,6 +313,23 @@ class JobStore:
                 manifest.model_dump_json(),
             ),
         )
+
+    def save_source_blocks(self, generation: str, blocks: list[SourceBlock]) -> None:
+        self.db.execute("DELETE FROM source_blocks WHERE generation=?", (generation,))
+        self.db.executemany(
+            "INSERT INTO source_blocks (generation,ordinal,locator,content) VALUES (?,?,?,?)",
+            ((generation, i, block.locator, block.text) for i, block in enumerate(blocks)),
+        )
+
+    def source_blocks(self, generation: str, offset: int, limit: int) -> list[SourceBlock]:
+        rows = self.db.execute(
+            """
+            SELECT locator,content FROM source_blocks WHERE generation=? AND ordinal>=?
+            ORDER BY ordinal LIMIT ?
+            """,
+            (generation, offset, limit),
+        )
+        return [SourceBlock(locator=locator, text=content) for locator, content in rows]
 
     def forget_manifest(self, generation: str) -> None:
         self.db.execute("DELETE FROM manifests WHERE generation=?", (generation,))

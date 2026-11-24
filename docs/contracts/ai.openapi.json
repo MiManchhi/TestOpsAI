@@ -2,305 +2,15 @@
   "openapi": "3.1.1",
   "jsonSchemaDialect": "http://json-schema.org/draft-07/schema#",
   "info": {
-    "title": "TestOps AI Java to Python API",
+    "title": "Robot 运行解析与知识索引",
     "version": "1.0.0",
-    "description": "Frozen development contract. New business operations are specified, not implemented. See README.md for runtime coverage."
+    "description": "Robot 运行解析与知识索引接口。"
   },
   "paths": {
-    "/internal/v1/ai/respond": {
-      "post": {
-        "operationId": "respond",
-        "summary": "基于授权上下文生成回答",
-        "x-implementation": "SPECIFIED",
-        "x-min-role": "VIEWER",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string"
-                },
-                "x-event-schema": {
-                  "$ref": "./schemas.json#/definitions/TurnEvent"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "415": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "./schemas.json#/definitions/RespondRequest"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "X-Delegation-Token",
-            "in": "header",
-            "required": true,
-            "description": "Opaque Java-issued callback capability; never forwarded to model. Bind to operationId.",
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 12000
-            }
-          }
-        ]
-      }
-    },
-    "/internal/v1/parsers/robot": {
-      "post": {
-        "operationId": "parseRobotCatalog",
-        "summary": "静态解析 Robot 定义，不运行关键字",
-        "x-implementation": "SPECIFIED",
-        "x-min-role": "VIEWER",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/RobotParseResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "413": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "415": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "See README error policy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "./schemas.json#/definitions/Error"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "./schemas.json#/definitions/RobotParseRequest"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "X-Delegation-Token",
-            "in": "header",
-            "required": true,
-            "description": "Opaque Java-issued callback capability; never forwarded to model. Bind to operationId.",
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 12000
-            }
-          }
-        ]
-      }
-    },
     "/internal/v1/parsers/robot-output": {
       "post": {
         "operationId": "parseRobotOutput",
         "summary": "解析受限 output.xml",
-        "x-implementation": "SPECIFIED",
         "x-min-role": "VIEWER",
         "responses": {
           "200": {
@@ -443,7 +153,6 @@
       "post": {
         "operationId": "indexDocument",
         "summary": "幂等启动文档索引",
-        "x-implementation": "SPECIFIED",
         "x-min-role": "VIEWER",
         "responses": {
           "202": {
@@ -595,7 +304,6 @@
       "get": {
         "operationId": "getIndexJob",
         "summary": "索引/删除任务状态",
-        "x-implementation": "SPECIFIED",
         "x-min-role": "VIEWER",
         "responses": {
           "200": {
@@ -725,7 +433,6 @@
       "post": {
         "operationId": "deleteIndex",
         "summary": "按精确版本删除索引",
-        "x-implementation": "SPECIFIED",
         "x-min-role": "VIEWER",
         "responses": {
           "202": {

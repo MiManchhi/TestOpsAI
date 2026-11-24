@@ -46,23 +46,6 @@ class ObjectRef(ContractModel):
         return value
 
 
-class RobotParseRequest(ContractModel):
-    operation_id: Uuid
-    files: Annotated[list[ObjectRef], Field(min_length=1, max_length=200)]
-    project_key: Annotated[str, Field(max_length=64)]
-    mode: Literal["FULL_SNAPSHOT"]
-
-    _uuid = field_validator("operation_id")(check_uuid)
-
-    @model_validator(mode="after")
-    def unique_files(self) -> "RobotParseRequest":
-        if len({f.logical_path for f in self.files}) != len(self.files):
-            raise ValueError("Duplicate logical paths")
-        if len({f.object_id for f in self.files}) != len(self.files):
-            raise ValueError("Duplicate object identifiers")
-        return self
-
-
 class ResultParseRequest(ContractModel):
     operation_id: Uuid
     object: ObjectRef

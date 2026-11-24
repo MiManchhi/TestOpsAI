@@ -1,6 +1,6 @@
 # AI 知识文档索引与受限检索
 
-更新：2026-11-19。状态：VERIFIED（本机自动/HTTP 替身范围；真实外部服务待验收）；验证版本、命令与限制见 [任务 session](../../.memory/sessions/2026-11-18-09-ai-ingestion.md)。接口遵守 [现有内部 v1 契约](../contracts/ai.openapi.json)，不新增公共 DTO 或查询 HTTP 路由。
+Java 在负责人批准资料后调用 Python 的[内部索引接口](../contracts/ai.openapi.json)。Python 从授权原件抽取可定位的文本块，将向量写入 Qdrant。模型设置见[本机启动指南](../../README.md#配置自己的模型)，真实 Qdrant 回归与待验收的外部向量服务见[AI 交接](../../.memory/sessions/2026-11-20-07-workspace-conversation-ai.md)。
 
 ## 接口与身份
 
@@ -51,7 +51,7 @@ Embedding profile 配置示意（运行时 JSON，密钥另由安全运行环境
 
 ## 处理与恢复语义
 
-- parserVersion 固定支持 `knowledge-v1`。Markdown 2 MiB、PDF 20 MiB；PDF 只提取文字，最多 500 页、提取文本 4 MiB，扫描/空白页返回 OCR_REQUIRED，加密和损坏内容失败，不执行 OCR、脚本或外部资源。Markdown 仅保留文本，不执行 HTML/代码块。
+- 兼容解析使用 `knowledge-v1`。Markdown 2 MiB、PDF 20 MiB；PDF 只提取文字，最多 500 页、提取文本 4 MiB，扫描/空白页返回 OCR_REQUIRED，加密和损坏内容失败，不执行 OCR、脚本或外部资源。Markdown 仅保留文本，不执行 HTML/代码块。
 - PDF 在可终止子进程内解析，最长 30 秒；单个流解码上限 8 MiB、累计页面内容流上限 16 MiB，另限制解码工作量、容器元素与页树深度。压缩内容超预算明确失败，不因提取结果很短而放任解压；不调用外部 JBIG2 程序。
 - 分块上限 1000 字符、优先段落边界、重叠 100 字符；PDF 不跨页，Markdown 保留原文行号与标题，标题超过 256 字符明确失败。每文档最多 10000 块，块 ID 由解析版本、原字节 hash、页/偏移与片段内容确定。PDF 缺少 Markdown 式标题时 heading 为空，不冒充 Java 文档标题。
 - `QUEUED → PROCESSING → SUCCEEDED/FAILED/CANCELLED`；stage 为 PARSING/CHUNKING/EMBEDDING/CLEANUP/FINISHED，表示实际处理检查点，不是百分比。SQLite 独占锁阻止第二实例；启动把未完成 PROCESSING 恢复为 QUEUED，复用已校验输入并以确定性向量 ID 重建，不重新获取用户 token。
@@ -62,6 +62,10 @@ Embedding profile 配置示意（运行时 JSON，密钥另由安全运行环境
 - 删除按项目/文档/hash 清除所有 generation；已使用 profile 名保留在 SQLite，后续删除即使没有活动清单也会检查这些 collection，清除超时后晚到的残留写入。物理服务迁移和配置变更须保留原集合可达性。
 
 主要错误：400 请求/幂等键不合法；401 无效服务或委托身份；403 范围不符；404 不可见任务；409 幂等冲突/版本已删除；413 文档/暂存额度超限；415 格式不支持；422 解析或版本校验失败；429 队列已满；503 配置/向量/Embedding 不可用。统一 code/message/requestId，任务错误同样脱敏。
+
+## 工作台解析与原文回写
+
+工作台批准后提交 `knowledge-v2`。Markdown 按原始行编号，文本 PDF 按原始页编号，DOCX 按正文段落编号（含表格单元格）。Word 仅提取文档 XML，拒绝外部实体并限制 ZIP 目录、展开大小和输出。新版本对没有任何可提取文本的资料返回 `NO_TEXT`。索引成功后，Java 以绑定作业、项目、版本和 SHA-256 的内部委托请求原文块，完整回写后才把业务版本置为 READY。V1 调用原有返回行为。
 
 ## 受限检索核心
 

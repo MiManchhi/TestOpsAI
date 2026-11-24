@@ -1,59 +1,14 @@
-# 数据设计草图
+# 工作台持久化
 
-> 本页记录已经执行的 V1–V8 迁移。后续设计、兼容映射及回滚边界见[最终版数据模型](DOMAIN_MODEL.md)。
+[领域模型](DOMAIN_MODEL.md)定义项目、验收依据、运行与会话的关联。[Flyway 迁移](../apps/server/src/main/resources/db/migration)是实际物理结构的来源。已有数据库按版本升级，应用启动期间保留原有数据。
 
-更新：2026-11-18。状态：IMPLEMENTED（V1–V7 迁移已落地：身份基线、种子角色/管理员、业务元数据、项目隔离、种子数据修正）。
+| 任务       | 主要记录                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 账号和项目 | users、roles、user_roles、projects、project_members                                                                                  |
+| 成员与交接 | workspace_owner_transfer、workspace_audit_event、workspace_command_receipt                                                           |
+| 项目知识   | workspace_attachment、workspace_document、workspace_doc_reader、workspace_doc_version、workspace_document_block、workspace_index_job |
+| 验收依据   | workspace_basis、workspace_basis_version                                                                                             |
+| 复测与证据 | workspace_run、workspace_run_artifact、workspace_run_result                                                                          |
+| 私有对话   | workspace_chat、workspace_chat_turn、workspace_chat_turn_file、workspace_chat_citation                                               |
 
-## M1.1 已实现：身份基线
-
-- 迁移脚本：`apps/server/src/main/resources/db/migration/V1__identity_baseline.sql`
-- 主键：BIGINT 自增；时间：DATETIME(6) UTC；字符集：utf8mb4_unicode_ci。
-- 仅包含 `users`、`roles`、`user_roles` 三表及必要唯一/外键约束；无软删除、版本号、业务字段。
-- V2 迁移：种子角色 ADMIN/USER + 演示管理员 admin（bcrypt 哈希）。
-- V3 迁移：修正 admin 密码哈希为 admin123 的有效 bcrypt 值。
-- 集成测试覆盖表存在、唯一约束、外键约束、登录成功/失败、token 有效/无效、401/403 结构化 body；证据见 [.memory/sessions/2026-11-17-06-m1-1-data-baseline.md](../.memory/sessions/2026-11-17-06-m1-1-data-baseline.md)。
-
-| 表         | 关键字段与约束                                                                                                               | 备注                         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| users      | id BIGINT PK AUTO_INCREMENT, username VARCHAR(64) UNIQUE NOT NULL, password_hash NOT NULL, created_at/updated_at DATETIME(6) | M1.2 认证使用；密码仅存哈希  |
-| roles      | id BIGINT PK AUTO_INCREMENT, role_code VARCHAR(64) UNIQUE NOT NULL, description, created_at/updated_at DATETIME(6)           | 角色码稳定标识，描述可选     |
-| user_roles | user_id BIGINT FK→users, role_id BIGINT FK→roles, created_at DATETIME(6), PK(user_id, role_id)                               | 级联删除；同一用户角色不重复 |
-
-## M1.3 已实现：业务元数据
-
-## M1.5 已实现：项目隔离
-
-- 迁移脚本：`apps/server/src/main/resources/db/migration/V6__project_isolation.sql`
-- 新增两表：projects、project_members；CHECK 约束 role IN ('OWNER','EDITOR','VIEWER')。
-- 种子 DEMO 项目绑定 admin 用户（通过 username 子查询，不硬编码 id）。
-
-## V7 修正：种子数据 owner_id
-
-- 迁移脚本：`apps/server/src/main/resources/db/migration/V7__fix_seed_data_owner.sql`
-- 修正 V5 种子数据中 owner_id=1 硬编码问题：当 admin 用户 id≠1 时，重新绑定到实际 admin 用户。
-
-- 迁移脚本：`apps/server/src/main/resources/db/migration/V5__business_metadata.sql`
-- 新增三表：knowledge_bases、kb_members、test_cases；种子数据绑定 admin 用户（id=1）。
-- DELETE 语义为 status=ARCHIVED，不引入额外软删除字段。
-- tags 使用逗号分隔 VARCHAR(512)，MVP 足够；后续可拆独立标签表。
-- visibility 枚举字符串 PRIVATE/SHARED/PUBLIC；简单明确，后续可扩展。
-
-| 表              | 关键字段与约束                                                                                                                                                               | 备注                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| knowledge_bases | id BIGINT PK, name VARCHAR(128), description VARCHAR(512), owner_id FK→users, visibility VARCHAR(16), status VARCHAR(16), UQ(owner_id, name)                                 | 知识库归属与可见性      |
-| kb_members      | kb_id FK→knowledge_bases, user_id FK→users, access_level VARCHAR(16), PK(kb_id, user_id), CASCADE                                                                            | SHARED 模式下的共享授权 |
-| test_cases      | id BIGINT PK, project_key VARCHAR(64), module VARCHAR(128), title VARCHAR(256), tags VARCHAR(512), priority VARCHAR(16), owner_id FK→users, IDX(project_key, module, status) | 自建模拟测试用例        |
-
-## M1.6 已实现：v2 用例目录
-
-- 迁移脚本：`apps/server/src/main/resources/db/migration/V8__project_case_catalog.sql`
-- v1 `test_cases`（owner_id + 逗号标签）保持原语义；v2 使用独立表，避免同名冲突，详见 [ADR-0009](ADR/0009-v2-case-catalog.md)。
-- 演示套件与 6 条自造 ROBOT 用例绑定 DEMO 项目，字段与 `docs/contracts/examples.json` 对齐。
-
-| 表                 | 关键字段与约束                                                                                                                                     | 备注                                   |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| suites             | id PK, project_id FK→projects, parent_id FK→suites, name, source_path, revision CHAR(64), UQ(project_id, source_path, revision)                    | Robot 套件树                           |
-| project_test_cases | id PK, project_id FK, suite_id FK NULL, stable_key, title, module, priority, lifecycle_status, source_type, source_* 快照, steps_json, version INT | UQ(project_id, stable_key)；版本乐观锁 |
-| project_case_tags  | PK(case_id, tag), case_id FK→project_test_cases CASCADE                                                                                            | 精确标签索引                           |
-| case_selections    | id CHAR(36) PK, project_id FK, created_by FK→users, selection_mode, case_count, digest, filter_json, expires_at                                    | 不可变选择快照，24 小时有效            |
-| selection_items    | PK(selection_id, case_id), case_version INT                                                                                                        | 固化 caseId + version 集合             |
+文件字节保存在 Java 原件卷。向量库中的位置标识与 MySQL 内记录的获准文档版本、内容哈希、段落位置配合使用。读取受限历史和原件时按当前权限检查。登录限流计数存于 Redis。

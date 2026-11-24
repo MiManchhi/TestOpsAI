@@ -5,7 +5,6 @@ import { auth } from '../auth/session';
   <div>
     <div class="page-heading-row">
       <div>
-        <p class="section-kicker">ACCOUNT / 账户</p>
         <h1 data-page-heading tabindex="-1">我的账户</h1>
         <p class="muted">当前标签页的登录身份。</p>
       </div>
@@ -15,7 +14,7 @@ import { auth } from '../auth/session';
       <dl class="metadata-list">
         <div>
           <dt>账户角色</dt>
-          <dd>{{ auth.state.user?.roles.join('、') || '无角色' }}</dd>
+          <dd>{{ auth.state.user?.roles.includes('ADMIN') ? '平台管理员' : '项目成员' }}</dd>
         </div>
         <div>
           <dt>创建时间</dt>
@@ -29,6 +28,8 @@ import { auth } from '../auth/session';
         </div>
       </dl>
       <p class="muted">会话仅保存在当前标签页，关闭标签页后需要重新登录。</p>
+      <RouterLink class="button button-secondary" to="/projects">我的项目</RouterLink>
+      <RouterLink class="button button-secondary" to="/account/password">修改密码</RouterLink>
       <button class="button button-secondary" @click="auth.logout('你已退出登录。')">
         退出登录
       </button>

@@ -14,6 +14,7 @@ RUN groupadd --system app && useradd --system --gid app app
 WORKDIR /app
 COPY --from=build --chown=app:app /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN install -d -m 0700 -o app -g app /var/lib/testops/ingestion
 USER app
 EXPOSE 8000
 CMD ["uvicorn", "testops_ai.main:app", "--host", "0.0.0.0", "--port", "8000"]

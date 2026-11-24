@@ -64,19 +64,17 @@ export async function requestResponse(
           ? '你没有访问此项目或内容的权限，请切换项目或联系项目所有者。'
           : response.status === 404
             ? '请求的项目或内容不存在，或已不可访问。'
-            : code === 'SELECTION_TOO_LARGE'
-              ? '选择超过 1000 条，请缩小筛选范围。'
-              : response.status === 409
-                ? '数据或选择已发生变化，请重新读取后确认。'
-                : response.status === 413
-                  ? '上传文件超过大小限制，请缩小文件后重试。'
-                  : response.status === 415
-                    ? '不支持此文件类型，请检查文件格式。'
-                    : response.status === 400 || response.status === 422
-                      ? '请求内容不符合要求，请检查输入或文件后重试。'
-                      : response.status === 429
-                        ? '请求过于频繁，请稍后重试。'
-                        : '服务暂时不可用，请稍后重试。';
+            : response.status === 409
+              ? '数据已更新，请重新读取后确认。'
+              : response.status === 413
+                ? '上传文件超过大小限制，请缩小文件后重试。'
+                : response.status === 415
+                  ? '不支持此文件类型，请检查文件格式。'
+                  : response.status === 400 || response.status === 422
+                    ? '请求内容不符合要求，请检查输入或文件后重试。'
+                    : response.status === 429
+                      ? '请求过于频繁，请稍后重试。'
+                      : '服务暂时不可用，请稍后重试。';
     throw new ApiError(message, response.status, code, id);
   }
   return response;

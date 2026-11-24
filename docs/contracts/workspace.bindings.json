@@ -322,5 +322,11 @@
     "consumer": "knowledge/IndexClient",
     "work": "S3/A3",
     "accept": "J2"
+  },
+  "assistantStatus": {
+    "provider": "assistant.WorkspaceChatController#assistantStatus",
+    "consumer": "assistant/workspace-chat",
+    "work": "S5/W6",
+    "accept": "J5"
   }
 }

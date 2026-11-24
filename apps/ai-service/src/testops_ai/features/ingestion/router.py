@@ -8,10 +8,11 @@ from testops_ai.core.service_tokens import ServiceTokens
 from testops_ai.features.robot_parser.errors import ParserError
 from testops_ai.features.robot_parser.models import check_uuid
 
-from .models import IndexDelete, IndexJob, IndexRequest
+from .models import WORKSPACE_PARSER_VERSION, IndexBlockPage, IndexDelete, IndexJob, IndexRequest
 from .service import IngestionService
 
 router = APIRouter(prefix="/internal/v1")
+workspace_router = APIRouter(prefix="/internal/v2")
 
 
 def runtime(request: Request) -> tuple[ServiceTokens, IngestionService]:
@@ -80,3 +81,54 @@ async def get_job(request: Request, job_id: str) -> dict[str, object]:
     if identity.operation_id != record.public.operation_id:
         raise ParserError(404, "JOB_NOT_FOUND", "Index task is not available")
     return record.public.model_dump(by_alias=True)
+
+
+@workspace_router.get("/index-jobs/{job_id}/blocks", operation_id="exportIndexBlocks")
+async def export_index_blocks(
+    request: Request, job_id: str, cursor: str | None = None
+) -> dict[str, object]:
+    tokens, service = runtime(request)
+    authorization = request.headers.get("authorization", "")
+    tokens.verify_service(authorization)
+    try:
+        if len(job_id) != 36:
+            raise ValueError("Expected UUID")
+        check_uuid(job_id)
+    except ValueError as exc:
+        raise ParserError(400, "VALIDATION_ERROR", "Invalid index job identifier") from exc
+    record = service.store.get(job_id)
+    tokens.verify_workspace_delegation(
+        authorization,
+        request.headers.get("x-delegation-token", ""),
+        job_id,
+        "exportIndexBlocks",
+        index_source=(record.project_id, record.document_id, record.content_hash),
+    )
+    if record.kind != "index" or record.public.status != "SUCCEEDED" or service.deleted(record):
+        raise ParserError(404, "JOB_NOT_FOUND", "Export is not available")
+    body = IndexRequest.model_validate_json(record.request_json)
+    if body.parser_version != WORKSPACE_PARSER_VERSION:
+        raise ParserError(404, "JOB_NOT_FOUND", "Export is not available")
+    offset = 0
+    if cursor is not None:
+        prefix, separator, ordinal = cursor.partition(".")
+        if (
+            prefix != job_id
+            or not separator
+            or len(ordinal) > 5
+            or not ordinal.isascii()
+            or not ordinal.isdecimal()
+        ):
+            raise ParserError(400, "VALIDATION_ERROR", "Invalid index block cursor")
+        offset = int(ordinal)
+    blocks = service.store.source_blocks(service.generation(record, body), offset, 101)
+    if not blocks:
+        raise ParserError(404, "JOB_NOT_FOUND", "Index source blocks are not available")
+    return IndexBlockPage(
+        job_id=job_id,
+        version_id=record.document_id,
+        content_hash=record.content_hash,
+        parser_version=body.parser_version,
+        blocks=blocks[:100],
+        next_cursor=f"{job_id}.{offset + 100}" if len(blocks) > 100 else None,
+    ).model_dump(by_alias=True)

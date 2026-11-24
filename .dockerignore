@@ -12,8 +12,7 @@
 !apps/web/src/**
 !docs/
 !docs/contracts/
-!docs/contracts/schemas.json
-!docs/contracts/examples.json
+!docs/contracts/workspace.openapi.json
 !infra/
 !infra/nginx/
 !infra/nginx/default.conf

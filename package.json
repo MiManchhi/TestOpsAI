@@ -13,7 +13,7 @@
     "dev": "npm run dev --workspace @testops/web",
     "build": "npm run build --workspace @testops/web",
     "check": "npm run contracts:check && npm run check --workspace @testops/web",
-    "contracts:check": "node tests/contracts/check.cjs",
+    "contracts:check": "node tests/contracts/check.cjs && node tests/contracts/workspace-review.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

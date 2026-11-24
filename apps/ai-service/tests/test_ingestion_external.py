@@ -14,6 +14,7 @@ from testops_ai.features.ingestion.documents import chunk_text
 from testops_ai.features.ingestion.embedding import HttpEmbedding
 from testops_ai.features.ingestion.models import Manifest
 from testops_ai.features.ingestion.vectors import VectorIndex
+from testops_ai.features.robot_parser.errors import ParserError
 
 
 def test_real_qdrant_http_isolated_collection():
@@ -84,5 +85,35 @@ def test_real_embedding_http():
                 ),
             )
             assert len(vectors) == 2
+
+    asyncio.run(run())
+
+
+def test_embedding_provider_auth_failure_is_explicit():
+    async def run():
+        async def reject(_):
+            return httpx.Response(
+                401,
+                json={
+                    "error": {
+                        "code": "invalid_api_key",
+                        "message": "Incorrect API key provided",
+                    }
+                },
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(reject), trust_env=False, follow_redirects=False
+        ) as client:
+            with pytest.raises(ParserError, match="Embedding provider rejected"):
+                await HttpEmbedding(client).embed(
+                    ["连接测试"],
+                    EmbeddingProfile(
+                        url="http://provider.test/embeddings",
+                        model="text-embedding-v4",
+                        dimensions=3,
+                        api_key=SecretStr("test"),
+                    ),
+                )
 
     asyncio.run(run())

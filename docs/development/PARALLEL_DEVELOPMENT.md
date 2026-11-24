@@ -1,6 +1,6 @@
 # 三端执行入口与最终版联合验收
 
-适用 2026-11-19 最终工作台基线。先读[总计划](../ROADMAP.md)和[新契约](../contracts/README.md)。业务涉及四个角色、一个项目、一份有两个版本的技术规范、一份共用标书、一条 Robot 运行、一个私人会话。共同 fixture 在 [workspace.examples.json](../contracts/workspace.examples.json)。兼容客户端不得使用新版行为替换现行 DTO。
+适用 2026-11-19 最终工作台基线。先读[总计划](../ROADMAP.md)和[新契约](../contracts/README.md)。业务涉及四个角色、一个项目、一份有两个版本的技术规范、一份共用标书、一条 Robot 运行、一个私人会话。共同 fixture 在 [workspace.examples.json](../contracts/workspace.examples.json)。
 
 ## 启动和交接
 
@@ -37,9 +37,13 @@ npm run contracts:check
 
 第一条 Node 检查编译新契约模型、对照路径/权限/写入幂等约束、双版本回答和错误输入。npm 命令检验当前应用依赖的兼容契约。两类检查都不启动正式业务。
 
-集成方在 G0 把新契约自检加入 CI；G2 准备 Java 对象根目录和持久化索引目录、Java/AI 两套服务签名与验签材料、各自的 issuer/audience。Python 现有设置包括 TESTOPS_AI_SERVER_BASE_URL、TESTOPS_AI_SERVER_PUBLIC_KEY、TESTOPS_AI_PRIVATE_KEY、TESTOPS_AI_INGESTION_STATE_DIR、TESTOPS_AI_EMBEDDING_PROFILES、TESTOPS_AI_QDRANT_URL。由 S3/A1 在部署配置显式配对；A4 接入真实回答模型时增加服务端模型 endpoint、model ID 和密钥设置，并更新示例与启动验证。配置变量只存端点/密钥引用，Web 包内不得包含模型凭据。G5 在隔离环境验证持久卷、重启恢复、日志脱敏、备份恢复、旧 UI 切换不恢复旧的越权路径。
+根 Compose 为 Java 的原件和 Python 的索引作业挂载持久卷。启动时 workspace-identity 为两端准备独立私钥及对方的验签材料。模型 URL、模型名称、向量维数以及所需凭据从本机配置传入 AI 服务；测试机按[启动指南](../../README.md#配置自己的模型)设置自己的模型。G5 在隔离环境验证持久卷、重启与备份恢复，并检查撤权、事件重放及安全错误信息。
 
-正式实现 G4 后，在独立的联调库和对象目录部署 Java、Python、Web、MySQL、Redis、Qdrant，配置内部签名/验签、模型与 Embedding。先用各服务健康探针和 `scripts/smoke.ps1` 验证网络，完成四个测试账号登录。向当前终端注入 TESTOPS_REVIEW_BASE（Nginx 地址）及 TESTOPS_REVIEW_ADMIN_JWT、TESTOPS_REVIEW_OWNER_JWT、TESTOPS_REVIEW_TEST_JWT、TESTOPS_REVIEW_DEV_JWT 后运行：
+G2 可单独运行 `node tests/contracts/workspace-live.cjs --knowledge-only`，复用下述四个测试账号和入口，检查审批、原件、索引回写、整套版本与撤权。该模式使用独立项目，不依赖运行登记和问答接口。
+
+本机由根 Compose 启用资料处理、原件存储及签名身份。聊天与向量接口由用户在根目录 .env 分别配置。详情见[启动与配置](../../README.md)。
+
+验收 G4 时使用独立的联调库和对象目录部署 Java、Python、Web、MySQL、Redis、Qdrant，配置聊天与向量服务。先用各服务健康探针和 `scripts/smoke.ps1` 验证网络，完成四个测试账号登录。向当前终端注入 TESTOPS_REVIEW_BASE（Nginx 地址）及 TESTOPS_REVIEW_ADMIN_JWT、TESTOPS_REVIEW_OWNER_JWT、TESTOPS_REVIEW_TEST_JWT、TESTOPS_REVIEW_DEV_JWT 后运行：
 
 ```powershell
 node tests/contracts/workspace-live.cjs

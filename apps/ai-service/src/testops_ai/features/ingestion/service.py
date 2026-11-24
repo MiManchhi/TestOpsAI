@@ -15,6 +15,7 @@ from .documents import document_format
 from .embedding import HttpEmbedding
 from .models import (
     PARSER_VERSION,
+    WORKSPACE_PARSER_VERSION,
     Candidate,
     Chunk,
     IndexDelete,
@@ -25,7 +26,7 @@ from .models import (
     Manifest,
     ReadyVersion,
 )
-from .parser import extract_document
+from .parser import extract_source
 from .store import JobStore, fingerprint
 from .vectors import VectorIndex, collection_name
 
@@ -108,14 +109,14 @@ class IngestionService:
         if replay:
             return replay
         if isinstance(body, IndexRequest):
-            if body.parser_version != PARSER_VERSION:
+            if body.parser_version not in {PARSER_VERSION, WORKSPACE_PARSER_VERSION}:
                 raise ParserError(
                     422, "UNSUPPORTED_PARSER_VERSION", "Parser version is not supported"
                 )
             self.profile(body.embedding_profile)
             if body.content_hash != body.object.sha256:
                 raise ParserError(422, "CONTENT_HASH_MISMATCH", "Document and object hashes differ")
-            document_format(body.object.logical_path, body.object.size_bytes)
+            document_format(body.object.logical_path, body.object.size_bytes, body.parser_version)
         elif self.vectors is None:
             raise ParserError(503, "INDEX_NOT_CONFIGURED", "Vector store is not configured")
         async with self.admission:
@@ -215,14 +216,9 @@ class IngestionService:
                 "Input cleanup deferred requestId=%s", record.request_id
             )
 
-    async def index(self, record: JobRecord) -> None:
-        assert self.vectors is not None
-        body = IndexRequest.model_validate_json(record.request_json)
-        self.profile(body.embedding_profile)
-        if self.deleted(record):
-            raise ParserError(409, "VERSION_DELETED", "Document version was deleted")
-        profile = self.settings.embedding_profiles[body.embedding_profile]
-        generation = str(
+    @staticmethod
+    def generation(record: JobRecord, body: IndexRequest) -> str:
+        return str(
             uuid5(
                 NAMESPACE_URL,
                 fingerprint(
@@ -237,6 +233,15 @@ class IngestionService:
                 ),
             )
         )
+
+    async def index(self, record: JobRecord) -> None:
+        assert self.vectors is not None
+        body = IndexRequest.model_validate_json(record.request_json)
+        self.profile(body.embedding_profile)
+        if self.deleted(record):
+            raise ParserError(409, "VERSION_DELETED", "Document version was deleted")
+        profile = self.settings.embedding_profiles[body.embedding_profile]
+        generation = self.generation(record, body)
         existing = next(
             (m for m in self.store.manifests(*self.version(record)) if m.generation == generation),
             None,
@@ -245,12 +250,14 @@ class IngestionService:
             record.public.chunk_count = existing.chunk_count
             return
         self.stage(record, "PARSING")
-        chunks = await extract_document(
+        extracted = await extract_source(
             self.store.input_path(record),
             body.object.logical_path,
             body.content_hash,
             self.settings.document_timeout_seconds,
+            body.parser_version,
         )
+        chunks = extracted.chunks
         self.stage(record, "CHUNKING")
         manifest = Manifest(
             project_id=record.project_id,
@@ -281,6 +288,8 @@ class IngestionService:
                 raise ParserError(409, "VERSION_DELETED", "Document version was deleted")
             manifest.active = True
             self.store.put_manifest(manifest)
+            if extracted.blocks:
+                self.store.save_source_blocks(generation, extracted.blocks)
             record.public.chunk_count = len(chunks)
             record.public.status = "SUCCEEDED"
             record.public.stage = "FINISHED"

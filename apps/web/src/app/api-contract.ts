@@ -1,13 +1,5 @@
-import { readContract } from './contracts';
-import { requestJSON } from './http';
-export function projectPath(projectId: string) {
-  return `/api/v2/projects/${readContract('Id', projectId)}`;
-}
 export function resourceId(value: string) {
-  return readContract('Id', value);
-}
-export function inProject<T extends { projectId: string }>(value: T, projectId: string): T {
-  if (value.projectId !== projectId) throw new Error('服务返回的项目范围异常，请重新读取。');
+  if (!/^[1-9][0-9]{0,18}$/.test(value)) throw new Error('项目或资源编号无效。');
   return value;
 }
 export function pageScope<
@@ -28,15 +20,4 @@ export function jsonBody(method: string, body: unknown, key?: string): RequestIn
     headers: { 'Content-Type': 'application/json', ...(key ? { 'Idempotency-Key': key } : {}) },
     body: JSON.stringify(body),
   };
-}
-export async function getOverview(projectId: string, signal: AbortSignal) {
-  const value = readContract(
-    'Overview',
-    await requestJSON(`${projectPath(projectId)}/overview`, signal),
-  );
-  if (value.project.id !== projectId) throw new Error('工作台项目范围异常。');
-  value.recentRuns.forEach((run) => inProject(run, projectId));
-  value.recentConversations.forEach((conversation) => inProject(conversation, projectId));
-  if (value.lastRun) inProject(value.lastRun, projectId);
-  return value;
 }

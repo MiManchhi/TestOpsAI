@@ -4,14 +4,14 @@
 
 ## 地址、身份和职责
 
-| 方向          | 入口                                                                                                                                               | 身份与事实                                                                                    |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 浏览器 → Java | 现有 v1 登录、当前用户；新工作区 /api/v3，按 projects 与 platform 分路                                                                             | 用户 JWT。用户、项目、成员与资料授权由 Java 每次读取；平台角色只适用于 platform 操作          |
-| Java → Python | 已有 /internal/v1/parsers/robot、/robot-output、/index-jobs、索引轮询与删除；新增 /internal/v2/ai/answer 与 /internal/v2/index-jobs/{jobId}/blocks | 短期服务 JWT + Java 签发的 X-Delegation-Token；Java 推导 scope。Python 返回候选证据定位与草稿 |
-| Python → Java | 已有 /internal/v1/objects/{objectId}/content；新增 /internal/v2/evidence/resolve                                                                   | 仅授权对象、运行事实、消息附件和版本。服务身份、委托、operationId、项目、资源、有效期都要匹配 |
-| Java → 浏览器 | startTurn 202，随后 watchTurn 的 SSE；引用在 readCitation 重新鉴权                                                                                 | Java 注册引用、分配事件编号、保存最终回复，原始 Robot 状态来自已登记结果                      |
+| 方向          | 入口                                                                                                                                  | 身份与事实                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 浏览器 → Java | 现有 v1 登录、当前用户；新工作区 /api/v3，按 projects 与 platform 分路                                                                | 用户 JWT。用户、项目、成员与资料授权由 Java 每次读取；平台角色只适用于 platform 操作          |
+| Java → Python | /internal/v1/parsers/robot-output、/index-jobs、索引轮询与删除；新增 /internal/v2/ai/answer 与 /internal/v2/index-jobs/{jobId}/blocks | 短期服务 JWT + Java 签发的 X-Delegation-Token；Java 推导 scope。Python 返回候选证据定位与草稿 |
+| Python → Java | 已有 /internal/v1/objects/{objectId}/content；新增 /internal/v2/evidence/resolve                                                      | 仅授权对象、运行事实、消息附件和版本。服务身份、委托、operationId、项目、资源、有效期都要匹配 |
+| Java → 浏览器 | startTurn 202，随后 watchTurn 的 SSE；引用在 readCitation 重新鉴权                                                                    | Java 注册引用、分配事件编号、保存最终回复，原始 Robot 状态来自已登记结果                      |
 
-标记 java 的内部操作只供 Java 调用；python 只供 Python。服务 JWT 校验签名、issuer/audience、jti、exp ≤5 分钟；委托 ≤120 秒，绑定 actor/project/operation 与资源，撤权即失效。浏览器令牌不交给 Python 或模型。v1 内部参数、请求头及署名以 [AI 接口](ai.openapi.json)、[对象接口](tools.openapi.json) 和[共享类型](schemas.json)为准。已实现登录由 [public.openapi.json](public.openapi.json) 的 login/currentUser 提供。旧 v2、页面映射、工具和样例仍给现存客户端及回归使用，最终页面不消费旧草稿提交、项目概览或手选上下文。
+标记 java 的内部操作只供 Java 调用；python 只供 Python。服务 JWT 校验签名、issuer/audience、jti、exp ≤5 分钟；委托 ≤120 秒，绑定 actor/project/operation 与资源，撤权即失效。浏览器令牌不交给 Python 或模型。v1 内部参数、请求头及署名以 [AI 接口](ai.openapi.json)、[对象接口](tools.openapi.json) 和[共享类型](schemas.json)为准。已实现登录由 [public.openapi.json](public.openapi.json) 的 login/currentUser 提供。项目成员的 assistantStatus 返回聊天和向量服务的配置状态。
 
 ## HTTP 通则
 
@@ -45,7 +45,7 @@ setBasis 的 label 是项目内唯一的包版本名，versionIds 为一份或�
 - watchTurn 使用带 Authorization 的 fetch。sequence 从 1 连续增长，SSE id=sequence。turn.started 的 data 为空对象；turn.stage 给出 stage；turn.completed 的 data 为 {answer: Answer}；turn.failed 为 {error: Error}；turn.cancelled 为空对象。心跳 15 秒不编号；最后只允许一个终态。Java 在收到并校验 Python 完整候选答复前可持续给进度，最终文本一次发布。主动停止与完成以单次 CAS 决定终态。
 - 用 Last-Event-ID 补大于该序号的事件；重放前重新鉴权，24 小时后 409 EVENT_REPLAY_EXPIRED，改读 getMyTurn/myMessages；不能自动重复发问。Python 超时或模型不可用时发失败终态，信息不足但模型正常时产生 INSUFFICIENT。权限变化可屏蔽已存回复。引用读失败不返回历史摘录。
 - basisAtRun/basisCurrent 分别为一个 VisibleBasis 或 null；仅下发获准的文件版本。包内有不可见版本时 coverage=PARTIAL，不下发被隐藏的 ID、文件名或条款。若缺的证据影响判断则 INSUFFICIENT。不同包版本则分别给出判断；相同版本可合并显示，保留两个适用身份。时间不明、文件缺失或依据未指定时不虚构。纯设计评审使用 DESIGN 及 NOT_RUN。候选的 sources 只含定位，模型不生成最终 citationId。数值型指标尽量结构化为 metric，Java 重新比较；模糊文本标为待人工确认。
-- 注册表和 DB 约束见[数据模型](../DOMAIN_MODEL.md)。新契约及样例的自检命令为 `node tests/contracts/workspace-review.cjs`；现存兼容契约继续运行 `npm run contracts:check`。真实 provider、真实模型及浏览器验收见[联合验收](../development/PARALLEL_DEVELOPMENT.md)。
+- 注册表和 DB 约束见[数据模型](../DOMAIN_MODEL.md)。新契约及样例的自检命令为 `node tests/contracts/workspace-review.cjs`；全部公开与内部契约统一运行 `npm run contracts:check`。真实 provider、真实模型及浏览器验收见[联合验收](../development/PARALLEL_DEVELOPMENT.md)。
 
 ## 操作与代码定位
 

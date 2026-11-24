@@ -2,13 +2,15 @@ import asyncio
 import hashlib
 import multiprocessing
 from io import BytesIO
+from zipfile import ZipFile
 
 import pytest
 from ingestion_helpers import MARKDOWN
 from pypdf import PdfWriter
 from pypdf.generic import ArrayObject, DecodedStreamObject, DictionaryObject, NameObject
 
-from testops_ai.features.ingestion.documents import chunk_text, parse_document
+from testops_ai.features.ingestion.documents import chunk_text, parse_document, parse_source
+from testops_ai.features.ingestion.models import WORKSPACE_PARSER_VERSION
 from testops_ai.features.ingestion.parser import extract_document
 from testops_ai.features.robot_parser.errors import ParserError
 
@@ -140,3 +142,55 @@ def test_document_process_timeout_and_cancellation_are_reaped(tmp_path):
         assert {p.pid for p in multiprocessing.active_children()} == initial
 
     asyncio.run(run())
+
+
+def word_bytes(document_xml: str) -> bytes:
+    result = BytesIO()
+    with ZipFile(result, "w") as archive:
+        archive.writestr(
+            "[Content_Types].xml",
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-'
+            'officedocument.wordprocessingml.document.main+xml"/></Types>',
+        )
+        archive.writestr("word/document.xml", document_xml)
+    return result.getvalue()
+
+
+def workspace_parse(content: bytes, path: str):
+    return parse_source(
+        content, path, hashlib.sha256(content).hexdigest(), WORKSPACE_PARSER_VERSION
+    )
+
+
+def test_workspace_word_preserves_paragraph_numbers_and_table_text():
+    data = word_bytes(
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        "<w:body><w:p><w:r><w:t>meter limit</w:t></w:r></w:p><w:p/>"
+        "<w:tbl><w:tr><w:tc><w:p><w:r><w:t>2 s</w:t><w:tab/><w:t>limit</w:t>"
+        "</w:r></w:p></w:tc></w:tr></w:tbl></w:body></w:document>"
+    )
+    parsed = workspace_parse(data, "spec.docx")
+    assert [(block.locator, block.text) for block in parsed.blocks] == [
+        ("paragraph 1", "meter limit"),
+        ("paragraph 3", "2 s\tlimit"),
+    ]
+    assert {chunk.paragraph for chunk in parsed.chunks} == {1, 3}
+
+
+def test_workspace_docx_does_not_follow_entities():
+    payload = '<!DOCTYPE data [<!ENTITY value SYSTEM "file:///not-a-fixture">]><data>&value;</data>'
+    with pytest.raises(ParserError) as failure:
+        workspace_parse(word_bytes(payload), "spec.docx")
+    assert failure.value.code == "DOCUMENT_PARSE_FAILED"
+
+
+def test_workspace_uses_original_lines_and_pdf_pages():
+    text = workspace_parse(b"# Spec\r\nLimit = 2 s\r\n", "spec.md")
+    assert text.blocks[1].locator == "line 2"
+    assert text.blocks[1].text == "Limit = 2 s"
+    pdf = workspace_parse(pdf_bytes(), "spec.pdf")
+    assert [item.locator for item in pdf.blocks] == ["page 1", "page 2"]
+    with pytest.raises(ParserError) as failure:
+        workspace_parse(pdf_bytes(text=False), "scan.pdf")
+    assert failure.value.code == "NO_TEXT"

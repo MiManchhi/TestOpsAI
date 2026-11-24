@@ -1,66 +1,45 @@
 // Runs only in Vite/Vitest's Node process. Browser validators contain no runtime compiler.
 import { createRequire } from 'node:module';
 import Ajv from 'ajv';
-import schema from '../../../../docs/contracts/schemas.json';
+import workspace from '../../../../docs/contracts/workspace.openapi.json';
 
 type Compiled = Ajv.ValidateFunction & { source: { code: string }; refVal: unknown[] };
-const names = [
-  'Id',
-  'Project',
-  'Suite',
-  'TestCase',
-  'CaseFilter',
-  'SelectionCreate',
-  'Selection',
+
+const workspaceNames = [
+  'AccountPage',
+  'Account',
   'ProjectPage',
-  'SuitePage',
-  'TestCasePage',
-  'Overview',
-  'ImportJob',
-  'ImportJobPage',
-  'JobAccepted',
+  'Project',
+  'UserPage',
+  'MembershipPage',
+  'Membership',
+  'HandoverPage',
+  'Handover',
+  'Attachment',
+  'Doc',
+  'DocPage',
+  'Content',
+  'Readers',
+  'Basis',
+  'BasisPage',
+  'Receipt',
+  'JobPage',
+  'Turn',
+  'ConversationPage',
+  'MessagePage',
+  'Citation',
+  'Event',
   'Run',
   'RunPage',
   'ResultPage',
   'ArtifactPage',
-  'ArtifactLines',
-  'MemberPage',
-  'Member',
-  'ProjectCreate',
-  'ProjectPatch',
-  'SetMember',
-  'TestContext',
-  'Uuid',
-  'KnowledgeBaseCreate',
-  'KnowledgeBasePatch',
-  'KnowledgeBase',
-  'KnowledgeBasePage',
-  'KnowledgeGrant',
-  'SetKnowledgeGrant',
-  'KnowledgeGrantPage',
-  'Document',
-  'DocumentPage',
-  'DocumentContent',
-  'Citation',
-  'ConversationCreate',
-  'Conversation',
-  'ConversationPage',
-  'MessageCreate',
-  'MessageContext',
-  'Message',
-  'MessagePage',
-  'Turn',
-  'TurnEvent',
-  'Answer',
-  'Draft',
-  'DraftPatch',
-  'DraftCommit',
-  'DraftCommitResult',
+  'LogLinePage',
 ];
+const workspaceId = 'urn:testops:workspace-v2';
 
 export function buildContractValidators(): string {
   const ajv = new Ajv({ sourceCode: true, inlineRefs: false, allErrors: true, schemaId: 'auto' });
-  ajv.addSchema(schema);
+  ajv.addSchema({ $id: workspaceId, components: workspace.components });
   const ids = new Map<unknown, number>();
   const chunks: string[] = [];
   function serialize(value: unknown): string {
@@ -84,11 +63,12 @@ export function buildContractValidators(): string {
     );
     return `validators[${index}]`;
   }
-  const exports = names.map((name) => {
-    const validator = ajv.getSchema(`${schema.$id}#/definitions/${name}`);
-    if (!validator) throw new Error(`Missing frozen schema: ${name}`);
-    return `${JSON.stringify(name)}: ${serialize(validator)}`;
-  });
+  const exports: string[] = [];
+  for (const name of workspaceNames) {
+    const validator = ajv.getSchema(`${workspaceId}#/components/schemas/${name}`);
+    if (!validator) throw new Error(`Missing workspace schema: ${name}`);
+    exports.push(`${JSON.stringify(`Workspace${name}`)}: ${serialize(validator)}`);
+  }
   const require = createRequire(import.meta.url);
   const equal: unknown = require('fast-deep-equal');
   const length: unknown = require('ajv/lib/compile/ucs2length');

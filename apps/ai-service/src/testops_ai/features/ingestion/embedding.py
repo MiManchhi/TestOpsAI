@@ -54,6 +54,12 @@ class HttpEmbedding:
                         timeout=15,
                         follow_redirects=False,
                     ) as response:
+                        if response.status_code in {401, 403}:
+                            raise ParserError(
+                                503,
+                                "EMBEDDING_PROVIDER_AUTH_FAILED",
+                                "Embedding provider rejected the API key",
+                            )
                         if response.status_code in {429, 500, 502, 503, 504}:
                             raise httpx.ReadError("Transient embedding failure")
                         if response.status_code != 200:

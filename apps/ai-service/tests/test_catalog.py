@@ -4,7 +4,6 @@ from pydantic import ValidationError
 
 from testops_ai.features.robot_parser.catalog import parse_catalog
 from testops_ai.features.robot_parser.errors import ParserError
-from testops_ai.features.robot_parser.models import RobotParseRequest
 
 
 def test_catalog_source_tags_steps_and_contract():
@@ -102,14 +101,6 @@ def test_unsafe_input_paths(path):
 
 def test_duplicate_paths_and_limits():
     file = source()
-    body = {
-        "operationId": file.reference.object_id,
-        "projectKey": "demo",
-        "mode": "FULL_SNAPSHOT",
-        "files": [file.reference.model_dump(by_alias=True)] * 2,
-    }
-    with pytest.raises(ValidationError):
-        RobotParseRequest.model_validate(body)
     with pytest.raises(ParserError):
         parse_catalog([file, file])
     with pytest.raises(ParserError) as error:

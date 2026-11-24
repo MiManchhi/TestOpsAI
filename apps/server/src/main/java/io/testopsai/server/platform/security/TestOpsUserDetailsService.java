@@ -30,6 +30,7 @@ class TestOpsUserDetailsService implements UserDetailsService {
         user.roles().stream()
             .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
             .collect(Collectors.toList());
-    return new User(user.username(), user.passwordHash(), authorities);
+    return new User(
+        user.username(), user.passwordHash(), user.enabled(), true, true, true, authorities);
   }
 }

@@ -37,8 +37,7 @@ class SecurityExceptionHandler implements AuthenticationEntryPoint, AccessDenied
     writeError(response, HttpStatus.FORBIDDEN, "FORBIDDEN", "Access denied");
   }
 
-  private void writeError(
-      HttpServletResponse response, HttpStatus status, String code, String message)
+  void writeError(HttpServletResponse response, HttpStatus status, String code, String message)
       throws IOException {
     String requestId = MDC.get(RequestIdFilter.MDC_KEY);
     if (requestId == null) requestId = "unknown";

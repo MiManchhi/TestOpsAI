@@ -51,8 +51,30 @@ services:
       timeout: 5s
       retries: 10
   ai-service:
+    image: ${COMPOSE_PROJECT_NAME:-testops-ai}-ai-service
     build:
       context: apps/ai-service
+    environment:
+      TESTOPS_AI_SERVER_BASE_URL: http://server:8080
+      TESTOPS_AI_INGESTION_STATE_DIR: /var/lib/testops/ingestion
+      TESTOPS_AI_QDRANT_URL: http://qdrant:6333
+      TESTOPS_AI_QDRANT_API_KEY: ${QDRANT_API_KEY:?Run scripts/setup.ps1 first}
+      TESTOPS_AI_CHAT_BASE_URL: ${TESTOPS_AI_CHAT_BASE_URL:-}
+      TESTOPS_AI_CHAT_MODEL: ${TESTOPS_AI_CHAT_MODEL:-}
+      TESTOPS_AI_CHAT_API_KEY: ${TESTOPS_AI_CHAT_API_KEY:-}
+      TESTOPS_AI_ANSWER_EMBEDDING_PROFILE: ${TESTOPS_WORKSPACE_EMBEDDING_PROFILE:-default}
+      TESTOPS_AI_EMBEDDING_URL: ${TESTOPS_AI_EMBEDDING_URL:-}
+      TESTOPS_AI_EMBEDDING_MODEL: ${TESTOPS_AI_EMBEDDING_MODEL:-}
+      TESTOPS_AI_EMBEDDING_DIMENSIONS: ${TESTOPS_AI_EMBEDDING_DIMENSIONS:-0}
+      TESTOPS_AI_EMBEDDING_API_KEY: ${TESTOPS_AI_EMBEDDING_API_KEY:-}
+    volumes:
+      - workspace-index:/var/lib/testops/ingestion
+      - ai-identity:/run/workspace-identity:ro
+    depends_on:
+      workspace-identity:
+        condition: service_completed_successfully
+      qdrant:
+        condition: service_healthy
     expose: ['8000']
     healthcheck:
       test:
@@ -69,6 +91,11 @@ services:
     build:
       context: apps/server
     environment:
+      SPRING_CONFIG_IMPORT: configtree:/run/workspace-identity/
+      TESTOPS_WORKSPACE_OBJECT_ROOT: /var/lib/testops/objects
+      TESTOPS_WORKSPACE_AI_URL: http://ai-service:8000
+      TESTOPS_WORKSPACE_EMBEDDING_PROFILE: ${TESTOPS_WORKSPACE_EMBEDDING_PROFILE:-default}
+      TESTOPS_WORKSPACE_INDEX_WORKER_ENABLED: 'true'
       SERVER_ADDRESS: 0.0.0.0
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
@@ -80,11 +107,16 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:?Run scripts/setup.ps1 first}
     depends_on:
+      ai-service:
+        condition: service_healthy
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
     expose: ['8080']
+    volumes:
+      - workspace-objects:/var/lib/testops/objects
+      - server-identity:/run/workspace-identity:ro
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:8080/actuator/health/readiness']
       interval: 10s
@@ -99,7 +131,21 @@ services:
     depends_on:
       server:
         condition: service_healthy
+  workspace-identity:
+    image: ${COMPOSE_PROJECT_NAME:-testops-ai}-ai-service
+    pull_policy: never
+    network_mode: none
+    user: root
+    command: ['python', '/identity.py']
+    volumes:
+      - ./infra/identity.py:/identity.py:ro
+      - server-identity:/identity/server
+      - ai-identity:/identity/ai
 volumes:
   mysql-data:
   redis-data:
   qdrant-data:
+  workspace-index:
+  workspace-objects:
+  server-identity:
+  ai-identity:

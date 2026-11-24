@@ -1,103 +1,65 @@
 # TestOps AI
 
-面向测试研发的知识与智能协作平台。采用 Java 业务后端、Vue 前端和 Python AI 服务。
+面向企业测试与开发工程师的项目工作台。工程师可以贴入 Robot 用例，结合项目标书评审、补写草稿，也可以核对已登记的复测结果。项目负责人管理资料审核、成员和验收依据。平台管理员管理账号、项目、交接与处理状态。
 
-设计评审从[最终产品蓝图](docs/PRODUCT_DESIGN.md)和[全界面样稿](docs/design/index.html)进入。项目资料、人员、复测和平台管理均可切换角色查看。[页面与权限](docs/WEB_UI_DESIGN.md) · [数据模型](docs/DOMAIN_MODEL.md) · [跨端接口](docs/contracts/README.md)。
+## 本机启动
 
-后续改造及完整实现以[开发总计划](docs/ROADMAP.md)和[三端联合验收](docs/development/PARALLEL_DEVELOPMENT.md)为入口。用户已确认最终版业务规则与界面方向，设计和验收入口已同步。当前应用的登录、项目与用例目录已有联调证据；确认版本、自动引用与双版本核对仍属于目标能力。[立项缘由](docs/PROJECT_BLUEPRINT.md) · [当前工程交接](.memory/CURRENT.md)。
-
-## 本地一键启动（推荐）
-
-安装并启动 Docker Desktop，选择 Linux 容器引擎。在仓库根目录的 PowerShell 执行：
+在仓库根目录用 PowerShell 执行以下命令。需要已启动的 Docker Desktop（Linux 容器）。
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1
+.\scripts\local.ps1 start
 ```
 
-首次自动生成随机凭据到本机 `.env`，构建并启动 MySQL、Redis、Qdrant、Java、AI、Web 六个服务，等待就绪并运行冒烟检查。已有 `.env` 保留；此方式无需在宿主机安装 Java、Node、Python 或运行 setup。首次构建需要联网下载镜像与依赖，可能耗时数分钟。
+打开 [TestOps AI](http://127.0.0.1:8088)。首次启动生成本机 `.env`、数据库及服务间签名密钥。管理员从平台项目进入，项目成员登录后进入 AI 工作台。新建的本机数据库包含初始化管理员 `admin`，初始密码为 `admin123`。已修改的账号沿用当前密码。
 
-成功后打开 [本地系统](http://127.0.0.1:8088)。此入口运行实际应用。上面的设计样稿可在浏览器直接打开，查看最终版目标界面。
+## 配置自己的模型
+
+使用与 Chat Completions 和 Embeddings 接口兼容的服务。在根目录 `.env` 填写以下配置。聊天填 API 基地址，向量填完整端点。维数采用服务实际返回值，同一索引使用相同模型和维数。
+
+```dotenv
+TESTOPS_AI_CHAT_BASE_URL=
+TESTOPS_AI_CHAT_MODEL=
+TESTOPS_AI_CHAT_API_KEY=
+TESTOPS_AI_EMBEDDING_URL=
+TESTOPS_AI_EMBEDDING_MODEL=
+TESTOPS_AI_EMBEDDING_DIMENSIONS=0
+TESTOPS_AI_EMBEDDING_API_KEY=
+```
+
+例如服务基地址为 `https://your-provider.example/v1` 时，向量 URL 通常为 `https://your-provider.example/v1/embeddings`。地址从 AI 容器访问。凭据填在本机文件。保存后执行 `.\scripts\local.ps1 start -SkipBuild` 重新加载。无模型配置时可以登录、建项目、管理成员和登记运行。需要调用尚未配置服务的操作会提示配置状态；资料页支持配置完成后重试索引。
+
+### 阿里云百炼
+
+本应用由 Python 后端调用模型，并在资料审核后后台索引文档。使用百炼标准模型 API 的业务空间 Key，调用费用按该服务计费。Token Plan 套餐的使用范围限于编程工具或智能体工具中的交互场景，排除了自定义应用后端。[Token Plan 使用范围](https://help.aliyun.com/zh/model-studio/token-plan-permissions-and-usage) · [创建标准 API Key](https://help.aliyun.com/zh/model-studio/get-api-key)
+
+在华北 2（北京）验证时，聊天地址可填 `https://dashscope.aliyuncs.com/compatible-mode/v1`，向量地址可填 `https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings`。也可以使用控制台复制的本业务空间专属 API Host 替换域名。两个地址应与 Key 属于同一地域。若 Key 允许访问这两个模型，可选聊天 `qwen-plus` 和向量 `qwen3.7-text-embedding`，后者默认 1024 维。[地域与接入地址](https://help.aliyun.com/zh/model-studio/base-url) · [Embedding 接口](https://help.aliyun.com/zh/model-studio/embedding-interfaces-compatible-with-openai)
+
+标准 API 的最小配置示例：
+
+```dotenv
+TESTOPS_AI_CHAT_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+TESTOPS_AI_CHAT_MODEL=qwen-plus
+TESTOPS_AI_CHAT_API_KEY=sk-你的标准百炼APIKey
+TESTOPS_AI_EMBEDDING_URL=https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings
+TESTOPS_AI_EMBEDDING_MODEL=text-embedding-v4
+TESTOPS_AI_EMBEDDING_DIMENSIONS=1024
+TESTOPS_AI_EMBEDDING_API_KEY=sk-你的标准百炼APIKey
+```
+
+业务空间专属域名按控制台显示的 API Host 替换 `dashscope.aliyuncs.com`。Token Plan 的 `sk-sp-` Key 和 Token Plan 专属域名只留给受支持的编程或智能体工具使用。
+
+可使用[项目资料导入样例](samples/README.md)验证从资料审批、索引到聊天引用原文的流程。
 
 ```powershell
-# 查看状态 / 持续查看日志（Ctrl+C 退出日志，服务继续运行）
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 status
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 logs
-# 停止全部服务，保留容器和数据卷
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 stop
-# 已构建过且代码未修改时，快速恢复
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\local.ps1 start -SkipBuild
+.\scripts\local.ps1 status
+.\scripts\local.ps1 logs
+.\scripts\local.ps1 stop
 ```
 
-代码修改后执行默认启动命令重新构建。需空闲端口：8088、3306、6379、6333；脚本不会停止占用端口的其他程序。若 `.env` 缺项或与现有数据库凭据不符，恢复原配置后重试，不删卷重置。策略参数仅作用于本次 PowerShell 进程。详细排查见 [容器指南](docs/development/CONTAINERS.md)。
+## 开发与验收
 
-## 目录与职责
-
-```text
-apps/web/           Vue 3 + TypeScript，浏览器只访问 Java 入口
-apps/server/        Java 21 + Spring Boot，业务、身份、授权、审计
-apps/ai-service/    Python 3.12 + FastAPI，静态解析、知识索引及后续回答编排
-infra/nginx/        统一入口及 SSE 代理配置
-scripts/           PowerShell 开发、检查与冒烟入口
-docs/              架构、契约、数据草图、ADR、里程碑
-samples/           自造或公开许可数据
-tests/             跨服务测试规划与说明
-.memory/           开发背景、任务交接、模块上下文与验证证据
-```
-
-初学者先读 [目录与文件归档指南](docs/development/DIRECTORY_LAYOUT.md)：逐项解释目录、根文件的用途、放置原因、可否移动及当前不足。新增文件按归属表放置；根目录白名单通过 `./scripts/check-layout.ps1` 检查。
-
-## 开发环境
-
-需要标准 CPython 3.12、JDK 21、Node 22.23.5（见 .nvmrc）、npm 11.6.4、uv，以及 Docker Desktop Linux 引擎。Maven 3.9.11 由 Wrapper 固定。不依赖全局 Python 包。npm、Python 的完整依赖分别由 `package-lock.json`、`apps/ai-service/uv.lock` 固定。
-
-Windows PowerShell 在仓库根目录运行：
-
-```powershell
-. ./scripts/env.ps1
-./scripts/doctor.ps1
-./scripts/setup.ps1
-./scripts/check.ps1
-```
-
-`env.ps1` 只修改当前终端；工具放 `.tools/toolchains/{java,node,npm,uv,python}`，缓存放 `.tools/cache/{npm,uv,ruff,mypy}`。新电脑须先安装上述兼容工具，或按该布局放置本机工具；doctor 检查版本并给出错误，不自动下载 SDK。`setup.ps1` 首次创建随机本地凭据，已有 `.env` 不覆盖。不要直接复制空密码的 `.env.example` 启动 Compose。
-
-日常开发分别在三个终端执行：
-
-```powershell
-./scripts/dev.ps1 server
-./scripts/dev.ps1 ai
-./scripts/dev.ps1 web
-```
-
-Web 为 `http://127.0.0.1:5173`；Java 健康端点为 `http://127.0.0.1:8080/actuator/health`；AI 本地健康端点为 `http://127.0.0.1:8000/health/ready`。Java 需要 MySQL 与 JWT 配置；先 `./scripts/dev.ps1 infra`，并在 Java 终端设置与 `.env` 一致的 `MYSQL_*` 和 `JWT_SECRET` 环境变量（dev server 不会自动加载 `.env`）。整套运行优先使用上面的一键容器入口。
-
-`./scripts/dev.ps1 infra` 现会启动并等待三项基础服务 healthy，再验证 MySQL 应用用户查询、Redis 鉴权与 Qdrant 就绪；可单独用 `./scripts/smoke.ps1 -InfraOnly` 复检。服务只绑定本机回环端口，真实密码由忽略的 .env 提供，不写入文档或记忆。
-
-本机链路验收：完成构建后运行 `./scripts/smoke-local.ps1`，检查网页、Java/Python 健康及网页到 Java 的代理；脚本使用动态空闲端口，只停止自己创建的进程；平时开发默认端口被占用时自行改配置，不终止其他程序。
-
-## 容器启动
-
-启动 Docker Desktop，确认 `docker info` 正常。原有命令仍可用，与一键入口相同，无需先运行 setup：
-
-```powershell
-./scripts/dev.ps1 all
-```
-
-此命令先构建三个应用镜像，再执行 `docker compose up --no-build -d --wait --wait-timeout 240` 和完整容器冒烟。入口为 `http://127.0.0.1:8088`。AI 和 Java 不发布宿主机端口；中间件仅绑定回环地址。检查覆盖六服务健康、网页构建资源、Java 代理/401、AI 健康、基础设施鉴权查询及端口边界；不表示尚未实现的业务调用链就绪。
-
-构建、重建、保留卷停启、失败排查与 CI 隔离详见 [容器运行与验收](docs/development/CONTAINERS.md)。集成验收命令为 `./tests/engineering/container.tests.ps1`，会短暂停止并恢复本项目服务，不删除本机卷。
-
-```powershell
-docker compose logs -f --tail 100
-docker compose down
-```
-
-`down` 保留数据卷。不要在保留卷时随意更改数据库密码；变更 `.env` 不会自动修改已初始化 MySQL 用户。此配置用于本机开发，公网发布前需 HTTPS、服务认证和部署加固。
-
-## 质量与协作
-
-正式开发遵守 [代码与格式规范](docs/development/CODE_STYLE.md)。每个新 AI 会话先读取 AGENTS、记忆导航和当前状态，再读取开发、目录、代码规范；`scripts/memory.ps1 -Mode Restore` 可一次输出全部入口，`scripts/check.ps1` 包含规范导航与记忆检查。
-
-Ubuntu CI 的 web/server/ai/compose 四项质量检查及 containers 容器验收均已通过。containers 等待四项质量检查后构建三端镜像，运行统一容器集成验收并清理自己的临时资源；已验证运行见 [CI 44026578462](https://github.com/MiManchhi/TestOpsAI/actions/runs/44026578462) 和 [证据台账](.memory/EVIDENCE.md)。
-
-遵循 [开发与提交规范](docs/development/CONTRIBUTING.md)、[安全规范](docs/development/SECURITY.md) 与 [AGENTS](AGENTS.md)。新会话先读 [记忆导航](.memory/INDEX.md)。不提交密钥、下载工具或生成产物；项目沿用远程仓库已有的 [MIT 许可证](LICENSE)。
+- [产品蓝图](docs/PRODUCT_DESIGN.md)和[界面说明](docs/WEB_UI_DESIGN.md)定义用户任务、角色与页面。
+- [开发计划](docs/ROADMAP.md)和[联合验收](docs/development/PARALLEL_DEVELOPMENT.md)列出三端交付范围。
+- [跨端契约](docs/contracts/README.md)、[架构](docs/ARCHITECTURE.md)和[数据模型](docs/DOMAIN_MODEL.md)定义调用及数据边界。
+- [容器指南](docs/development/CONTAINERS.md)说明健康检查、重启和数据卷。
+- 本机开发先执行 `. ./scripts/env.ps1` 和 `./scripts/setup.ps1`。完整门禁为 `./scripts/check.ps1`。实测结果与剩余限制见[工程交接](.memory/CURRENT.md)。

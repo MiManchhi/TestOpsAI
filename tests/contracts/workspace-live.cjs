@@ -8,9 +8,26 @@ const ajv = new Ajv({ allErrors: true });
 ajv.addSchema({ $id: 'urn:testops:live', components: spec.components });
 const validate = (name) => ajv.getSchema('urn:testops:live#/components/schemas/' + name);
 const roles = ['ADMIN', 'OWNER', 'TEST', 'DEV'];
+const knowledgeOnly = process.argv.includes('--knowledge-only');
 const base = (process.env.TESTOPS_REVIEW_BASE || '').replace(/\/$/, '');
 const token = (name) => process.env['TESTOPS_REVIEW_' + name + '_JWT'];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function readEvents(role, projectPath, turnId, lastEventId = 0) {
+  const res = await fetch(base + projectPath + '/turns/' + turnId + '/events', {
+    headers: { Authorization: 'Bearer ' + token(role), 'Last-Event-ID': String(lastEventId) },
+    signal: AbortSignal.timeout(150000),
+  });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type') ?? '', /text\/event-stream/);
+  const blocks = (await res.text()).replace(/\r\n/g, '\n').split('\n\n');
+  return blocks.flatMap((block) => {
+    const data = block
+      .split('\n')
+      .filter((line) => line.startsWith('data:'))
+      .map((line) => line.slice(5).trimStart());
+    return data.length ? [JSON.parse(data.join('\n'))] : [];
+  });
+}
 async function api(role, method, path, body, status = 200, key = randomUUID()) {
   const headers = { Authorization: 'Bearer ' + token(role) };
   if (method !== 'GET') headers['Idempotency-Key'] = key;
@@ -101,6 +118,7 @@ async function run() {
     assert.equal(v.indexStatus, 'NOT_STARTED');
     assert.equal(await api('OWNER', 'GET', p + '/versions/' + v.versionId + '/original'), text);
     await api('DEV', 'GET', p + '/versions/' + v.versionId + '/original', undefined, 404);
+    await api('OWNER', 'GET', p + '/versions/' + v.versionId + '/content', undefined, 404);
     await api('OWNER', 'POST', p + '/versions/' + v.versionId + '/review', {
       decision: 'APPROVE',
       note: '核对原文',
@@ -120,26 +138,6 @@ async function run() {
     { label: '验收包 V1', versionIds: [v1.versionId, tender.versionId], expectedRevision: 0 },
     201,
   );
-  const outputAttachmentId = await file('DEV', 'output.xml', example.xml),
-    logAttachmentId = await file('DEV', 'run.log', example.log);
-  const registration = {
-    name: '响应时间复测',
-    executedAt: first.effectiveFrom,
-    outputAttachmentId,
-    logAttachmentIds: [logAttachmentId],
-  };
-  const runKey = randomUUID();
-  const result = await api('DEV', 'POST', p + '/runs', registration, 202, runKey);
-  assert.equal(
-    (await api('DEV', 'POST', p + '/runs', registration, 202, runKey)).runId,
-    result.runId,
-  );
-  const parsed = await until(
-    () => api('DEV', 'GET', p + '/runs/' + result.runId),
-    (x) => x.parseStatus === 'READY',
-  );
-  assert.equal(parsed.pass, 1);
-  assert.equal(parsed.fail, 0);
   const v2 = await version('V2', example.sourceV2, v1.documentId);
   assert.deepEqual([...first.versionIds].sort(), [v1.versionId, tender.versionId].sort());
   await api(
@@ -165,32 +163,76 @@ async function run() {
     201,
   );
   assert.deepEqual([...currentBasis.versionIds].sort(), [v2.versionId, tender.versionId].sort());
+  if (knowledgeOnly) {
+    const current = await api(
+      'DEV',
+      'GET',
+      p + '/versions/' + v2.versionId + '/content?locator=line%202',
+    );
+    assert.ok(validate('Content')(current));
+    assert.equal(current.blocks[0].text, example.sourceV2.split('\n')[1]);
+    const history = await api('OWNER', 'GET', p + '/bases');
+    assert.equal(history.items[1].effectiveTo, history.items[0].effectiveFrom);
+    const readerPath = p + '/documents/' + v1.documentId + '/readers';
+    const priorReaders = await api('OWNER', 'GET', readerPath);
+    const restricted = await api('OWNER', 'PUT', readerPath, {
+      visibility: 'RESTRICTED',
+      userIds: [users.OWNER, users.TEST],
+      revision: priorReaders.revision,
+    });
+    assert.ok(validate('Readers')(restricted));
+    for (const id of [v1.versionId, v2.versionId]) {
+      await api('DEV', 'GET', p + '/versions/' + id + '/content', undefined, 404);
+      await api('DEV', 'GET', p + '/versions/' + id + '/original', undefined, 404);
+      await api('TEST', 'GET', p + '/versions/' + id + '/content');
+    }
+    const jobs = await api('ADMIN', 'GET', '/api/v3/platform/jobs?projectId=' + project.projectId);
+    assert.ok(validate('JobPage')(jobs));
+    assert.ok(jobs.items.some((item) => item.operation === 'INDEX' && item.status === 'READY'));
+    console.log(
+      'PASS: approved document indexing, original line, basis history and reader revocation',
+    );
+    return;
+  }
+  const outputAttachmentId = await file('DEV', 'output.xml', example.xml),
+    logAttachmentId = await file('DEV', 'run.log', example.log);
+  const registration = {
+    name: '响应时间复测',
+    executedAt: first.effectiveFrom,
+    outputAttachmentId,
+    logAttachmentIds: [logAttachmentId],
+  };
+  const runKey = randomUUID();
+  const result = await api('DEV', 'POST', p + '/runs', registration, 202, runKey);
+  assert.equal(
+    (await api('DEV', 'POST', p + '/runs', registration, 202, runKey)).runId,
+    result.runId,
+  );
+  const parsed = await until(
+    () => api('DEV', 'GET', p + '/runs/' + result.runId),
+    (x) => x.parseStatus === 'READY',
+  );
+  assert.equal(parsed.pass, 1);
+  assert.equal(parsed.fail, 0);
   const turn = await api(
     'DEV',
     'POST',
     p + '/turns',
-    { ...example.turn, clientMessageId: randomUUID(), runId: result.runId },
+    {
+      attachmentIds: [],
+      text: '最近一次复测的响应时间达标吗？请对照当时与当前的验收依据。',
+      clientMessageId: randomUUID(),
+    },
     202,
   );
-  const sse = await api('DEV', 'GET', p + '/turns/' + turn.turnId + '/events');
-  const events = sse
-    .replace(/\r\n/g, '\n')
-    .split('\n\n')
-    .map((block) =>
-      block
-        .split('\n')
-        .filter((line) => line.startsWith('data:'))
-        .map((line) => line.slice(5).trimStart())
-        .join('\n'),
-    )
-    .filter(Boolean)
-    .map((x) => JSON.parse(x));
+  const events = await readEvents('DEV', p, turn.turnId);
   for (const [i, event] of events.entries()) {
     assert.ok(validate('Event')(event));
     assert.equal(event.sequence, i + 1);
   }
   assert.equal(events.at(-1)?.event, 'turn.completed');
   assert.equal(events.filter((e) => e.event === 'turn.completed').length, 1);
+  assert.deepEqual(await readEvents('DEV', p, turn.turnId, events[0].sequence), events.slice(1));
   const a = events.at(-1).data.answer;
   assert.ok(validate('Answer')(a));
   assert.equal(a.robotStatus, 'PASS');
@@ -208,6 +250,31 @@ async function run() {
   );
   assert.ok(citation);
   await api('DEV', 'GET', p + '/citations/' + citation.citationId);
+  const follow = await api(
+    'DEV',
+    'POST',
+    p + '/turns',
+    {
+      conversationId: turn.conversationId,
+      clientMessageId: randomUUID(),
+      attachmentIds: [],
+      text: '按刚才未达标的要求，补写一条 Robot 回归用例，并给出依据。',
+    },
+    202,
+  );
+  const completed = (await readEvents('DEV', p, follow.turnId)).at(-1);
+  assert.ok(completed);
+  assert.equal(completed.event, 'turn.completed');
+  const draft = completed.data.answer;
+  assert.ok(validate('Answer')(draft));
+  assert.match(draft.robotDraft ?? '', /\*\*\* Test Cases \*\*\*/i);
+  assert.ok(
+    draft.citations.some(
+      (c) => c.source.resourceKind === 'DOCUMENT' && c.source.resourceId === v2.versionId,
+    ),
+    'The follow-up must cite the version whose requirement was missed',
+  );
+  assert.notEqual(draft.summary, a.summary);
   await api(
     'TEST',
     'GET',
@@ -222,6 +289,22 @@ async function run() {
     revision: readers.revision,
   });
   await api('DEV', 'GET', p + '/citations/' + citation.citationId, undefined, 404);
+  const hiddenHistory = await api(
+    'DEV',
+    'GET',
+    p + '/conversations/' + turn.conversationId + '/messages',
+  );
+  assert.ok(validate('MessagePage')(hiddenHistory));
+  const hiddenAnswer = hiddenHistory.items.find((item) => item.author === 'ASSISTANT');
+  assert.ok(hiddenAnswer);
+  assert.equal(hiddenAnswer.answer, null);
+  assert.match(hiddenAnswer.text, /权限已变化/);
+  const restrictedReplay = await readEvents('DEV', p, turn.turnId, events.at(-2).sequence);
+  assert.equal(restrictedReplay.length, 1);
+  assert.equal(restrictedReplay[0].event, 'turn.failed');
+  assert.match(JSON.stringify(restrictedReplay[0].data), /AUTHORIZATION_CHANGED/);
+  assert.doesNotMatch(JSON.stringify(restrictedReplay[0].data), /抄读指令|设备应在/);
+
   const jobPage = await api('ADMIN', 'GET', '/api/v3/platform/jobs?projectId=' + project.projectId);
   assert.ok(validate('JobPage')(jobPage));
   const projectAdmin = '/api/v3/platform/projects/' + project.projectId;

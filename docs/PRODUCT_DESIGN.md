@@ -2,7 +2,7 @@
 
 2026-11-19 · 最终版业务与界面方向已确认。功能开发状态见[工程交接](../.memory/CURRENT.md)。
 
-[可操作的全界面样稿](design/index.html) · [全部页面与按钮](WEB_UI_DESIGN.md) · [数据模型](DOMAIN_MODEL.md) · [三端接口](contracts/README.md) · [开发总计划](ROADMAP.md)
+[本机运行入口](http://127.0.0.1:8088) · [全部页面与按钮](WEB_UI_DESIGN.md) · [数据模型](DOMAIN_MODEL.md) · [三端接口](contracts/README.md) · [开发总计划](ROADMAP.md)
 
 ## 系统为什么存在
 

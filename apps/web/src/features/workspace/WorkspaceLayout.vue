@@ -1,292 +1,359 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import AppIcon from '../../app/AppIcon.vue';
+import { errorMessage } from '../../app/http';
+import type { WorkspaceProject } from '../../app/workspace-contracts';
 import { auth } from '../auth/session';
-import { projects } from '../projects/context';
-import { caseCatalog } from '../test-cases/catalog';
+import AppIcon from '../../app/AppIcon.vue';
+import { listWorkspaceProjects } from '../projects/workspace-api';
 
 const route = useRoute();
 const router = useRouter();
-const selectedProject = computed({ get: () => projects.state.selectedId, set: projects.select });
-const projectQuery = computed(() =>
-  projects.state.selectedId ? { projectId: projects.state.selectedId } : {},
+const memberships = ref<WorkspaceProject[]>([]);
+const loading = ref(true);
+const error = ref('');
+const controller = new AbortController();
+const admin = computed(() => auth.state.user?.roles.includes('ADMIN') ?? false);
+const current = computed(
+  () =>
+    memberships.value.find(
+      (item) => item.projectId === (route.params.projectId ?? route.query.projectId),
+    ) ?? (route.params.projectId ? undefined : memberships.value[0]),
 );
-const menuOpen = ref(false);
-const menuButton = ref<HTMLButtonElement>();
-const sidebar = ref<HTMLElement>();
-const mobileViewport = window.matchMedia('(max-width: 700px)');
-function handleViewportChange(event: MediaQueryListEvent) {
-  if (!event.matches) menuOpen.value = false;
-}
-onMounted(() => mobileViewport.addEventListener('change', handleViewportChange));
-onMounted(() => {
-  void projects.load(route.query.projectId);
-});
-const navigation = [
-  { path: '/overview', label: '工作台', icon: 'grid', enabled: true },
-  { path: '/assistant', label: 'AI 助手', icon: 'activity', enabled: true },
-  { path: '/knowledge', label: '知识库', icon: 'book', enabled: true },
-  { path: '/test-cases', label: 'Robot 用例', icon: 'check', enabled: true },
-  { path: '/runs', label: '运行记录', icon: 'activity', enabled: true },
-  { path: '/imports', label: '数据导入', icon: 'arrow', enabled: true },
-] as const;
-watch(
-  () => projects.state.selectedId,
-  (id, previous) => {
-    caseCatalog.setProject(id);
-    if (!id) return;
-    const changedProject =
-      Boolean(previous) ||
-      (typeof route.query.projectId === 'string' && route.query.projectId !== id);
-    const path =
-      changedProject && route.path.startsWith('/test-cases/')
-        ? '/test-cases'
-        : changedProject && route.path.startsWith('/runs/')
-          ? '/runs'
-          : changedProject && route.path.startsWith('/knowledge/')
-            ? '/knowledge'
-            : changedProject &&
-                (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))
-              ? '/assistant'
-              : route.path;
-    if (route.query.projectId !== id || path !== route.path)
-      void router.replace({ path, query: { projectId: id } });
-  },
+const prefix = computed(() => (current.value ? '/p/' + current.value.projectId : ''));
+const roleNames = { OWNER: '项目负责人', TEST: '测试工程师', DEV: '开发工程师' } as const;
+const role = computed(() =>
+  route.meta.platform && admin.value
+    ? '平台管理员'
+    : current.value?.myRole
+      ? roleNames[current.value.myRole]
+      : '',
 );
-watch(
-  () => route.query.projectId,
-  (id) => {
-    if (
-      projects.state.phase !== 'ready' ||
-      typeof id !== 'string' ||
-      id === projects.state.selectedId
-    )
-      return;
-    if (projects.state.items.some((project) => project.id === id)) projects.select(id);
-    else void projects.load(id);
-  },
+const projectMenu = computed(() =>
+  prefix.value
+    ? [
+        { to: prefix.value + '/chat', name: 'AI 工作台', icon: 'chat' as const },
+        { to: prefix.value + '/documents', name: '项目资料', icon: 'book' as const },
+        { to: prefix.value + '/runs', name: '运行记录', icon: 'activity' as const },
+        ...(current.value?.myRole === 'OWNER'
+          ? [
+              {
+                to: prefix.value + '/settings/members',
+                name: '项目管理',
+                icon: 'settings' as const,
+              },
+            ]
+          : []),
+      ]
+    : [],
 );
+const platformMenu = [
+  { to: '/platform/projects', name: '平台项目', icon: 'grid' as const },
+  { to: '/platform/accounts', name: '平台账号', icon: 'user' as const },
+  { to: '/platform/jobs', name: '处理状态', icon: 'activity' as const },
+];
+const showPlatform = computed(() => admin.value && (route.meta.platform || !current.value));
+const chat = computed(() => route.meta.chat && Boolean(route.params.projectId));
 
-async function setMenu(open: boolean) {
-  menuOpen.value = open;
-  await nextTick();
-  // Wait for visibility styles before focusing a previously hidden drawer.
-  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-  if (menuOpen.value !== open) return;
-  if (open) sidebar.value?.querySelector<HTMLElement>('a')?.focus();
-  else if (mobileViewport.matches) menuButton.value?.focus();
-}
-function focusDrawer(event: TransitionEvent) {
-  if (menuOpen.value && event.target === sidebar.value && event.propertyName === 'transform') {
-    sidebar.value?.querySelector<HTMLElement>('a')?.focus();
+async function loadMemberships() {
+  try {
+    loading.value = true;
+    error.value = '';
+    const items: WorkspaceProject[] = [];
+    for (let page = 0; ; page++) {
+      const result = await listWorkspaceProjects(false, page, controller.signal);
+      items.push(...result.items);
+      if (items.length >= result.total || !result.items.length) break;
+    }
+    memberships.value = items.filter((item) => item.myRole);
+  } catch (cause) {
+    if (!controller.signal.aborted) error.value = errorMessage(cause);
+  } finally {
+    if (!controller.signal.aborted) loading.value = false;
   }
 }
-function trapFocus(event: KeyboardEvent) {
-  if (!menuOpen.value || event.key !== 'Tab') return;
-  const elements = sidebar.value?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled)');
-  const first = elements?.[0];
-  const last = elements?.[elements.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last?.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first?.focus();
-  }
-}
-watch(menuOpen, (open) => {
-  document.body.style.overflow = open ? 'hidden' : '';
+onMounted(loadMemberships);
+watch([() => route.path, loading], () => {
+  if (route.path !== '/chat' || loading.value || error.value) return;
+  if (admin.value) void router.replace('/platform/projects');
+  else if (prefix.value) void router.replace(prefix.value + '/chat');
 });
-watch(
-  () => route.path,
-  () => {
-    menuOpen.value = false;
-  },
-);
-function focusHeading() {
-  document.querySelector<HTMLElement>('[data-page-heading]')?.focus();
+onBeforeUnmount(() => controller.abort());
+function switchProject(event: Event) {
+  const id = (event.target as HTMLSelectElement).value;
+  if (id) void router.push('/p/' + id + '/chat');
 }
-onBeforeUnmount(() => {
-  document.body.style.overflow = '';
-  mobileViewport.removeEventListener('change', handleViewportChange);
-  projects.reset();
-  caseCatalog.setProject('');
-});
-function logout() {
-  auth.logout('你已退出登录。');
+function active(path: string) {
+  return (
+    route.path === path ||
+    route.path.startsWith(path + '/') ||
+    (path.endsWith('/settings/members') &&
+      (route.path === prefix.value + '/settings' ||
+        route.path.startsWith(prefix.value + '/settings/')))
+  );
 }
 </script>
 
 <template>
-  <div class="workspace" @keydown.esc="setMenu(false)">
+  <div class="app-shell">
     <a class="skip-link" href="#workspace-content">跳转到主要内容</a>
-    <Transition name="veil"
-      ><button
-        v-if="menuOpen"
-        class="sidebar-backdrop"
-        aria-label="关闭导航"
-        tabindex="-1"
-        @click="setMenu(false)"
-    /></Transition>
-    <aside
-      id="workspace-navigation"
-      ref="sidebar"
-      class="sidebar"
-      :class="{ 'is-open': menuOpen }"
-      :role="menuOpen ? 'dialog' : undefined"
-      :aria-modal="menuOpen ? true : undefined"
-      aria-label="工作台导航"
-      @keydown="trapFocus"
-      @transitionend="focusDrawer"
-    >
-      <div class="sidebar-brand-row">
-        <RouterLink
-          :to="{ path: '/overview', query: projectQuery }"
-          class="brand"
-          @click="setMenu(false)"
-          ><span class="brand-mark">t<span>·</span></span
-          ><span>TestOps <b>AI</b></span></RouterLink
-        ><button class="icon-button mobile-only" aria-label="关闭导航" @click="setMenu(false)">
-          <AppIcon name="close" />
-        </button>
-      </div>
-      <p class="sidebar-caption">智能电表测试协作</p>
+    <aside class="nav-rail">
+      <RouterLink to="/chat" class="product-mark" aria-label="TestOps AI 首页"
+        ><AppIcon name="activity"
+      /></RouterLink>
       <nav aria-label="主导航">
-        <template v-for="item in navigation" :key="item.path">
-          <RouterLink
-            v-if="item.enabled"
-            :to="{ path: item.path, query: projectQuery }"
-            class="nav-item"
-            :class="{
-              'router-link-active':
-                (item.path === '/test-cases' && route.path.startsWith('/test-cases/')) ||
-                (item.path === '/runs' && route.path.startsWith('/runs/')) ||
-                (item.path === '/knowledge' && route.path.startsWith('/knowledge/')) ||
-                (item.path === '/assistant' &&
-                  (route.path.startsWith('/assistant/') || route.path.startsWith('/drafts/'))),
-            }"
-            @click="setMenu(false)"
-            ><AppIcon :name="item.icon" /><span>{{ item.label }}</span></RouterLink
-          >
-          <button
-            v-else
-            class="nav-item nav-unavailable"
-            disabled
-            :aria-label="`${item.label}，当前不可用`"
-          >
-            <AppIcon :name="item.icon" /><span>{{ item.label }}</span>
-          </button>
-        </template>
-      </nav>
-      <nav class="secondary-navigation" aria-label="设置导航">
         <RouterLink
-          :to="{ path: '/settings/project', query: projectQuery }"
-          class="nav-item"
-          @click="setMenu(false)"
-          ><AppIcon name="shield" />项目与成员</RouterLink
+          v-for="item in showPlatform ? platformMenu : projectMenu"
+          :key="item.to"
+          :to="item.to"
+          :class="{ active: active(item.to) }"
+          :aria-current="active(item.to) ? 'page' : undefined"
+          ><AppIcon :name="item.icon" />{{ item.name }}</RouterLink
         >
-        <button class="nav-item nav-unavailable" disabled aria-label="审计记录，当前不可用">
-          <AppIcon name="book" />审计记录
-        </button>
+        <RouterLink v-if="admin && !showPlatform" to="/platform/projects"
+          ><AppIcon name="grid" />平台管理</RouterLink
+        >
       </nav>
-      <div class="sidebar-footer">
-        <RouterLink to="/settings/account" class="nav-item" @click="setMenu(false)"
-          ><AppIcon name="user" />账户</RouterLink
-        >
-      </div>
+      <RouterLink
+        class="profile"
+        to="/settings/account"
+        :aria-label="'我的账户 · ' + auth.state.user?.username"
+        >{{ auth.state.user?.username.slice(0, 1).toUpperCase() }}</RouterLink
+      >
     </aside>
-    <div class="workspace-body" :inert="menuOpen">
-      <header class="topbar">
-        <div class="topbar-location">
-          <button
-            ref="menuButton"
-            class="icon-button mobile-only"
-            aria-label="打开导航"
-            :aria-expanded="menuOpen"
-            aria-controls="workspace-navigation"
-            @click="setMenu(true)"
-          >
-            <AppIcon name="menu" />
-          </button>
-          <div class="project-picker">
-            <label for="active-project">当前项目</label
-            ><select
-              id="active-project"
-              v-model="selectedProject"
-              :disabled="projects.state.phase !== 'ready' || !projects.state.items.length"
-            >
-              <option v-if="!projects.state.selectedId" value="">
-                {{ projects.state.phase === 'loading' ? '正在读取项目…' : '选择项目' }}
-              </option>
-              <option v-for="project in projects.state.items" :key="project.id" :value="project.id">
-                {{ project.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="topbar-account">
-          <span class="avatar">{{ auth.state.user?.username.slice(0, 1).toUpperCase() }}</span><span
-            class="account-name"
-            >{{ auth.state.user?.username }}</span
-          ><span class="topbar-separator" /><button class="text-button" @click="logout">
-            <AppIcon name="logout" /><span>退出</span>
-          </button>
-        </div>
+    <div class="workspace">
+      <header class="app-header">
+        <strong class="wordmark">TestOps <span>AI</span></strong
+        ><span class="divider"></span>
+        <AppIcon name="folder" />
+        <select
+          v-if="memberships.length"
+          aria-label="当前项目"
+          :value="showPlatform ? '' : (current?.projectId ?? '')"
+          @change="switchProject"
+        >
+          <option value="" disabled>{{ showPlatform ? '平台管理' : '选择项目' }}</option>
+          <option v-for="item in memberships" :key="item.projectId" :value="item.projectId">
+            {{ item.name }}
+          </option>
+        </select>
+        <span v-else>{{ showPlatform ? '平台管理' : '我的工作空间' }}</span>
+        <RouterLink class="identity" to="/settings/account"
+          ><span>{{ auth.state.user?.username }}</span
+          ><small>{{ role }}</small></RouterLink
+        >
       </header>
-      <main id="workspace-content" class="workspace-content" tabindex="-1">
-        <div v-if="auth.state.storageWarning" class="notice" role="status">
-          {{ auth.state.storageWarning }}
-        </div>
-        <section
-          v-if="route.meta.project && projects.state.phase !== 'ready'"
-          class="panel context-state"
-          :aria-busy="projects.state.phase === 'loading'"
-        >
-          <template v-if="projects.state.phase === 'error'"
-            ><span class="section-kicker">PROJECT / 项目</span>
-            <h1 data-page-heading tabindex="-1">无法读取项目</h1>
-            <p role="alert">{{ projects.state.error }}</p>
-            <small v-if="projects.state.requestId">请求编号：{{ projects.state.requestId }}</small
-            ><button class="button button-primary" @click="projects.load(route.query.projectId)">
-              重新读取
-            </button></template
-          >
-          <p v-else role="status"><span class="spinner" />正在读取可访问项目…</p>
-        </section>
-        <section
-          v-else-if="route.meta.project && !projects.state.selectedId"
-          class="panel context-state"
-        >
-          <h1 data-page-heading tabindex="-1">
-            {{ projects.state.items.length ? '请选择项目' : '暂无可访问项目' }}
-          </h1>
-          <p>
-            {{
-              projects.state.items.length
-                ? projects.state.error
-                : '请联系项目所有者添加成员权限，然后重新读取。'
-            }}
-          </p>
-          <button class="button button-primary" @click="projects.load()">重新读取</button>
-        </section>
-        <template v-else>
-          <p
-            v-if="projects.state.error && projects.state.phase === 'ready'"
-            class="notice"
-            role="status"
-          >
-            {{ projects.state.error }}
-          </p>
-          <RouterView v-slot="{ Component, route: childRoute }"
-            ><Transition name="page" mode="out-in" appear @after-enter="focusHeading"
-              ><component :is="Component" :key="childRoute.path" /></Transition
-          ></RouterView>
+      <main
+        id="workspace-content"
+        :class="chat ? 'chat-content' : 'business-content'"
+        tabindex="-1"
+      >
+        <p v-if="auth.state.storageWarning" role="status">{{ auth.state.storageWarning }}</p>
+        <template v-if="route.path === '/chat'">
+          <p v-if="loading" role="status">正在读取可访问项目…</p>
+          <template v-else-if="error">
+            <p role="alert">{{ error }}</p>
+            <button class="button button-secondary" @click="loadMemberships">重新读取</button>
+          </template>
+          <template v-else-if="!current && !admin">
+            <h1 data-page-heading tabindex="-1">暂无可访问项目</h1>
+            <p>请联系项目负责人将你加入项目。</p>
+            <button class="button button-secondary" @click="loadMemberships">重新读取</button>
+          </template>
         </template>
+        <RouterView v-else v-slot="{ Component }"
+          ><component :is="Component" :key="route.meta.chat ? 'chat' : route.path"
+        /></RouterView>
       </main>
-      <footer class="workspace-footer">
-        <span>TestOps AI</span><span>测试事实 · 知识依据 · AI 协作</span>
-      </footer>
     </div>
   </div>
 </template>
+
+<style scoped>
+.app-shell {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  height: 100dvh;
+  background: var(--canvas);
+  overflow: hidden;
+}
+.nav-rail {
+  background: #17273e;
+  color: #d3dbeb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 6px 12px;
+  gap: 24px;
+}
+.product-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: white;
+  background: #466ce2;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+}
+.product-mark .icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.4;
+}
+nav {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 0;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+}
+nav a.active {
+  background: #334c73;
+  color: white;
+}
+nav a:hover {
+  background: #2a405f;
+}
+.profile {
+  margin-top: auto;
+  border: 1px solid #586b84;
+  border-radius: 50%;
+  height: 34px;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 650;
+}
+.workspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 clamp(14px, 2.5vw, 36px);
+  height: 60px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+.wordmark {
+  font-size: 19px;
+  letter-spacing: -0.8px;
+  white-space: nowrap;
+}
+.wordmark span {
+  color: var(--primary);
+}
+.divider {
+  height: 19px;
+  border-left: 1px solid var(--border);
+  margin-inline: 6px;
+}
+.app-header > .icon {
+  width: 17px;
+  color: var(--muted);
+}
+.app-header select {
+  max-width: min(42vw, 320px);
+  padding: 4px 20px 4px 0;
+  border: 0;
+  background: transparent;
+  min-height: 36px;
+  font-weight: 600;
+}
+.identity {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.identity small {
+  padding: 3px 8px;
+  color: #536381;
+  border-radius: 5px;
+  background: #eff2f8;
+}
+main {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+.business-content {
+  padding: clamp(20px, 3vw, 40px);
+  scrollbar-gutter: stable;
+}
+.business-content > :deep(section),
+.business-content > :deep(div) {
+  max-width: 1240px;
+  margin-inline: auto;
+}
+.chat-content {
+  overflow: hidden;
+}
+@media (max-width: 740px) {
+  .app-shell {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .workspace {
+    flex: 1;
+  }
+  .nav-rail {
+    height: 56px;
+    flex-direction: row;
+    padding: 2px 5px;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .nav-rail .product-mark,
+  .nav-rail .profile {
+    display: none;
+  }
+  nav {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1px;
+  }
+  nav a {
+    flex: 1;
+    gap: 2px;
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+  nav a .icon {
+    height: 18px;
+  }
+  .app-header {
+    height: 48px;
+    gap: 5px;
+  }
+  .wordmark {
+    font-size: 16px;
+  }
+  .identity small,
+  .app-header > .icon {
+    display: none;
+  }
+  .app-header select {
+    font-size: 13px;
+  }
+  .business-content {
+    padding: 18px 12px;
+  }
+}
+</style>

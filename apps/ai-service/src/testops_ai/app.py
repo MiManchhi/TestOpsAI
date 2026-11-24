@@ -13,9 +13,11 @@ from starlette.responses import Response
 
 from testops_ai.core.service_tokens import ServiceTokens
 from testops_ai.core.settings import Settings
+from testops_ai.features.answers.router import router as answer_router
 from testops_ai.features.health.router import router as health_router
 from testops_ai.features.ingestion.embedding import HttpEmbedding
 from testops_ai.features.ingestion.router import router as ingestion_router
+from testops_ai.features.ingestion.router import workspace_router as workspace_ingestion_router
 from testops_ai.features.ingestion.service import IngestionService
 from testops_ai.features.ingestion.store import JobStore
 from testops_ai.features.ingestion.vectors import VectorIndex
@@ -143,6 +145,8 @@ def create_app(
         )
 
     app.include_router(health_router)
+    app.include_router(answer_router)
     app.include_router(parser_router)
     app.include_router(ingestion_router)
+    app.include_router(workspace_ingestion_router)
     return app

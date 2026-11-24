@@ -12,6 +12,7 @@ from testops_ai.features.robot_parser.models import (
 )
 
 PARSER_VERSION = "knowledge-v1"
+WORKSPACE_PARSER_VERSION = "knowledge-v2"
 Status = Literal["QUEUED", "PROCESSING", "SUCCEEDED", "FAILED", "CANCELLED"]
 Stage = Literal["PARSING", "CHUNKING", "EMBEDDING", "CLEANUP", "FINISHED"]
 
@@ -61,6 +62,7 @@ class Chunk(ContractModel):
     start_line: Annotated[int, Field(ge=1)] | None
     end_line: Annotated[int, Field(ge=1)] | None
     offset: Annotated[int, Field(ge=0)]
+    paragraph: Annotated[int, Field(ge=1)] | None = None
 
     _uuid = field_validator("id")(check_uuid)
 
@@ -121,3 +123,22 @@ class Candidate(ContractModel):
     knowledge_base_id: str
     chunk: Chunk
     score: Annotated[float, Field(allow_inf_nan=False)]
+
+
+class SourceBlock(ContractModel):
+    locator: Annotated[str, Field(min_length=1, max_length=96)]
+    text: Annotated[str, Field(min_length=1, max_length=4000)]
+
+
+class ExtractedSource(ContractModel):
+    chunks: list[Chunk]
+    blocks: list[SourceBlock]
+
+
+class IndexBlockPage(ContractModel):
+    job_id: Uuid
+    version_id: Id
+    content_hash: Sha256
+    parser_version: str
+    blocks: list[SourceBlock]
+    next_cursor: str | None

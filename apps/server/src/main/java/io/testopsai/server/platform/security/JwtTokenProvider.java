@@ -24,11 +24,12 @@ public class JwtTokenProvider {
     this.expirationMillis = props.expirationMinutes() * 60_000L;
   }
 
-  public String generateToken(String username, List<String> roles) {
+  public String generateToken(String username, List<String> roles, long credentialRevision) {
     Date now = new Date();
     return Jwts.builder()
         .subject(username)
         .claim("roles", roles)
+        .claim("credentialRevision", credentialRevision)
         .issuedAt(now)
         .expiration(new Date(now.getTime() + expirationMillis))
         .signWith(key)

@@ -4,20 +4,18 @@ import multiprocessing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from pydantic import TypeAdapter
-
 from testops_ai.features.robot_parser.errors import ParserError
 
-from .documents import parse_document
-from .models import Chunk
+from .documents import parse_source
+from .models import PARSER_VERSION, Chunk, ExtractedSource
 
 
-def _extract(source: str, logical_path: str, content_hash: str, destination: str) -> None:
+def _extract(
+    source: str, logical_path: str, content_hash: str, parser_version: str, destination: str
+) -> None:
     try:
-        chunks = parse_document(Path(source).read_bytes(), logical_path, content_hash)
-        payload: dict[str, object] = {
-            "chunks": [chunk.model_dump(by_alias=True) for chunk in chunks]
-        }
+        result = parse_source(Path(source).read_bytes(), logical_path, content_hash, parser_version)
+        payload: dict[str, object] = result.model_dump(by_alias=True)
     except ParserError as exc:
         payload = {"error": {"status": exc.status, "code": exc.code, "message": exc.message}}
     except Exception:
@@ -34,11 +32,19 @@ def _extract(source: str, logical_path: str, content_hash: str, destination: str
 async def extract_document(
     source: Path, logical_path: str, content_hash: str, timeout: float
 ) -> list[Chunk]:
+    return (
+        await extract_source(source, logical_path, content_hash, timeout, PARSER_VERSION)
+    ).chunks
+
+
+async def extract_source(
+    source: Path, logical_path: str, content_hash: str, timeout: float, parser_version: str
+) -> ExtractedSource:
     with TemporaryDirectory(prefix="testops-document-") as directory:
         output = Path(directory) / "chunks.json"
         process = multiprocessing.get_context("spawn").Process(
             target=_extract,
-            args=(str(source), logical_path, content_hash, str(output)),
+            args=(str(source), logical_path, content_hash, parser_version, str(output)),
             daemon=True,
         )
         started = False
@@ -56,7 +62,7 @@ async def extract_document(
             if "error" in envelope:
                 error = envelope["error"]
                 raise ParserError(error["status"], error["code"], error["message"])
-            return TypeAdapter(list[Chunk]).validate_python(envelope["chunks"])
+            return ExtractedSource.model_validate(envelope)
         except TimeoutError as exc:
             raise ParserError(
                 422, "DOCUMENT_TIMEOUT", "Document parsing exceeded time limit"

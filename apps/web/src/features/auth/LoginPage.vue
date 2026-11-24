@@ -46,30 +46,10 @@ async function submit() {
 
 <template>
   <main class="login-page">
-    <section class="login-story" aria-label="TestOps AI 测试协作工作台">
-      <a class="brand" href="/login" aria-label="TestOps AI 登录页"
-        ><span class="brand-mark">t<span>·</span></span
-        ><span>TestOps <b>AI</b></span></a
-      >
-      <div class="story-content">
-        <p class="eyebrow"><span class="tiny-line" /> 测试知识与协作工作台</p>
-        <h1>让测试经验，<br />成为团队的<span class="accent-text">共同资产。</span></h1>
-        <p class="story-description">从知识积累到测试协作，<br />为每一次可靠交付，打好基础。</p>
-        <div class="story-diagram" aria-hidden="true">
-          <div class="diagram-node"><AppIcon name="book" /><span>知识沉淀</span></div>
-          <span class="diagram-connector" />
-          <div class="diagram-center"><AppIcon name="check" /></div>
-          <span class="diagram-connector" />
-          <div class="diagram-node"><AppIcon name="user" /><span>团队协作</span></div>
-        </div>
-      </div>
-      <p class="story-footer"><span class="small-dot" /> 让知识有序，让协作清晰</p>
-    </section>
     <section class="login-panel" aria-labelledby="login-heading">
       <div class="login-card">
-        <span class="section-kicker">你的测试工作，从这里开始</span>
-        <h2 id="login-heading" data-page-heading tabindex="-1">欢迎回来</h2>
-        <p class="muted login-intro">登录账户，进入你的协作空间。</p>
+        <div class="login-symbol"><AppIcon name="activity" /></div>
+        <h1 id="login-heading" data-page-heading tabindex="-1">登录 TestOps AI</h1>
         <div v-if="auth.state.notice" class="notice" role="status">{{ auth.state.notice }}</div>
         <form novalidate :aria-busy="pending" @submit.prevent="submit">
           <div v-if="error" ref="errorBox" class="notice notice-error" role="alert" tabindex="-1">
@@ -131,10 +111,39 @@ async function submit() {
           </button>
           <p class="form-footnote">需要账户或登录帮助？请联系管理员。</p>
         </form>
-        <div class="login-bottom">
-          <span class="mini-brand">TestOps AI</span><span>专注测试 · 有序协作</span>
-        </div>
       </div>
     </section>
   </main>
 </template>
+<style scoped>
+.login-page {
+  background: radial-gradient(ellipse at 50% 25%, #e8eefb 0, transparent 63%), #f5f7fb;
+}
+.login-panel {
+  width: min(100%, 420px);
+}
+.login-card {
+  padding: clamp(25px, 6vw, 40px);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 18px 52px #2944670c;
+}
+.login-symbol {
+  height: 44px;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  background: #365dbe;
+  border-radius: 13px;
+  color: white;
+  margin-bottom: 22px;
+}
+.login-symbol .icon {
+  width: 27px;
+  height: 27px;
+}
+.login-card h1 {
+  margin: 0 0 24px;
+}
+</style>

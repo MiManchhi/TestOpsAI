@@ -27,16 +27,16 @@ class AuthService {
   }
 
   LoginResponse login(LoginRequest request) {
+    Optional<AppUser> user = userRepository.findByUsername(request.username());
     try {
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(request.username(), request.password()));
     } catch (AuthenticationException e) {
       return null;
     }
-    Optional<AppUser> user = userRepository.findByUsername(request.username());
     if (user.isEmpty()) return null;
     AppUser u = user.get();
-    String token = tokenProvider.generateToken(u.username(), u.roles());
+    String token = tokenProvider.generateToken(u.username(), u.roles(), u.credentialRevision());
     return new LoginResponse(token, expirationMinutes * 60L);
   }
 }

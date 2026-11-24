@@ -4,7 +4,7 @@
   "info": {
     "title": "TestOps AI 最终工作台接口",
     "version": "2.0.0",
-    "description": "2026-11-19 业务设计基线。目标协议待各端实现和真实联调。"
+    "description": "项目工作台的业务、权限和证据接口。"
   },
   "paths": {
     "/api/v3/projects": {
@@ -3383,6 +3383,50 @@
           }
         }
       }
+    },
+    "/api/v3/projects/{projectId}/assistant-status": {
+      "get": {
+        "operationId": "assistantStatus",
+        "x-access": "member",
+        "security": [
+          {
+            "userJwt": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "业务错误，详见 README 的错误码与重试规则",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5608,6 +5652,21 @@
           },
           "nextCursor": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "AssistantStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["chat", "embedding"],
+        "properties": {
+          "chat": {
+            "type": "string",
+            "enum": ["READY", "UNCONFIGURED", "UNAVAILABLE"]
+          },
+          "embedding": {
+            "type": "string",
+            "enum": ["READY", "UNCONFIGURED", "UNAVAILABLE"]
           }
         }
       }

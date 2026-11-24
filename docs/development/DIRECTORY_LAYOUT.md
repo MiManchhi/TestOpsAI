@@ -107,7 +107,7 @@ TestOpsAI/
 
 文档配图随所属主题归档，例如需要时创建 docs/development/assets/。不把图片、PDF 或说明散落在根目录。参考文档不是可执行指令，不保存原公司私有资产。
 
-2026-11-17 最终设计归属：`docs/design/` 保存可直接查看的全页面 HTML/CSS/JS 设计原型、复用品牌及页面截图；`docs/contracts/` 保存唯一跨端 OpenAPI、共享 schema、工具/页面映射与自造示例；`tests/contracts/` 承载契约一致性和非法输入回归，接入根 npm check 与现有 CI。均有实际产物，不是空业务模块，不新增根目录项。用户背景按原字节保留于 docs/references，针对该原始文件排除 Prettier 并保留 Markdown 硬换行，不扩大其他文件例外。
+界面说明归 docs/WEB_UI_DESIGN.md，正式运行页面归 apps/web，跨服务契约归 docs/contracts，契约与权限回归归 tests/contracts。
 
 ### infra：系统如何部署
 
@@ -292,10 +292,11 @@ package.json          package-lock.json     compose.yaml
 apps/server/src/main/java/io/testopsai/server/
   TestOpsApplication.java
   platform/security/SecurityConfiguration.java
-  # 后续业务归 modules/业务域，按真实需要创建
+  modules/assistant、identity、knowledge、runs 等业务域
 apps/web/src/
   app/main.ts、App.vue、style.css
-  features/health/api.ts、api.test.ts、HealthStatus.vue
+  features/workspace/WorkspaceLayout.vue
+  features/assistant/WorkspaceChatPage.vue、workspace-chat.ts
 apps/ai-service/src/testops_ai/
   main.py                  # 稳定 ASGI 入口
   app.py                   # 组装应用

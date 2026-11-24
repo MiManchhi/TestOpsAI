@@ -32,7 +32,7 @@ foreach ($entry in @(
     'apps/server/src/main/java/io/testopsai/server/platform/security/SecurityConfiguration.java',
     'apps/server/src/test/java/io/testopsai/server/platform/security/BoundaryTest.java',
     'apps/web/src/app/main.ts', 'apps/web/src/app/App.vue',
-    'apps/web/src/features/health/HealthStatus.vue', 'apps/web/src/features/health/api.ts',
+    'apps/web/src/features/workspace/WorkspaceLayout.vue', 'apps/web/src/features/assistant/WorkspaceChatPage.vue',
     'apps/ai-service/src/testops_ai/main.py', 'apps/ai-service/src/testops_ai/app.py',
     'apps/ai-service/src/testops_ai/core/settings.py', 'apps/ai-service/src/testops_ai/features/health/router.py'
 )) {

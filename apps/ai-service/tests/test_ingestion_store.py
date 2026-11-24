@@ -23,7 +23,7 @@ def enqueue(store, key="one", content=b"self-made"):
 
 def test_exclusive_state_lock_and_migration(tmp_path):
     store = JobStore(tmp_path)
-    assert store.db.execute("PRAGMA user_version").fetchone()[0] == 1
+    assert store.db.execute("PRAGMA user_version").fetchone()[0] == 2
     with pytest.raises(ParserError):
         JobStore(tmp_path)
     store.close()

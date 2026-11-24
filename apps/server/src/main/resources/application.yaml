@@ -9,6 +9,10 @@ spring:
       write-dates-as-timestamps: false
     deserialization:
       fail-on-unknown-properties: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 51MB
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:testops}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:testops}
@@ -40,6 +44,13 @@ server:
     include-message: never
     include-stacktrace: never
 testopsai:
+  workspace:
+    object-root: ${TESTOPS_WORKSPACE_OBJECT_ROOT:.runtime/workspace-objects}
+    ai-url: ${TESTOPS_WORKSPACE_AI_URL:}
+    java-private-key: ${TESTOPS_WORKSPACE_JAVA_PRIVATE_KEY:}
+    ai-public-key: ${TESTOPS_WORKSPACE_AI_PUBLIC_KEY:}
+    embedding-profile: ${TESTOPS_WORKSPACE_EMBEDDING_PROFILE:default}
+    index-worker-enabled: ${TESTOPS_WORKSPACE_INDEX_WORKER_ENABLED:false}
   jwt:
     secret: ${JWT_SECRET:?Set JWT_SECRET environment variable}
     expiration-minutes: 30

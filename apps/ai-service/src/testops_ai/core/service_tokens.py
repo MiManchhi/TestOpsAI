@@ -13,6 +13,7 @@ from testops_ai.features.robot_parser.errors import ParserError
 from testops_ai.features.robot_parser.models import DelegationClaims, ServiceClaims
 
 from .settings import Settings
+from .workspace_identity import AnswerScope, WorkspaceAction, WorkspaceDelegation
 
 
 class ServiceTokens:
@@ -66,6 +67,35 @@ class ServiceTokens:
         ):
             raise ParserError(403, "FORBIDDEN", "Delegation does not match the operation scope")
         return claims
+
+    def verify_workspace_delegation(
+        self,
+        authorization: str,
+        token: str,
+        operation_id: str,
+        action: WorkspaceAction,
+        *,
+        scope: AnswerScope | None = None,
+        index_source: tuple[str, str, str] | None = None,
+    ) -> WorkspaceDelegation:
+        identity = self.verify_service(authorization)
+        raw = self.decode(token, "testops-server-tools")
+        try:
+            claims = WorkspaceDelegation.model_validate(raw, by_alias=True, by_name=False)
+            self.check_lifetime(claims.iat, claims.exp, 120)
+        except (ValueError, ValidationError) as exc:
+            raise self.unauthorized() from exc
+
+        matches = identity.operation_id == operation_id == claims.operation_id
+        if matches and action in claims.allow_actions:
+            if (
+                action == "composeAnswer" and scope is not None and claims.matches_answer(scope)
+            ) or (
+                action == "exportIndexBlocks"
+                and index_source == (claims.project_id, claims.version_id, claims.content_hash)
+            ):
+                return claims
+        raise ParserError(403, "FORBIDDEN", "Delegation does not match the workspace operation")
 
     def decode(self, token: str, audience: str) -> dict[str, object]:
         if not token or len(token) > 12000 or self.public_key is None:
