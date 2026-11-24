@@ -1,5 +1,11 @@
 # 问题与经验
 
+## 2026-11-24 Embedding profile 改地址会阻塞解析
+
+- 状态：VERIFIED（本机 SQLite/Qdrant 证据与一次 503 复核）。`bind_profile` 把 URL、模型、维度和集合前缀一起做指纹；同名 profile 改 Base URL 后，后续索引提交直接 503 `PROFILE_CHANGED`，请求不会到达向量服务，即使新地址鉴权正常。页面当时直接显示原始错误码。
+- 恢复：确认旧集合无数据后重置该 profile 绑定，或换用新的 profile 名并同步 Java 与 AI 的 `TESTOPS_WORKSPACE_EMBEDDING_PROFILE`；不要只改 `.env` 地址。
+- 关联：[本次排查](sessions/2026-11-23-02-bailian-auth-debug.md)、[store.py](../apps/ai-service/src/testops_ai/features/ingestion/store.py)。
+
 ## 2026-11-18 本机 Maven 测试 JVM 被静默终止
 
 - 状态：VERIFIED（本机复现与绕过范围）。以 `pwsh` 工具直接执行 `mvn … test` 时，Spring 上下文启动处的测试 JVM 被静默终止且无 hs_err/异常；同一命令在 main 工作树与 `-DforkCount=0` 下同样复现，说明与业务代码无关。
@@ -57,7 +63,7 @@
 | L04  | MSYS Python 证书链错误且 uv 不识别其平台                        | IN_PROGRESS / BLOCKED：保持 TLS 校验，改用 Windows 工具与标准 CPython；安装状态下次核实 | [AI 模块](modules/ai-service.md)                                           |
 | L05  | Maven Wrapper 从根目录查找 .mvn 导致失败                        | IN_PROGRESS：已定位工作目录假设，尚未修复                                               | [Wrapper](../apps/server/mvnw.cmd)、[脚本](../scripts/check.ps1)           |
 | L06  | Vue 推荐格式规则与 Prettier 输出冲突                            | IN_PROGRESS：lint 8 警告且 max-warnings=0；test/build 因此未执行                        | [eslint](../apps/web/eslint.config.js)、[App](../apps/web/src/app/App.vue) |
-| L07  | 根目录堆放过程计划，且文档引用了不存在的进度页                  | IMPLEMENTED：计划迁入记忆归档，README 改指 CURRENT/EVIDENCE；本轮检查链接               | [README](../README.md)、[归档](archive/2026-11-16-m0/progress.md)          |
+| L07  | 根目录堆放过程计划，且文档引用了不存在的进度页                  | IMPLEMENTED：计划迁入记忆归档，README 改指 CURRENT/EVIDENCE；本轮检查链接               | [README](../README.md)                                                     |
 
 新问题按“日期、症状、根因、尝试、最终修复、验证范围”追加；未解决时保留状态，不编写虚构解决结论。无需保留原始错误日志或敏感输出。
 
