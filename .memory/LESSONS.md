@@ -4,6 +4,7 @@
 
 - 状态：VERIFIED（本机 SQLite/Qdrant 证据与一次 503 复核）。`bind_profile` 把 URL、模型、维度和集合前缀一起做指纹；同名 profile 改 Base URL 后，后续索引提交直接 503 `PROFILE_CHANGED`，请求不会到达向量服务，即使新地址鉴权正常。页面当时直接显示原始错误码。
 - 恢复：确认旧集合无数据后重置该 profile 绑定，或换用新的 profile 名并同步 Java 与 AI 的 `TESTOPS_WORKSPACE_EMBEDDING_PROFILE`；不要只改 `.env` 地址。
+- 2026-11-25 本机按第二种方式恢复：新 profile 名 `maas-qwen3-1024` 后 V1 READY、新集合 1 点、聊天 5 条引用，无需改代码。
 - 关联：[本次排查](sessions/2026-11-23-02-bailian-auth-debug.md)、[store.py](../apps/ai-service/src/testops_ai/features/ingestion/store.py)。
 
 ## 2026-11-18 本机 Maven 测试 JVM 被静默终止

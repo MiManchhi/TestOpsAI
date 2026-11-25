@@ -1,6 +1,6 @@
 # 当前交接
 
-更新：2026-11-24（Asia/Shanghai）。状态：IN_PROGRESS（聊天已恢复；资料解析待恢复）。
+更新：2026-11-25（Asia/Shanghai）。状态：VERIFIED（聊天与资料解析本机验证可用；提交未推送）。
 
 ## 学习任务（用户明确授权更新记忆）
 
@@ -8,7 +8,7 @@
 
 <!-- lane:integration -->
 
-根目录启动的工作台已部署到本机 8088，Web、Java、Python、MySQL、Redis、Qdrant 健康。12 个原有项目均可从平台查看；admin 的平台身份及项目 7、12 的负责人身份经用户确认恢复，并从浏览器复核。独立部署用协议测试服务走通聊天框两轮提问、双版本判定、查出处、复制 Robot 与刷新恢复。完整门禁通过。2026-11-23 复诊：旧聊天地址返回 403 insufficient_quota（免费额度耗尽），向量地址 200；资料 V1 重试返回 PROFILE_CHANGED：SQLite 中 default 的指纹仍是 dashscope 地址，与当前 maas 地址不一致，提交即被拒绝，Qdrant 无任何向量。2026-11-24 用户自测聊天已可用（聊天地址改用 token-plan.maas.qianwenaiapi.com，向量地址未变），资料解析仍待恢复。工作台三端整合已提交 `21f6170`，提交前完整门禁退出 0。细节与恢复选项见[百炼排查](sessions/2026-11-23-02-bailian-auth-debug.md)。已生成[抄表终端导入样例](../samples/README.md)。细项和签收边界见[本次交接](sessions/2026-11-20-07-workspace-cutover.md)、[百炼排查](sessions/2026-11-23-02-bailian-auth-debug.md)与[总计划](../docs/ROADMAP.md)。
+根目录启动的工作台已部署到本机 8088，Web、Java、Python、MySQL、Redis、Qdrant 健康。12 个原有项目均可从平台查看；admin 的平台身份及项目 7、12 的负责人身份经用户确认恢复，并从浏览器复核。独立部署用协议测试服务走通聊天框两轮提问、双版本判定、查出处、复制 Robot 与刷新恢复。完整门禁通过。2026-11-23 复诊：旧聊天地址返回 403 insufficient_quota（免费额度耗尽），向量地址 200；资料 V1 重试返回 PROFILE_CHANGED：SQLite 中 default 的指纹仍是 dashscope 地址，与当前 maas 地址不一致，提交即被拒绝，Qdrant 无任何向量。2026-11-24 用户自测聊天可用（聊天地址改用 token-plan.maas.qianwenaiapi.com）。2026-11-25 以新 profile 名 `maas-qwen3-1024` 恢复资料解析：V1 重试后 READY，正文 9 段，新集合 1 个向量，旧 default 集合为空；聊天验证 COMPLETED 且 5 条引用指向 V1。工作台三端整合已提交 `21f6170`，提交前完整门禁退出 0。细节与恢复选项见[百炼排查](sessions/2026-11-23-02-bailian-auth-debug.md)。已生成[抄表终端导入样例](../samples/README.md)。细项和签收边界见[本次交接](sessions/2026-11-20-07-workspace-cutover.md)、[百炼排查](sessions/2026-11-23-02-bailian-auth-debug.md)与[总计划](../docs/ROADMAP.md)。
 
 <!-- lane:server -->
 

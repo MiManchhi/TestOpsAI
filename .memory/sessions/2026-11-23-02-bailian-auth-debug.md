@@ -1,6 +1,6 @@
 # 百炼 401 配置排查
 
-更新：2026-11-24（Asia/Shanghai）。状态：IN_PROGRESS（用户自测聊天已恢复；资料解析仍被 PROFILE_CHANGED 阻塞）。
+更新：2026-11-25（Asia/Shanghai）。状态：VERIFIED（本机聊天与资料解析均可用）。
 
 <!-- handoff:v1 -->
 
@@ -45,9 +45,20 @@ BLOCKED：Token Plan 官方使用范围不允许把套餐 Key 放入自建应用
 ## 交接（复诊）
 
 RESOLVED（聊天，用户自测 2026-11-24）：改用 token-plan 聊天地址后可用。旧聊天地址的 `insufficient_quota` 仍建议在代码侧与真正的 401 区分，避免同样提示误导。
-BLOCKED（解析）：Embedding profile 指纹包含 URL，改地址后同名 profile 被拒绝。可行恢复一是确认旧集合无数据后重置 `default` 绑定，二是改用新的 profile 名并同步修改 `TESTOPS_WORKSPACE_EMBEDDING_PROFILE`，随后重试解析。两者都会改运行配置或持久数据，需用户确认后执行。
+RESOLVED（解析，2026-11-25）：改用新 profile 名 `maas-qwen3-1024`（`.env` 的 `TESTOPS_WORKSPACE_EMBEDDING_PROFILE`）后，V1 重试成功；旧 `default` 绑定未动。
 
 ## 2026-11-24 提交检查点
 
 - 工作台三端整合已提交 `21f6170`（`feat(workspace): 交付单工作台三端整合`），提交前 `scripts/check.ps1` 退出 0；Maven 22 项中 16 项因未提供隔离数据库凭据跳过。
-- 本记忆与下一轮解析修复在同一工作区继续；资料解析仍未恢复。
+- 本记忆与下一轮解析修复在同一工作区继续；资料解析已于 2026-11-25 恢复，见下节。
+
+## 2026-11-25 解析恢复与验证
+
+<!-- checks -->
+
+- Docker Desktop 未运行导致引擎管道缺失；经 Explorer 启动后为引擎 27.4.0 / linux 容器。
+- `.env` 新增 `TESTOPS_WORKSPACE_EMBEDDING_PROFILE=maas-qwen3-1024`；AI 与 Java 容器均确认读取新值。
+- 通过 API 登录 admin 触发 V1 重试：`workspace_doc_version` 为 READY、`error_code` 为空；正文接口返回 9 段。
+- Qdrant：新集合 `testops_knowledge_bdd739a62d870803` 1 点，旧 `testops_knowledge_37a8eec1ce19687d` 0 点；SQLite profiles 新指纹 `62c10c…`。
+- 聊天：发送“技术规范V1 里对抄读成功率的要求是什么？”得到 COMPLETED，5 条引用均指向 V1 line 3，AI `POST /internal/v2/ai/answer` 返回 200。
+- 本轮只改本机 `.env`（被忽略）与 `.memory`；容器由 `scripts/local.ps1 start -SkipBuild` 重建。
